@@ -1,13 +1,118 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* for whole page */
+
+.content {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  position:absolute;
+}
+
+/* epic gradient!!! */
+
+.css-selector {
+  background: linear-gradient(270deg, #ff0f7b, #f89b29);
+  background-size: 400% 400%;
+
+  -webkit-animation: animation 30s ease infinite;
+  -moz-animation: animation 30s ease infinite;
+  animation: animation 30s ease infinite;
+}
+
+@-webkit-keyframes animation {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@-moz-keyframes animation {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@keyframes animation {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* homepage box container thing  */
+
+.instance-container {
+  background: rgba(255, 255, 255, 0.42);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.8px);
+  -webkit-backdrop-filter: blur(12.8px);
+  border: 1px solid rgba(255, 255, 255, 0.69);
+
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 70%;
+  height: 85%;
+}
+
+.title {
+  text-align: center;
+  font-size: 32pt;
+  font-family: "Madimi One", sans-serif;
+  color: white;
+  text-shadow: 0px 0px 3px black;
+}
+
+.container {
+  height: auto;
+
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.42);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.8px);
+  -webkit-backdrop-filter: blur(12.8px);
+  border: 1px solid rgba(255, 255, 255, 0.69);
+}
+
+.btn-action {
+  background: white;
+  border: none;
+  border-radius: 16px;
+}
+
+.cat-wave {
+  width: 80px;
+  position:absolute;
+}
+
+.nav-container {
+  position:absolute;
+  bottom:0;
+  width: 100%;
+  background: white;
+  margin: 0;
+}
+
+.login-container {
+  position:absolute;
+  background: white;
+  width: 15vw;
+  height: 30vh;
+  right: 2vw;
+  bottom: 10vh;
+  border-radius: 16px;
+}
+
+.login-body {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

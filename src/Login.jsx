@@ -23,17 +23,19 @@ const Login = () => {
     }
 
     return (
-        <>
-            <h1>ロギン！</h1>
-            <div className="form">
-                <form onSubmit={handleSubmit} className="loginForm">
-                    <input placeholder="username" value={inputUsername} required onChange={(e) => setInputUsername(e.target.value)} type="text" /> <br/>
-                    <input placeholder="password" value={inputPassword} required onChange={(e) => setInputPassword(e.target.value)} type="password" /> <br/>
-                    <button type="submit">Login</button>
+        <div className="login-container">
+            <div className="login-body">
+                <h1>ロギン！</h1>
+                <div className="form">
+                    <form onSubmit={handleSubmit} className="loginForm">
+                        <input className="p-1 mb-3" placeholder="username" value={inputUsername} required onChange={(e) => setInputUsername(e.target.value)} type="text" /> <br/>
+                        <input className="p-1 mb-3" placeholder="password" value={inputPassword} required onChange={(e) => setInputPassword(e.target.value)} type="password" /> <br/>
+                        <button className="btn btn-primary" type="submit">Login</button>
 
-                </form>
+                    </form>
+                </div>
             </div>
-        </>
+        </div>
     );
 }
 

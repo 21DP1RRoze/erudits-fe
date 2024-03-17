@@ -1,18 +1,31 @@
-import API from './axiosApi';
-import {useEffect} from 'react';
+import InstanceCard from "./InstanceCard";
+import catgif from './assets/cat_wave.gif'
+import Navbar from './Navbar'
 
 const Home = () => {
-    useEffect (() => {
-        async function fetchData() {
-            await API.get('/user');
-        }
-        fetchData();
-    }, []);
+    
+    
+
 
     return (
-        <>
-            <div><h1>You are home :)</h1></div>
-        </>
+        <div className="content css-selector">
+
+            <div className="instance-container">
+                <img className="m-2 ms-3 cat-wave" src={catgif} />
+                <p className="title mt-3">Laipni lūgts sistēmā "Erudīts"!</p>
+
+            <div className="container">
+                <div className="row">
+                    <InstanceCard/>
+                    <InstanceCard/>
+                    <InstanceCard/>
+                </div>
+            </div>
+
+            </div>
+            <Navbar/>
+        </div>
+    
     );
 }
 
