@@ -41,12 +41,6 @@ body {
 /* homepage box container thing  */
 
 .instance-container {
-  background: rgba(255, 255, 255, 0.42);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(12.8px);
-  -webkit-backdrop-filter: blur(12.8px);
-  border: 1px solid rgba(255, 255, 255, 0.69);
 
   margin: 0;
   position: absolute;
@@ -71,7 +65,7 @@ body {
 
 }
 
-.card {
+.glass {
   background: rgba(255, 255, 255, 0.42);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -92,11 +86,12 @@ body {
 }
 
 .nav-container {
-  position:absolute;
-  bottom:0;
+  position:fixed;
+  bottom: -60px;
   width: 100%;
   background: white;
   margin: 0;
+  transition: all ease-out 0.2s;
 }
 
 .login-container {
@@ -115,4 +110,51 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.register-container {
+  position:absolute;
+  background: white;
+  width: 15vw;
+  height: 35vh;
+  right: 2vw;
+  bottom: 10vh;
+  border-radius: 16px;
+}
+
+.loginViewToggle, .navbar-action {
+  cursor: pointer;
+  user-select: none;
+}
+
+.navbar-action:hover {
+  box-shadow: 2px 2px 2px gray;
+}
+
+.navBarActivator {
+  position:absolute;
+  bottom:0;
+  height: 80px;
+  width: 100%;
+}
+
+.addGroupButton {
+  width: 95%;
+  margin: 0;
+  position: relative;
+  margin-top: 5vh;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.questionPageContainer {
+  overflow-y:scroll;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-button {
+  width:0px;
 }
