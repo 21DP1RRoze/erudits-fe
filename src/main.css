@@ -1,0 +1,41 @@
+/* epic gradient!!! */
+
+.css-selector {
+    background: linear-gradient(270deg, #ff0f7b, #f89b29);
+    background-size: 400% 400%;
+  
+    -webkit-animation: animation 30s ease infinite;
+    -moz-animation: animation 30s ease infinite;
+    animation: animation 30s ease infinite;
+  }
+  
+  @-webkit-keyframes animation {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+  @-moz-keyframes animation {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+  @keyframes animation {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+
+  .content {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    position:absolute;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.42);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(12.8px);
+    -webkit-backdrop-filter: blur(12.8px);
+    border: 1px solid rgba(255, 255, 255, 0.69);
+  }
