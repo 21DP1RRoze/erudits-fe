@@ -19,6 +19,54 @@ const QuestionCreator = () => {
 
     }, []);
 
+    const storeNewQuestionGroup = async () => {
+        await API.post('/question-groups', {
+            quiz_id: id,
+        });
+        await API.get(`/quizzes/${id}`).then((response) => {
+            setQuiz(response.data);
+        });
+    }
+
+    const deleteQuestionGroup = async (questionGroupId) => {
+        await API.destroy(`/question-groups/${questionGroupId}`);
+        await API.get(`/quizzes/${id}`).then((response) => {
+            setQuiz(response.data);
+        });
+    }
+
+    const storeNewQuestion = async (questionGroupId) => {
+        await API.post('/question', {
+            question_group_id: questionGroupId,
+        });
+        await API.get(`/quizzes/${id}`).then((response) => {
+            setQuiz(response.data);
+        });
+    }
+
+    const deleteQuestion = async (questionId) => {
+        await API.delete(`/question/${questionId}`);
+        await API.get(`/quizzes/${id}`).then((response) => {
+            setQuiz(response.data);
+        });
+    }
+
+    const storeNewAnswer = async (questionId) => {
+        await API.post('/answer', {
+            question_id: questionId,
+        });
+        await API.get(`/quizzes/${id}`).then((response) => {
+            setQuiz(response.data);
+        });
+    }
+
+    const deleteAnswer = async (answerId) => {
+        await API.delete(`/answer/${answerId}`);
+        await API.get(`/quizzes/${id}`).then((response) => {
+            setQuiz(response.data);
+        });
+    }
+
 
     const QuestionCard = () => {
         const [selectedOptionOne, setSelectedOptionOne] = useState(true);
@@ -59,8 +107,9 @@ const QuestionCreator = () => {
                 let Answers;
                 Answers = Question.answers.map(function (Answer) {
                     return (
-                        <p>answer: {Answer.text}</p>
-                    )
+
+                    <p>answer: {Answer.text}</p>
+                )
                 });
                 return (
                     <div>
@@ -81,6 +130,8 @@ const QuestionCreator = () => {
                 <input value="option2" onClick={() => setSelectedOptionOne(false)} checked={!selectedOptionOne} name="questionType" id={"openAnswer" + cardList.length} type="radio" /> */}
                     {/* <label htmlFor={"openAnswer" + cardList.length}>Open answer</label><br /> */}
                     <input placeholder={QuestionGroup.title} type="text"></input>
+                    <button onClick={() => storeNewQuestion(QuestionGroup.id)}>add new question</button>
+
                     {Questions}
                     {/* <div className="answersChoice"> 
                     <input placeholder={QuestionGroup.title} type="text" />
@@ -89,20 +140,20 @@ const QuestionCreator = () => {
                     <input placeholder="answer 4" type="text" />
                 </div> */}
                     <div className="answersText">
-                        <input placeholder="Open answer.." disabled />
+                        <input placeholder="Open answer.." disabled/>
                     </div>
                     <button>Sumbit!!1</button>
                 </form>
             </div>)
-    });
-}
+        });
+    }
 
-return (
-    <div className="content css-selector">
+    return (
+        <div className="content css-selector">
 
         <div className="instance-container questionPageContainer glass">
             {quiz.data && <div><h1>TITLE IS NAHUJ {quiz.data.title}</h1></div>}
-            <button className="addGroupButton glass pt-2 pb-2" onClick={onAddBtnClick}>Add question group +</button>
+            <button className="addGroupButton glass pt-2 pb-2" onClick={storeNewQuestionGroup}>Add question group +</button>
             {QuestionGroups}
             {cardList}
         </div>
