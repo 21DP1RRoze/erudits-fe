@@ -8,6 +8,11 @@ const QuestionCreator = () => {
     const [quiz, setQuiz] = useState(false);
     const [selectedOptionOne, setSelectedOptionOne] = useState(true);
 
+    const [questionGroupState, setQuestionGroupState] = useState([]);
+    // const [questionsState, setQuestionsState] = useState([]);
+    // const [answersState, setAnswersState] = useState([]);
+
+
 
     const { id } = useParams()
 
@@ -15,9 +20,9 @@ const QuestionCreator = () => {
     useEffect(() => {
         API.get(`/quizzes/${id}`).then((response) => {
             setQuiz(response.data);
-
+            setQuestionGroupState(response.data.data.question_groups);
         });
-
+        
     }, []);
 
     const storeNewQuestionGroup = async () => {
@@ -72,27 +77,65 @@ const QuestionCreator = () => {
     const QuestionCard = () => {
 
         return (
-            <div className='questionCardContainer mb-3 glass'>
+            <div className='questionCardContainer p-3 mb-3 glass'>
 
-                <form className="questionForm">
+                    <form className="questionForm">
 
-                    <input value="option1" onClick={() => setSelectedOptionOne(true)} checked={selectedOptionOne} id={"multipleChoice" + cardList.length} name="questionType" type="radio" />
-                    <label htmlFor={"multipleChoice" + cardList.length}>Multiple choice</label>
-                    <input value="option2" onClick={() => setSelectedOptionOne(false)} checked={!selectedOptionOne} name="questionType" id={"openAnswer" + cardList.length} type="radio" />
-                    <label htmlFor={"openAnswer" + cardList.length}>Open answer</label><br />
-                    <input placeholder="Question" type="text"></input>
-                    <div className="answersChoice" style={{ display: (selectedOptionOne) ? 'block' : 'none' }}>
-                        <input placeholder="answer 1" type="text" />
-                        <input placeholder="answer 2" type="text" /><br />
-                        <input placeholder="answer 3" type="text" />
-                        <input placeholder="answer 4" type="text" />
-                    </div>
-                    <div className="answersText" style={{ display: (!selectedOptionOne) ? 'block' : 'none' }}>
-                        <input placeholder="Open answer.." disabled />
-                    </div>
-                    <button>Sumbit!!1</button>
-                </form>
-            </div>
+                        <label className="me-5 checkContainer" htmlFor={"multipleChoice" + cardList.length}>
+                            <input className="me-1" value="option1" onClick={() => setSelectedOptionOne(true)} checked={selectedOptionOne} id={"multipleChoice" + cardList.length} name="questionType" type="radio" />
+                            <span>Multiple choice</span></label>
+                        <label className="checkContainer" htmlFor={"openAnswer" + cardList.length}>
+                            <input className="me-1" value="option2" onClick={() => setSelectedOptionOne(false)} checked={!selectedOptionOne} name="questionType" id={"openAnswer" + cardList.length} type="radio" />
+                            <span>Open answer</span>
+                        </label><br />
+                        <input className="questionBox mt-3 p-2 mb-2" placeholder="Question..." type="text"></input>
+                        <br/>
+                        <label for="imageUpload" className="p-1 ps-2 pe-2 label-imageUpload">Upload image</label><br/>
+                        <input id="imageUpload" accept="image/*"className="mt-1 imageUpload" type="file"/>
+                        <div className="answerContainer mt-3" style={{ display: (selectedOptionOne) ? 'grid' : 'none' }}>
+                            {/* answer windows with is correct? checkmark */}
+                            <div className="answerOne">
+                                <label className="checkContainer" htmlFor={"correctAnswerRadio1" + cardList.length}>
+                                    <span>is correct?</span>
+                                    <input className="ms-2 me-2 correctAnswerRadio" id={"correctAnswerRadio1" + cardList.length} type="radio" name="correctAnswer"  />
+                                </label>
+                                <br/>
+                                <textarea className="answerText me-3 mb-3" placeholder="answer 1" type="text" />
+                            </div>
+                            <div className="answerTwo">
+                                <label className="checkContainer" htmlFor={"correctAnswerRadio2" + cardList.length}>
+                                    <input className="ms-2 me-2 correctAnswerRadio" id={"correctAnswerRadio2" + cardList.length} type="radio" name="correctAnswer" />
+                                    <span>is correct?</span>
+                                </label>
+                                <br/>
+                                <textarea className="answerText mb-3" placeholder="answer 2" type="text" />
+
+                            </div>
+                            <div className="answerThree">
+                                <label className="checkContainer" htmlFor={"correctAnswerRadio3" + cardList.length}>
+                                    <span>is correct?</span>
+                                    <input className="ms-2 me-2 correctAnswerRadio" id={"correctAnswerRadio3" + cardList.length} type="radio" name="correctAnswer" />
+                                </label><br/>
+                                <textarea className="answerText me-3" placeholder="answer 3" type="text" />
+
+                            </div>
+                            <div className="answerFour">
+                                <label className="checkContainer" htmlFor={"correctAnswerRadio4" + cardList.length}>
+                                    <input className="ms-2 me-2 correctAnswerRadio" id={"correctAnswerRadio4" + cardList.length} type="radio" name="correctAnswer" />
+                                    <span>is correct?</span>
+                                </label><br/>
+                                <textarea className="answerText" placeholder="answer 4" type="text" />
+
+                            </div>
+
+
+                        </div>
+                        <div className="answersText mt-3" style={{ display: (!selectedOptionOne) ? 'block' : 'none' }}>
+                            The player will write their answer.
+                        </div>
+                        <button className='formButton mt-3'>Submit</button>
+                    </form>
+                </div>
         );
     }
 
@@ -108,14 +151,35 @@ const QuestionCreator = () => {
                 Answers = Question.answers.map(function (Answer) {
                     return (
 
-                    <p>answer: {Answer.text}</p>
-                )
+                       
+                        <div className="answerOne">
+                                <label className="checkContainer" htmlFor={"correctAnswerRadio1" + cardList.length}>
+                                    <span>is correct?</span>
+                                    <input className="ms-2 me-2 correctAnswerRadio" id={"correctAnswerRadio1" + cardList.length} type="radio" name="correctAnswer"  />
+                                </label>
+                                <br/>
+                                <textarea className="answerText me-3 mb-3" placeholder={Answer.text} type="text" />
+                            </div>
+                    )
                 });
                 return (
                     <div>
-                        <h1>question: {Question.text}</h1>
-                        <button>add new answer</button>
+                         <label className="me-5 checkContainer" htmlFor={"multipleChoice" + cardList.length}>
+                            <input className="me-1" value="option1" onClick={() => setSelectedOptionOne(true)} checked={selectedOptionOne} id={"multipleChoice" + cardList.length} name="questionType" type="radio" />
+                            <span>Multiple choice</span></label>
+                        <label className="checkContainer" htmlFor={"openAnswer" + cardList.length}>
+                            <input className="me-1" value="option2" onClick={() => setSelectedOptionOne(false)} checked={!selectedOptionOne} name="questionType" id={"openAnswer" + cardList.length} type="radio" />
+                            <span>Open answer</span>
+                        </label><br />
+
+                        <input className="questionBox mt-3 p-2 mb-2" placeholder={Question.text} type="text"></input><br/>
+                        <label for="imageUpload" className="p-1 ps-2 pe-2 formButton">Upload image</label><br/>
+                        <input id="imageUpload" accept="image/*"className="mt-1 imageUpload" type="file"/>
+                       
+                        <div className="answerContainer mt-3" style={{ display: (selectedOptionOne) ? 'grid' : 'none' }}>
                         {Answers}
+                        </div>
+                        <hr/>
                     </div>
                 )
             });
@@ -125,26 +189,8 @@ const QuestionCreator = () => {
 
                     <form className="questionForm">
 
-                        {/* <input value="option1" onClick={() => setSelectedOptionOne(true)} checked={selectedOptionOne} id={"multipleChoice" + cardList.length} name="questionType" type="radio" />
-                <label htmlFor={"multipleChoice" + cardList.length}>Multiple choice</label>
-                <input value="option2" onClick={() => setSelectedOptionOne(false)} checked={!selectedOptionOne} name="questionType" id={"openAnswer" + cardList.length} type="radio" /> */}
-
-                    {/* <label htmlFor={"openAnswer" + cardList.length}>Open answer</label><br /> */}
-                    <input placeholder={QuestionGroup.title} type="text"></input>
-                    <button onClick={() => storeNewQuestion(QuestionGroup.id)}>add new question</button>
-
-                    {Questions}
-                    {/* <div className="answersChoice"> 
-
-                    <input placeholder={QuestionGroup.title} type="text" />
-                    <input placeholder="answer 2" type="text" /><br />
-                    <input placeholder="answer 3" type="text" />
-                    <input placeholder="answer 4" type="text" />
-                </div> */}
-                        <div className="answersText">
-                            <input placeholder="Open answer.." disabled />
-                        </div>
-                        <button>Sumbit!!1</button>
+                        {Questions}
+                       <button className='p-1 ps-2 pe-2 glass formButton mb-3'>Add question +</button>
                     </form>
                 </div>)
         });
@@ -154,50 +200,18 @@ const QuestionCreator = () => {
         <div className="content css-selector">
 
             <div className="instance-container questionPageContainer glass">
-                {quiz.data && <div><h1>TITLE IS NAHUJ {quiz.data.title}</h1></div>}
+                {quiz.data && <div><h1>TITLE IS {quiz.data.title}</h1></div>}
+                <h1 onClick={() => console.log(questionGroupState[0].questions[0].text)}>click to log</h1>
+
                 <button className="addGroupButton glass pt-2 pb-2" onClick={onAddBtnClick}>Add question group +</button>
 
-                <div className='questionCardContainer p-3 mb-3 glass'>
 
-                    <form className="questionForm">
-
-                        <label className="me-5 checkContainer" htmlFor={"multipleChoice" + cardList.length}>
-                            <input value="option1" onClick={() => setSelectedOptionOne(true)} checked={selectedOptionOne} id={"multipleChoice" + cardList.length} name="questionType" type="radio" />
-                            <div className="radioCheckmark me-3"><div className="radioCheckmark-checked"></div></div>
-                            <span>Multiple choice</span></label>
-                        <label className="me-5 checkContainer"   htmlFor={"openAnswer" + cardList.length}>
-                            <input value="option2" onClick={() => setSelectedOptionOne(false)} checked={!selectedOptionOne} name="questionType" id={"openAnswer" + cardList.length} type="radio" />
-                            <div className="radioCheckmark me-3"><div className="radioCheckmark-checked"></div></div>
-                            <span>Open answer</span>
-                        </label><br />
-                        <input className="questionBox mt-3 p-2" placeholder="Question..." type="text"></input>
-                        <div className="mt-3 answersChoice" style={{ display: (selectedOptionOne) ? 'block' : 'none' }}>
-                            <input className="answerText me-3 mb-3" placeholder="answer 1" type="text" />
-                            <input className="answerText" placeholder="answer 2" type="text" /><br />
-                            <input className="answerText me-3" placeholder="answer 3" type="text" />
-                            <input className="answerText mb-4" placeholder="answer 4" type="text" />
-
-                            
-                        </div>
-                        <div className="answersText" style={{ display: (!selectedOptionOne) ? 'block' : 'none' }}>
-                            <input placeholder="Open answer.." disabled />
-                        </div>
-                        <button>Sumbit!!1</button>
-                    </form>
-                </div>
-
-
-                {/* {QuestionGroups} */}
+                {QuestionGroups}
                 {cardList}
+                
             </div>
 
 
-
-//         <div className="instance-container questionPageContainer glass">
-//             {quiz.data && <div><h1>TITLE IS NAHUJ {quiz.data.title}</h1></div>}
-//             <button className="addGroupButton glass pt-2 pb-2" onClick={storeNewQuestionGroup}>Add question group +</button>
-//             {QuestionGroups}
-//             {cardList}
 
         </div>
     );

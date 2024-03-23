@@ -170,7 +170,7 @@ body {
   background: white;
   border: none;
   font-size: 16pt;
-  width: 20vw;
+  width: 45vw;
   border-radius: 10px;
 }
 
@@ -179,23 +179,19 @@ body {
 }
 
 .answerText {
-  width: 6vw;
-  height: 6vw;
+  width: 150px;
+  height: 100px;
   border-radius: 10px;
+  padding: 10px;
+  box-sizing: border-box;
   border: none;
   text-align: center;
-  
-}
-
-.questionForm input[type="radio"] {
-  appearance: none;
-}
-
-.answerChoice {
   display:inline-block;
-  overflow-wrap: break-word;
-  word-break: break-word;
+  word-wrap: break-word;
+  overflow: hidden;
+  resize: none;
 }
+
 
 .answerText:focus {
   outline: none;
@@ -221,6 +217,31 @@ body {
 
 .checkContainer input:checked ~ .radioCheckmark-checked {
   display: block;
+}
+
+.formButton {
+  background: white;
+  border: none;
+  width: 20%;
+  font-size: 12pt;
+  border-radius: 12pt;
+}
+
+
+.answerContainer{
+  display:grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  justify-content: center;
+}
+
+.imageUpload {
+  display: none;
+}
+
+.formButton:hover {
+  cursor: pointer;
+  background: gray;
 }
 
 
