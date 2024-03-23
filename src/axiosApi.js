@@ -16,7 +16,7 @@ API.interceptors.response.use(function (response) {
     return response;
 }, async function (error) {
     if (error.response.status === 401) {
-        window.location.href = '/';
+        console.log("unauthentificated")
     }
     return Promise.reject(error);
 });

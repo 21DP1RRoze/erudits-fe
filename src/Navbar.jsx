@@ -1,6 +1,6 @@
 import API from './axiosApi';
 import { useNavigate } from 'react-router-dom';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import SignIn from './SignIn';
 
 const Navbar = () => {
@@ -9,7 +9,7 @@ const Navbar = () => {
     const logout = async () => {
         await API.post('/logout');
         localStorage.removeItem("loginToken");
-        navigate('/login');
+        window.location.reload();
     }
 
     // click to show thing
@@ -26,11 +26,23 @@ const Navbar = () => {
             setIsOpen(false);
         }
     }
+
+    const [loggedIn, setLoggedIn] = useState(false);
+    useEffect (() => {
+        async function fetchData() {
+            await API.get('/user').then(() => {
+                setLoggedIn(true);
+            }).catch(() => {
+                setLoggedIn(false);
+            });
+        }
+        fetchData();
+    }, []);
     
 
     return (
         <>
-            <div ref={ref} classname="showPopup" style={{display: "none"}}>
+            <div ref={ref} className="showPopup" style={{display: "none"}}>
                         <SignIn/>
             </div>
             <div className="navBarActivator" onMouseEnter={() => {refNavbar.current.style.bottom = 0}} onMouseLeave={() => {refNavbar.current.style.bottom = '-60px'}}>
@@ -40,8 +52,8 @@ const Navbar = () => {
                     </div>
                     <div className="col-8"></div>
                     <div className="authentification col-2">
-                        <i className="fa-solid fa-x me-4 fa-2x navbar-action p-1" onClick={logout}></i>
-                        <i className="fa-solid fa-right-to-bracket fa-2x navbar-action p-1" onClick={togglePopup}></i>
+                        <i className="fa-solid fa-x me-4 fa-2x navbar-action p-1" style={{display : (loggedIn ? 'block' : 'none')}} onClick={logout}></i>
+                        <i className="fa-solid fa-right-to-bracket fa-2x navbar-action p-1" style={{display : (!loggedIn ? 'block' : 'none')}} onClick={togglePopup}></i>
                         
                     </div>
                 </div>

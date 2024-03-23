@@ -23,6 +23,7 @@ const Register = () => {
             const token = response.data.token;
             localStorage.setItem("loginToken", token);
             alert("Successfully logged in!")
+            window.location.reload();
         }).catch((error) => {
             alert(error.response.data.message);
         })

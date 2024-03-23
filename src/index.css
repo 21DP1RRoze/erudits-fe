@@ -122,9 +122,10 @@ body {
   border-radius: 16px;
 }
 
-.loginViewToggle, .navbar-action {
+.navbar-action {
   cursor: pointer;
   user-select: none;
+  width: 40px;
 }
 
 .navbar-action:hover {
@@ -243,5 +244,22 @@ body {
   cursor: pointer;
   background: gray;
 }
+
+.editInstanceButton {
+  position:absolute;
+  right: 15px;
+  bottom: 15px;
+}
+
+.editInstanceButton:hover {
+  cursor:pointer;
+}
+
+.newQuizButton {
+  position:absolute;
+  right: 15px;
+  top: 15px;
+}
+
 
 
