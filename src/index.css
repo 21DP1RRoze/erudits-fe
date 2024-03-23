@@ -158,3 +158,69 @@ body {
 ::-webkit-scrollbar-button {
   width:0px;
 }
+
+.questionCardContainer {
+  width: 75%;
+  position:relative;
+  left: 12.5%;
+  text-align: center;
+}
+
+.questionBox {
+  background: white;
+  border: none;
+  font-size: 16pt;
+  width: 20vw;
+  border-radius: 10px;
+}
+
+.questionBox:focus {
+  outline: none;
+}
+
+.answerText {
+  width: 6vw;
+  height: 6vw;
+  border-radius: 10px;
+  border: none;
+  text-align: center;
+  
+}
+
+.questionForm input[type="radio"] {
+  appearance: none;
+}
+
+.answerChoice {
+  display:inline-block;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.answerText:focus {
+  outline: none;
+}
+
+.radioCheckmark {
+   width: 20px;
+   height: 20px;
+   background: white;
+   display:inline-block;
+}
+
+.radioCheckmark-checked {
+  height: 75%;
+  width: 75%;
+  position:relative;
+  left:15%;
+  top: 15%;
+  background:blue;
+  display:none;
+}
+
+
+.checkContainer input:checked ~ .radioCheckmark-checked {
+  display: block;
+}
+
+
