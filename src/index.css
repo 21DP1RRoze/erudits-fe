@@ -14,8 +14,8 @@ body {
 /* epic gradient!!! */
 
 .css-selector {
-  background: linear-gradient(270deg, #ff0f7b, #f89b29);
-  background-size: 400% 400%;
+  background: linear-gradient(224deg, #caefd7, #f5bfd7, #abc9e9);
+  background-size: 600% 600%;
 
   -webkit-animation: animation 30s ease infinite;
   -moz-animation: animation 30s ease infinite;
@@ -23,19 +23,19 @@ body {
 }
 
 @-webkit-keyframes animation {
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+  0%{background-position:0% 91%}
+  50%{background-position:100% 10%}
+  100%{background-position:0% 91%}
 }
 @-moz-keyframes animation {
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+  0%{background-position:0% 91%}
+  50%{background-position:100% 10%}
+  100%{background-position:0% 91%}
 }
 @keyframes animation {
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+  0%{background-position:0% 91%}
+  50%{background-position:100% 10%}
+  100%{background-position:0% 91%}
 }
 
 /* homepage box container thing  */
@@ -51,6 +51,11 @@ body {
   width: 70%;
   height: 85%;
 }
+
+.urbanist {
+  font-family: "Urbanist", sans-serif;
+}
+
 
 .title {
   text-align: center;
@@ -75,9 +80,10 @@ body {
 }
 
 .btn-action {
-  background: white;
   border: none;
   border-radius: 16px;
+  background-color: #f28482;
+  color: white;
 }
 
 .cat-wave {
@@ -259,7 +265,71 @@ body {
   position:absolute;
   right: 15px;
   top: 15px;
+  background-color: #f28482;
+  color:white; 
+  border-radius: 12pt;
+  border:none;
 }
+
+.manualConnect {
+  margin: 0;
+  position:absolute;
+  width: 100%;
+  height: 75px;
+  margin-left:-12px;
+  bottom:0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.manualConnect input[type="text"] {
+  height: 40px;
+  width: 240px;
+  border-top-left-radius: 12pt;
+  border-bottom-left-radius: 12pt;
+  border:none;
+  padding-left: 20px;
+}
+
+.manualConnect input[type="text"]:focus {
+  outline:none;
+}
+
+.manualConnect button {
+  height: 40px;
+  width: 120px;
+  border-top-right-radius: 12pt;
+  border-bottom-right-radius: 12pt;
+  border: none;
+  background: #f28482;
+  color: white;
+  font-size: 14pt;
+}
+
+.questionGroupTitle {
+  font-size: 16pt;
+  width: 80%;
+  border-radius: 12pt;
+  border: none;
+  padding-left: 24px;
+  text-align: center;
+  height: 48px;
+}
+
+.questionGroupTitle:focus {
+  outline:none;
+}
+
+.quizInfo {
+  text-align: center;
+
+}
+
+.questionGroupInfo {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius:0;
+}
+
 
 
 

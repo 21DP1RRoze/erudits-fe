@@ -1,8 +1,10 @@
 import {useEffect, useState} from 'react';
 import API from './axiosApi';
+import { useNavigate } from 'react-router-dom';
 
 const InstanceCard = () => {
 
+    const navigate = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false);
     useEffect (() => {
         async function fetchData() {
@@ -23,7 +25,7 @@ const InstanceCard = () => {
                         <div className="card-body">
                             <h5 className="card-title">Kartītes virsraksts</h5>
                             <p className="card-text">Kartītes apraksts blah blah viens divi trīs bababab</p>
-                            <button href="#" className="p-1 ps-3 pe-3 btn-action">Pieslēgties</button>
+                            <button onClick={() => navigate("/game/1")} className="urbanist p-1 ps-3 pe-3 btn-action">Pieslēgties</button>
                             {loggedIn && <i className="fa-solid fa-pen-to-square editInstanceButton" ></i>}
                         </div>
                         </div>
