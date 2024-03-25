@@ -73,6 +73,8 @@ const QuestionCreator = () => {
         });
     }
 
+   
+
 
     const QuestionCard = () => {
 
@@ -174,10 +176,24 @@ const QuestionCreator = () => {
                 return (
                     <div key={questionId}>
                          <label className="me-5 checkContainer" htmlFor={"multipleChoice" + questionId}>
-                            <input className="me-1" value="option1" defaultChecked id={"multipleChoice" + questionId} name={"questionType" + questionId} type="radio" />
+                            <input checked={!Question.is_open_answer} className="me-1" id={"multipleChoice" + questionId} name={"questionType" + questionId} type="radio" 
+                            onChange={(event) => {
+                                let newBool = !event.target.checked;
+                                setQuestionGroupState(prevState => {
+                                    prevState.question_groups[groupIndex].questions[questionIndex].is_open_answer = newBool;
+                                    return { ...prevState }; // Return a new object to trigger re-render
+                                });
+                            }}/>
                             <span>Multiple choice</span></label>
                         <label className="checkContainer" htmlFor={"openAnswer" + questionId}>
-                            <input className="me-1" value="option2" name={"questionType" + questionId} id={"openAnswer" + questionId} type="radio" />
+                            <input checked={Question.is_open_answer} className="me-1" name={"questionType" + questionId} id={"openAnswer" + questionId} type="radio" 
+                            onChange={(event) => {
+                                let newBool = event.target.checked;
+                                setQuestionGroupState(prevState => {
+                                    prevState.question_groups[groupIndex].questions[questionIndex].is_open_answer = newBool;
+                                    return { ...prevState }; // Return a new object to trigger re-render
+                                });
+                            }} />
                             <span>Open answer</span>
                         </label><br />
 
@@ -192,19 +208,24 @@ const QuestionCreator = () => {
                         <label htmlFor="imageUpload" className="p-1 ps-2 pe-2 formButton">Upload image</label><br/>
                         <input id="imageUpload" accept="image/*"className="mt-1 imageUpload" type="file"/>
                        
-                        <div className="answerContainer mt-3" style={{ display: (selectedOptionOne) ? 'grid' : 'none' }}>
+                        <div className="answerContainer mt-3" style={{ display: (!Question.is_open_answer) ? 'grid' : 'none' }}>
                         {Answers}
+                        </div>
+                        <div className="answersText mt-3" style={{ display: (Question.is_open_answer) ? 'block' : 'none' }}>
+                            The player will write their answer.
                         </div>
                         <hr/>
                     </div>
                 )
             });
             const questionGroupId = `questionGroup_${groupIndex}`;
+                
             return (
-                <div key={questionGroupId} className='questionCardContainer mb-3 glass'>
+                <>
+                <div key={questionGroupId} id={"questionGroup" + questionGroupId} className='questionCardContainer mb-3 glass'>
 
                     <form className="questionForm">
-                        <div className="pt-4 pb-4 mb-2 glass questionGroupInfo">
+                        <div className="pt-4 pb-4 mb-2 glass questionGroupInfo" style={{background: 'none'}}>
                             <input className="questionGroupTitle" type="text" placeholder="Question Group Title" value={QuestionGroup.title} 
                                  onChange={(event) => {
                                     const newText = event.target.value;
@@ -217,7 +238,10 @@ const QuestionCreator = () => {
                         {Questions}
                        <button className='p-1 ps-2 pe-2 glass formButton mb-3'>Add question +</button>
                     </form>
-                </div>)
+                </div>
+                
+                </>
+                )
         });
     }
 
@@ -227,27 +251,34 @@ const QuestionCreator = () => {
             
             {quiz.data && <div className="instance-container questionPageContainer glass">
                 <div className="quizInfo glass questionGroupInfo pt-4 pb-4 mb-2">
-                    <input placeholder="Quiz Title" className="quizTitle questionGroupTitle" value={QuestionGroups.title}
+                    <input placeholder="Quiz Title" className="quizTitle questionGroupTitle" value={questionGroupState.title}
                     onChange={(event) => {
                         const newText = event.target.value;
-                        setQuestionGroupState(prevState => {
-                            prevState.question_groups.title = newText;
-                            return { ...prevState }; // Return a new object to trigger re-render
+                        setQuestionGroupState( () => {
+                            questionGroupState.title = newText;
+                            return { ...questionGroupState }; // Return a new object to trigger re-render
                         });
                     }} />
                 </div>
-                {/* <h1 onClick={() => console.log(questionGroupState)}>click to log</h1> */}
+                <h1 onClick={() => console.log(questionGroupState)}>click to log</h1>
 
-                <button className="addGroupButton glass pt-2 pb-2" onClick={onAddBtnClick}>Add question group +</button>
 
 
                 {QuestionGroups}
                 {cardList}
+                <button className="addGroupButton glass pt-2 pb-2" onClick={onAddBtnClick}>Add question group +</button>
+
                 
             </div>}
 
 
-
+            <div className="sideBar">
+                    <ul>
+                        <li className='glass'><a href={`#questionGroup${cardList.length}`}>{cardList.length}</a></li>
+                        
+                        
+                    </ul>
+                </div>
         </div>
     );
 }

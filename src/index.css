@@ -14,7 +14,7 @@ body {
 /* epic gradient!!! */
 
 .css-selector {
-  background: linear-gradient(224deg, #caefd7, #f5bfd7, #abc9e9);
+  background: linear-gradient(226deg, #fcd4ca, #f48ec3, #fc94b3);
   background-size: 600% 600%;
 
   -webkit-animation: animation 30s ease infinite;
@@ -23,19 +23,19 @@ body {
 }
 
 @-webkit-keyframes animation {
-  0%{background-position:0% 91%}
-  50%{background-position:100% 10%}
-  100%{background-position:0% 91%}
+  0%{background-position:97% 0%}
+  50%{background-position:4% 100%}
+  100%{background-position:97% 0%}
 }
 @-moz-keyframes animation {
-  0%{background-position:0% 91%}
-  50%{background-position:100% 10%}
-  100%{background-position:0% 91%}
+  0%{background-position:97% 0%}
+  50%{background-position:4% 100%}
+  100%{background-position:97% 0%}
 }
 @keyframes animation {
-  0%{background-position:0% 91%}
-  50%{background-position:100% 10%}
-  100%{background-position:0% 91%}
+  0%{background-position:97% 0%}
+  50%{background-position:4% 100%}
+  100%{background-position:97% 0%}
 }
 
 /* homepage box container thing  */
@@ -135,7 +135,7 @@ body {
 }
 
 .navbar-action:hover {
-  box-shadow: 2px 2px 2px gray;
+  box-shadow: 2px 2px 2px lightgray;
 }
 
 .navBarActivator {
@@ -248,7 +248,7 @@ body {
 
 .formButton:hover {
   cursor: pointer;
-  background: gray;
+  background: lightgray;
 }
 
 .editInstanceButton {
@@ -314,10 +314,13 @@ body {
   padding-left: 24px;
   text-align: center;
   height: 48px;
+  background: none;
+  
 }
 
 .questionGroupTitle:focus {
   outline:none;
+  background: white;
 }
 
 .quizInfo {
@@ -329,6 +332,60 @@ body {
   border-bottom-left-radius: 0;
   border-bottom-right-radius:0;
 }
+
+.sideBar ul {
+  list-style: none;
+  text-align: center;
+  padding:0;
+}
+
+.sideBar {
+  left:0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.sideBar li {
+  width: 50px;
+  height:50px;
+  padding-top:12.5%;
+  border-radius: 0;
+  font-size: 16pt;
+  
+}
+
+.gameView {
+  background: #22223B;
+}
+
+.questionContainer {
+  background: #4A4E69;
+  width: 90%;
+  height: 56%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2%;
+  border-radius: 50px;
+}
+
+.answerContainer {
+  height: 34%;
+  border-radius: 50px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.answer {
+  background: red;
+  height:100%;
+  width: 30%;
+  
+}
+
 
 
 
