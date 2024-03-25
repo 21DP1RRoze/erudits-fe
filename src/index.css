@@ -358,34 +358,132 @@ body {
 
 .gameView {
   background: #22223B;
+  overflow: hidden;
 }
 
 .questionContainer {
   background: #4A4E69;
-  width: 90%;
+  width: 86%;
   height: 56%;
   margin-left: auto;
   margin-right: auto;
   margin-top: 2%;
   border-radius: 50px;
+  display: grid;
+  grid-template-rows: 10% 90%;
+  grid-template-columns: 15% 70% 15%;
 }
 
 .answerContainer {
-  height: 34%;
+  height: 37%;
   border-radius: 50px;
   width: 90%;
   margin-left: auto;
   margin-right: auto;
+  display: grid;
+  grid-template-rows: 100%;
+  justify-content: space-around;
+  grid-template-columns: 20% 20% 20% 20%;
+  transition: all 0.5s;
+  padding-top: 2%;
 }
 
 
 .answer {
-  background: red;
-  height:100%;
-  width: 30%;
+  background: #4A4E69;
+  height: 100%;
+  width: 100%;
+  border-radius: 50px;
+  transition: all 0.5s;
   
 }
 
+.answer:hover {
+  outline: 6px #F2E9E4 solid;
+}
+
+.answer1 {
+  grid-column: 1;
+}
+.answer2 {
+  grid-column: 2;
+}
+.answer3 {
+  grid-column: 3;
+}
+.answer4 {
+  grid-column: 4;
+}
+
+.answerNumber {
+  font-size: 12rem;
+  position:absolute;
+  margin-left: 1rem;
+  color: #22223B;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 800;
+  user-select: none;
+  bottom: -3.5rem;
+}
+
+.previousButton {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  height: 100%;
+  border-right:#22223B 10px solid;
+  text-align: center;
+  user-select: none;
+  font-family: "Bebas Neue", sans-serif;
+  font-family: "Lilita One", sans-serif;
+  color: #22223B;
+  font-size: 12rem;
+  padding-top: 4rem;
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+  transition: all 0.5s;
+}
+
+.nextButton {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  height: 100%;
+  border-left:#22223B 10px solid;
+  text-align: center;
+  user-select: none;
+  font-family: "Lilita One", sans-serif;
+  color: #22223B;
+  font-size: 12rem;
+  padding-top: 4rem;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  transition: all 0.5s;
+
+}
+
+.nextButton:hover {
+  border-right: #F2E9E4 solid 6px;
+}
+
+.previousButton:hover {
+  border-left: #F2E9E4 solid 6px;
+
+}
+
+.questionInfo {
+  color: #F2E9E4;
+  grid-row: 1;
+  grid-column: 2;
+  text-align: center;
+}
+
+.questionInfo span {
+  font-size: 26pt;
+  font-weight: 600;
+}
+
+.clock, .questionsLeft {
+  display: inline-block;
+}
 
 
 
