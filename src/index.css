@@ -485,6 +485,22 @@ body {
   display: inline-block;
 }
 
+.deleteButton {
+  position:absolute;
+  right: 5px;
+  top: 5px;
+  color: #f87878;
+  font-size: 18pt;
+}
 
+.deleteButton:hover, .deleteQuestionButton:hover {
+  cursor: pointer;
+  color: #f43939;
+}
 
-
+.deleteQuestionButton {
+  position:relative;
+  color: #f87878;
+  font-size: 18pt;
+  left: 47%;
+}
