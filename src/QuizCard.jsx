@@ -25,7 +25,7 @@ const InstanceCard = ({quiz}) => {
                 <div className="card-body">
                     <h5 className="card-title">{quiz.title}</h5>
                     <p className="card-text">{quiz.description}</p>
-                    <button onClick={() => navigate("/game/1")} className="urbanist p-1 ps-3 pe-3 btn-action">Pieslēgties</button>
+                    <button onClick={() => navigate(`/questioncreator/${quiz.id}`)} className="urbanist p-1 ps-3 pe-3 btn-action">Rediģēt</button>
                     {loggedIn && <i className="fa-solid fa-pen-to-square editInstanceButton" ></i>}
                 </div>
             </div>

@@ -5,6 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2908d38-bd5b-4922-add2-82ff419b5922" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/QuizCard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Home.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Home.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/InstanceCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/InstanceCard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/QuestionCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/QuestionCreator.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/axiosApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/axiosApi.js" afterDir="false" />
     </list>
@@ -27,21 +31,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/home/thrx/Desktop/erudits/erudits-fe",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "/home/thrx/Desktop/erudits/erudits-fe/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;gr-develop&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/thrx/Desktop/erudits/erudits-fe/src&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/snap/webstorm/369/plugins/javascript-impl/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -52,6 +61,9 @@
       <updated>1710960871587</updated>
       <workItem from="1710960872898" duration="2990000" />
       <workItem from="1710969365608" duration="3219000" />
+      <workItem from="1711402883072" duration="1883000" />
+      <workItem from="1711405051108" duration="7071000" />
+      <workItem from="1711414657386" duration="653000" />
     </task>
     <servers />
   </component>
