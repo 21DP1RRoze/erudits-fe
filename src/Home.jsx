@@ -33,12 +33,22 @@ const Home = () => {
         fetchData();
     }, []);
 
+    const updateInstanceCards = async () => {
+        await API.get(`/quiz-instances`).then((response) => {
+            setQuizInstances(response.data.data);
+        }).catch((errors) => {
+            alert(`Something went wrong. Check the console for errors.`);
+            console.log(errors);
+        });
+    }
+
     let Quizzes;
     if(quizzes){
         Quizzes = quizzes.map(function (quiz) {
             return (
                 <QuizCard
                     quiz={quiz}
+                    updateInstanceCards={updateInstanceCards}
                 />
             )
         });
@@ -52,7 +62,7 @@ const Home = () => {
         QuizInstances = quizInstances.map(function (quizInstance) {
             return (
                 <InstanceCard
-                    quiz={quizInstance}
+                    instance={quizInstance}
                 />
             )
         });

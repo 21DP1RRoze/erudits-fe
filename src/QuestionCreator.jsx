@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { redirect, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import API from './axiosApi';
 
 const QuestionCreator = () => {
@@ -16,7 +16,7 @@ const QuestionCreator = () => {
             setQuestionGroupState(response.data.data);
         });
 
-    }, []);
+    }, [id]);
 
     const storeNewQuestionGroup = async () => {
         await API.post('/question-groups', {
@@ -45,9 +45,21 @@ const QuestionCreator = () => {
     }
 
     const deleteQuestionGroup = async (questionGroupId) => {
-        await API.destroy(`/question-groups/${questionGroupId}`);
-        await API.get(`/quizzes/${id}`).then((response) => {
-            setQuiz(response.data);
+        await API.delete(`/question-groups/${questionGroupId}`).then(() => {
+            setQuiz(prevQuiz => {
+                const updatedQuizData = {
+                    ...prevQuiz.data,
+                    question_groups: prevQuiz.data.question_groups.filter(group => group.id !== questionGroupId) // Remove deleted group
+                };
+
+                return { ...prevQuiz, data: updatedQuizData };
+            });
+
+            setQuestionGroupState(prevState => {
+                const updatedQuestionGroups = prevState.question_groups.filter(group => group.id !== questionGroupId); // Remove deleted group
+
+                return { ...prevState, question_groups: updatedQuestionGroups };
+            });
         });
     }
 
@@ -88,27 +100,38 @@ const QuestionCreator = () => {
         });
     }
 
-    const deleteQuestion = async (questionId) => {
-        await API.delete(`/question/${questionId}`);
-        await API.get(`/quizzes/${id}`).then((response) => {
-            setQuiz(response.data);
-        });
-    }
+    const deleteQuestion = async (questionId, questionGroupId) => {
+        await API.delete(`/questions/${questionId}`).then(() => {
+            setQuiz(prevQuiz => {
+                const updatedQuizData = {
+                    ...prevQuiz.data, // Copy existing quiz data
+                    question_groups: prevQuiz.data.question_groups.map(group => {
+                        if (group.id === questionGroupId) { // Check if this is the group to update
+                            return {
+                                ...group, // Copy existing question group data
+                                questions: group.questions.filter(question => question.id !== questionId) // Remove deleted question
+                            };
+                        }
+                        return group; // Return unmodified for other groups
+                    })
+                };
 
-    const storeNewAnswer = async (questionId) => {
-        await API.post('/answer', {
-            question_id: questionId,
+                return { ...prevQuiz, data: updatedQuizData }; // Return the updated quiz object
+            });
+            setQuestionGroupState(prevState => {
+                const updatedQuestionGroups = prevState.question_groups.map(group => {
+                    if (group.id === questionGroupId) {
+                        return {
+                            ...group,
+                            questions: group.questions.filter(question => question.id !== questionId) // Remove deleted question
+                        };
+                    }
+                    return group;
+                });
+                return { ...prevState, question_groups: updatedQuestionGroups };
+            });
         });
-        await API.get(`/quizzes/${id}`).then((response) => {
-            setQuiz(response.data);
-        });
-    }
 
-    const deleteAnswer = async (answerId) => {
-        await API.delete(`/answer/${answerId}`);
-        await API.get(`/quizzes/${id}`).then((response) => {
-            setQuiz(response.data);
-        });
     }
 
     const saveQuiz = async () => {
@@ -147,7 +170,7 @@ const QuestionCreator = () => {
                                         prevState.question_groups[groupIndex].questions[questionIndex].answers[answerIndex].text = newText;
                                         return { ...prevState }; // Return a new object to trigger re-render
                                     });
-                                }} type="text" />
+                                }} />
                         </div>
                     )
                 });
@@ -193,7 +216,7 @@ const QuestionCreator = () => {
                         <div className="answersText mt-3" style={{ display: (Question.is_open_answer) ? 'block' : 'none' }}>
                             The player will write their answer.
                         </div>
-                        <i onClick={() => deleteQuestion(questionId)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>
+                        <i onClick={() => deleteQuestion(Question.id, QuestionGroup.id)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>
 
                         <hr />
                     </div>
@@ -207,7 +230,7 @@ const QuestionCreator = () => {
 
                         <form className="questionForm">
                             <div className="pt-4 pb-4 mb-2 glass questionGroupInfo" style={{ background: 'none' }}>
-                                <i onClick={() => deleteQuestionGroup(questionGroupId)} className='p-2 deleteButton fa-regular fa-trash-can'></i>
+                                <i onClick={() => deleteQuestionGroup(QuestionGroup.id)} className='p-2 deleteButton fa-regular fa-trash-can'></i>
 
                                 <input className="questionGroupTitle" type="text" placeholder="Question Group Title" value={QuestionGroup.title}
                                     onChange={(event) => {

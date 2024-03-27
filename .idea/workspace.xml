@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2908d38-bd5b-4922-add2-82ff419b5922" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/QuizCard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Home.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/Home.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/InstanceCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/InstanceCard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/QuestionCreator.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/QuestionCreator.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/axiosApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/axiosApi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/QuizCard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/QuizCard.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +61,15 @@
       <workItem from="1710969365608" duration="3219000" />
       <workItem from="1711402883072" duration="1883000" />
       <workItem from="1711405051108" duration="7071000" />
-      <workItem from="1711414657386" duration="653000" />
+      <workItem from="1711414657386" duration="1166000" />
+      <workItem from="1711418198605" duration="164000" />
+      <workItem from="1711419204227" duration="91000" />
+      <workItem from="1711420922758" duration="194000" />
+      <workItem from="1711421151193" duration="13000" />
+      <workItem from="1711496687419" duration="2276000" />
+      <workItem from="1711499555459" duration="5000" />
+      <workItem from="1711499639594" duration="1187000" />
+      <workItem from="1711501663542" duration="1383000" />
     </task>
     <servers />
   </component>
