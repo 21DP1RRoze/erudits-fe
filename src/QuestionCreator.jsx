@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from './axiosApi';
 
 const QuestionCreator = () => {
@@ -7,6 +7,8 @@ const QuestionCreator = () => {
     const [quiz, setQuiz] = useState(false);
 
     const [questionGroupState, setQuestionGroupState] = useState([]);
+
+    const navigate = useNavigate();
 
     const { id } = useParams()
 
@@ -177,6 +179,9 @@ const QuestionCreator = () => {
                 const questionId = `question_${groupIndex}_${questionIndex}`;
                 return (
                     <div key={questionId}>
+
+
+
                         <label className="me-5 checkContainer" htmlFor={"multipleChoice" + questionId}>
                             <input checked={!Question.is_open_answer} className="me-1" id={"multipleChoice" + questionId} name={"questionType" + questionId} type="radio"
                                 onChange={(event) => {
@@ -223,13 +228,67 @@ const QuestionCreator = () => {
                 )
             });
             const questionGroupId = `questionGroup_${groupIndex}`;
-            
+
             return (
                 <>
                     <div key={questionGroupId} id={"questionGroup" + questionGroupId} className='questionCardContainer mb-3 glass'>
 
                         <form className="questionForm">
-                            <div className="pt-4 pb-4 mb-2 glass questionGroupInfo" style={{ background: 'none' }}>
+
+                            <div className="pt-4 pb-4 mb-2 glass questionGroupInfo mb-3" style={{ background: 'none' }}>
+                                <div className="groupDetails">
+                                    <div className="quizTime"
+                                        onChange={(event) => {
+                                            const newTime = parseInt(event.target.value);
+                                            setQuestionGroupState(prevState => {
+                                                prevState.question_groups[groupIndex].answer_time = newTime;
+                                                return { ...prevState }; // Return a new object to trigger re-render
+                                            });
+                                        }}><i className="fa-regular fa-clock fa-2x me-2"></i>
+                                        <select className="timeSelect glass p-1 ps-3" name="time">
+                                            <option value={1}>01:00</option>
+                                            <option value={5}>05:00</option>
+                                            <option value={10}>10:00</option>
+                                            <option value={15}>15:00</option>
+                                            <option value={20}>20:00</option>
+                                        </select>
+                                    </div>
+                                    <div className="playerDisqualifications"
+                                        onChange={(event) => {
+                                            const newDisq = parseInt(event.target.value);
+                                            setQuestionGroupState(prevState => {
+                                                prevState.question_groups[groupIndex].disqualify_amount = newDisq;
+                                                return { ...prevState }; // Return a new object to trigger re-render
+                                            });
+                                        }}>
+                                        <i className="fa-solid fa-user-large-slash me-2" style={{ fontSize: "22pt" }}></i>
+                                        <select className="disqualificationSelect glass p-1 ps-3" name="disq">
+                                            <option value={1}>1</option>
+                                            <option value={2}>2</option>
+                                            <option value={3}>3</option>
+                                            <option value={4}>4</option>
+                                            <option value={5}>5</option>
+                                        </select>
+
+                                    </div>
+                                    <div className="questionPoints">
+                                        <select className="timeSelect glass p-1 ps-3" name="points"
+                                            onChange={(event) => {
+                                                const newPoints = parseInt(event.target.value);
+                                                setQuestionGroupState(prevState => {
+                                                    prevState.question_groups[groupIndex].points = newPoints;
+                                                    return { ...prevState }; // Return a new object to trigger re-render
+                                                });
+                                            }}>
+                                            <option value={1}>1</option>
+                                            <option value={2}>2</option>
+                                            <option value={3}>3</option>
+                                            <option value={4}>4</option>
+                                            <option value={5}>5</option>
+                                        </select>
+                                        <i className="fa-solid fa-bullseye ms-2" style={{ fontSize: "22pt" }}></i>
+                                    </div>
+                                </div>
                                 <i onClick={() => deleteQuestionGroup(QuestionGroup.id)} className='p-2 deleteButton fa-regular fa-trash-can'></i>
 
                                 <input className="questionGroupTitle" type="text" placeholder="Question Group Title" value={QuestionGroup.title}
@@ -253,8 +312,12 @@ const QuestionCreator = () => {
 
     return (
         <div className="content css-selector">
-
+            {!quiz.data && <div className="creatorLoader">
+                <div class="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
+                </div>}
+            <div onClick={() => navigate("/")} className="homeButton"><i className="fa-solid fa-house fa-2x p-3"></i></div>
             {quiz.data && <div className="instance-container questionPageContainer glass">
+                
                 <div className="quizInfo glass questionGroupInfo pt-4 pb-4 mb-2">
                     <input placeholder="Quiz Title" className="quizTitle questionGroupTitle"
                         value={questionGroupState.title}
@@ -277,7 +340,7 @@ const QuestionCreator = () => {
 
             </div>}
 
-            
+
 
 
         </div>

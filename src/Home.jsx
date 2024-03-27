@@ -84,6 +84,9 @@ const Home = () => {
 
     return (
         <div className="content css-selector">
+            {!quizzes && !quizInstances && <div className="creatorLoader">
+                <div class="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
+                </div>}
             <div className="instance-container glass">
             <img className="m-2 ms-3 cat-wave" src={catgif} />
                 <p className="title mt-3">Laipni lūgts sistēmā "Erudīts"!</p>
