@@ -85,13 +85,13 @@ const Home = () => {
     return (
         <div className="content css-selector">
             {!quizzes && !quizInstances && <div className="creatorLoader">
-                <div class="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
+                <div className="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
                 </div>}
             <div className="instance-container glass">
             <img className="m-2 ms-3 cat-wave" src={catgif} />
                 <p className="title mt-3">Laipni lūgts sistēmā "Erudīts"!</p>
                 {loggedIn && <button onClick={() => onCreateQuizBtnClick()} className="p-1 ps-2 pe-2 urbanist newQuizButton">Create new quiz +</button>}
-                <div className="container">
+                <div className="gamesContainer container">
                     {loggedIn ?
                         (
                             <div>

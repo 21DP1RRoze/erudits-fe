@@ -91,6 +91,11 @@ body {
   position:absolute;
 }
 
+.gamesContainer {
+  overflow-y: scroll;
+  height: 72.5%;
+}
+
 .nav-container {
   position:fixed;
   bottom: -60px;
@@ -416,16 +421,6 @@ body {
   grid-column: 4;
 }
 
-.answerNumber {
-  font-size: 8rem;
-  position:absolute;
-  margin-left: 1rem;
-  color: #22223B;
-  font-family: "Bebas Neue", sans-serif;
-  font-weight: 800;
-  user-select: none;
-  bottom: -2rem;
-}
 
 .previousButton {
   grid-column: 1;
@@ -553,11 +548,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
   height: 100%;
   width: 100%;
   font-size: 2.5rem;
   color: #F2E9E4;
-
 }
 
 .playerName {
@@ -708,4 +703,71 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.playerTable, .playerTable th, .playerTable tr {
+  border: 2px solid black;
+  padding: 1vh 2vw 1vh 2vw;
+}
+
+.playerTable {
+  text-align: center;
+}
+
+.question {
+  padding: 20px;
+}
+
+.confirmationContainer {
+  background: white;
+  z-index: 3;
+  width: 30%;
+  height: 30%;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  box-shadow: 3px 3px 5px 1px black;
+}
+
+.confirmationMessage {
+  position: relative;
+  top: 25%;
+  font-size: 18pt;
+  
+}
+
+.confirmationOptions {
+  position:relative;
+  top: 40%;
+}
+
+.yes, .no {
+  border-radius: 30px;
+  border: none;
+  font-size: 16pt;
+}
+
+.yes {
+  background-color: #59cd90;
+}
+
+.no {
+  background-color: #ff686b;
+}
+
+.yes:hover {
+  background-color: #a5ffd6;
+}
+
+.no:hover {
+  background-color: #ffa69e;
+}
+
+.answer[disabled] {
+  outline: 6px #F2E9E4 solid;
+
 }

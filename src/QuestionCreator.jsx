@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from './axiosApi';
+import ConfirmationMessage from './ConfirmationMessage';
 
 const QuestionCreator = () => {
 
     const [quiz, setQuiz] = useState(false);
 
     const [questionGroupState, setQuestionGroupState] = useState([]);
+
+    const [showConfirmationQuestion, setShowConfirmationQuestion] = useState(false);
+    const [showConfirmationGroup, setShowConfirmationGroup] = useState(false);
+
+    const [idToDelete, setIdToDelete] = useState({ groupID: null, questionID: null });
 
     const navigate = useNavigate();
 
@@ -46,23 +52,26 @@ const QuestionCreator = () => {
         });
     }
 
-    const deleteQuestionGroup = async (questionGroupId) => {
-        await API.delete(`/question-groups/${questionGroupId}`).then(() => {
-            setQuiz(prevQuiz => {
-                const updatedQuizData = {
-                    ...prevQuiz.data,
-                    question_groups: prevQuiz.data.question_groups.filter(group => group.id !== questionGroupId) // Remove deleted group
-                };
+    const deleteQuestionGroup = async (choice, questionGroupId) => {
+        setShowConfirmationGroup(false);
+        if (choice) {
+            await API.delete(`/question-groups/${questionGroupId}`).then(() => {
+                setQuiz(prevQuiz => {
+                    const updatedQuizData = {
+                        ...prevQuiz.data,
+                        question_groups: prevQuiz.data.question_groups.filter(group => group.id !== questionGroupId) // Remove deleted group
+                    };
 
-                return { ...prevQuiz, data: updatedQuizData };
+                    return { ...prevQuiz, data: updatedQuizData };
+                });
+
+                setQuestionGroupState(prevState => {
+                    const updatedQuestionGroups = prevState.question_groups.filter(group => group.id !== questionGroupId); // Remove deleted group
+
+                    return { ...prevState, question_groups: updatedQuestionGroups };
+                });
             });
-
-            setQuestionGroupState(prevState => {
-                const updatedQuestionGroups = prevState.question_groups.filter(group => group.id !== questionGroupId); // Remove deleted group
-
-                return { ...prevState, question_groups: updatedQuestionGroups };
-            });
-        });
+        }
     }
 
     const storeNewQuestion = async (questionGroupId) => {
@@ -102,38 +111,40 @@ const QuestionCreator = () => {
         });
     }
 
-    const deleteQuestion = async (questionId, questionGroupId) => {
-        await API.delete(`/questions/${questionId}`).then(() => {
-            setQuiz(prevQuiz => {
-                const updatedQuizData = {
-                    ...prevQuiz.data, // Copy existing quiz data
-                    question_groups: prevQuiz.data.question_groups.map(group => {
-                        if (group.id === questionGroupId) { // Check if this is the group to update
+    const deleteQuestion = async (choice, questionGroupId, questionId) => {
+        setShowConfirmationQuestion(false);
+        if (choice) {
+            await API.delete(`/questions/${questionId}`).then(() => {
+                setQuiz(prevQuiz => {
+                    const updatedQuizData = {
+                        ...prevQuiz.data, // Copy existing quiz data
+                        question_groups: prevQuiz.data.question_groups.map(group => {
+                            if (group.id === questionGroupId) { // Check if this is the group to update
+                                return {
+                                    ...group, // Copy existing question group data
+                                    questions: group.questions.filter(question => question.id !== questionId) // Remove deleted question
+                                };
+                            }
+                            return group; // Return unmodified for other groups
+                        })
+                    };
+
+                    return { ...prevQuiz, data: updatedQuizData }; // Return the updated quiz object
+                });
+                setQuestionGroupState(prevState => {
+                    const updatedQuestionGroups = prevState.question_groups.map(group => {
+                        if (group.id === questionGroupId) {
                             return {
-                                ...group, // Copy existing question group data
+                                ...group,
                                 questions: group.questions.filter(question => question.id !== questionId) // Remove deleted question
                             };
                         }
-                        return group; // Return unmodified for other groups
-                    })
-                };
-
-                return { ...prevQuiz, data: updatedQuizData }; // Return the updated quiz object
-            });
-            setQuestionGroupState(prevState => {
-                const updatedQuestionGroups = prevState.question_groups.map(group => {
-                    if (group.id === questionGroupId) {
-                        return {
-                            ...group,
-                            questions: group.questions.filter(question => question.id !== questionId) // Remove deleted question
-                        };
-                    }
-                    return group;
+                        return group;
+                    });
+                    return { ...prevState, question_groups: updatedQuestionGroups };
                 });
-                return { ...prevState, question_groups: updatedQuestionGroups };
             });
-        });
-
+        }
     }
 
     const saveQuiz = async () => {
@@ -144,8 +155,6 @@ const QuestionCreator = () => {
             console.log(error);
         });
     }
-
-
 
     const QuestionGroups = useMemo(() => {
 
@@ -159,9 +168,20 @@ const QuestionCreator = () => {
                     const answerId = `answer_${groupIndex}_${questionIndex}_${answerIndex}`;
                     return (
                         <div key={answerId} className="answerOne">
-                            <label className="checkContainer" htmlFor={"correctAnswerRadio1" + answerId}>
+                            <label className="checkContainer" htmlFor={`correctAnswer_${groupIndex}_${questionIndex}_${answerId}`}>
                                 <span>is correct?</span>
-                                <input className="ms-2 me-2 required correctAnswerRadio" id={"correctAnswerRadio1" + answerId} type="radio" name={`correctAnswer_${groupIndex}_${questionIndex}`} />
+                                <input
+                                    onChange={(event) => {
+                                        const newChecked = event.target.checked;
+                                        setQuestionGroupState(prevState => {
+                                            const updatedState = { ...prevState };
+                                            updatedState.question_groups[groupIndex].questions[questionIndex].answers.forEach((answer, idx) => {
+                                                answer.is_correct = idx === answerIndex && newChecked; //i don't even know but it works
+                                            });
+                                            return updatedState;
+                                        });
+                                    }}
+                                    checked={Answer.is_correct} className="ms-2 me-2 correctAnswerRadio" id={`correctAnswer_${groupIndex}_${questionIndex}_${answerId}`} type="radio" name={`correctAnswer_${groupIndex}_${questionIndex}`} />
                             </label>
                             <br />
                             <textarea
@@ -221,8 +241,7 @@ const QuestionCreator = () => {
                         <div className="answersText mt-3" style={{ display: (Question.is_open_answer) ? 'block' : 'none' }}>
                             The player will write their answer.
                         </div>
-                        <i onClick={() => deleteQuestion(Question.id, QuestionGroup.id)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>
-
+                        <i onClick={() => (setIdToDelete({ groupID: QuestionGroup.id, questionID: Question.id })) || setShowConfirmationQuestion(true)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>
                         <hr />
                     </div>
                 )
@@ -289,7 +308,7 @@ const QuestionCreator = () => {
                                         <i className="fa-solid fa-bullseye ms-2" style={{ fontSize: "22pt" }}></i>
                                     </div>
                                 </div>
-                                <i onClick={() => deleteQuestionGroup(QuestionGroup.id)} className='p-2 deleteButton fa-regular fa-trash-can'></i>
+                                <i onClick={() => (setIdToDelete({ groupID: QuestionGroup.id })) || setShowConfirmationGroup(true)} className='p-2 deleteButton fa-regular fa-trash-can'></i>
 
                                 <input className="questionGroupTitle" type="text" placeholder="Question Group Title" value={QuestionGroup.title}
                                     onChange={(event) => {
@@ -312,12 +331,15 @@ const QuestionCreator = () => {
 
     return (
         <div className="content css-selector">
+            {showConfirmationQuestion && <ConfirmationMessage message="Are you sure you want to delete this question？" QuestionId={idToDelete.questionID} QuestionGroupId={idToDelete.groupID} onConfirm={deleteQuestion} />}
+            {showConfirmationGroup && <ConfirmationMessage message="Are you sure you want to delete this question group？" QuestionGroupId={idToDelete.groupID} onConfirm={deleteQuestionGroup} />}
+
             {!quiz.data && <div className="creatorLoader">
-                <div class="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
-                </div>}
+                <div className="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
+            </div>}
             <div onClick={() => navigate("/")} className="homeButton"><i className="fa-solid fa-house fa-2x p-3"></i></div>
             {quiz.data && <div className="instance-container questionPageContainer glass">
-                
+
                 <div className="quizInfo glass questionGroupInfo pt-4 pb-4 mb-2">
                     <input placeholder="Quiz Title" className="quizTitle questionGroupTitle"
                         value={questionGroupState.title}
