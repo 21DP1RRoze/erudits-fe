@@ -9,7 +9,7 @@ const GameView = () => {
 
     const [questionGroupState, setQuestionGroupState] = useState([]);
     const [ready, setReady] = useState(false);
-    const [quizReady, setQuizReady] = useState(false);
+    const [quizReady, setQuizReady] = useState(true);
     const [player, setPlayer] = useState({playerName: '', playerPoints: 0, playerIsDisqualified: false});
     const [loggedIn, setLoggedIn] = useState(false);
     const [adminView, setAdminView] = useState(false);

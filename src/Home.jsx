@@ -108,15 +108,15 @@ const Home = () => {
                     {QuizInstances}
                     </div>
 
-                    <div className="urbanist ps-4 pt-3 manualConnect glass">
+                    
+
+                </div>
+                <div className="urbanist ps-4 pt-3 manualConnect glass">
                         <form>
                             <input placeholder="Spēles kods" type="text"/>
                             <button>Pievienoties</button>
                         </form>
                     </div>
-
-                </div>
-
             </div>
             <Navbar/>
         </div>
