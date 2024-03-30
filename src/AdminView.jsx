@@ -149,6 +149,8 @@ const AdminView = ({ instanceId }) => {
 
         console.log("NEW CYCLE")
         for (const player of sortedPlayers) {
+            console.log([...disqPlayers]);
+            console.log([...tiePlayers]);
             // If there are no players left
             // NOTE: THIS SHOULD NEVER RUN - only if all the teams have the same score, which is VERY unlikely
             if (disqualifiedCount >= sortedPlayers.length) break;
@@ -203,12 +205,13 @@ const AdminView = ({ instanceId }) => {
                     }
                 }
 
-                // -- If the next player has more score than the last player, remove the last player from the tiebreakers and disqualify
+                // -- If the next player has more score than the last player, remove all players from tiebreakers and disqualify
                 else if (player.points > tiebreakerScore) {
                     // --- If there were any eligible tiebreakers
                     if (tiePlayers.length > 0) {
                         // ---- Remove and disqualify
-                        disqPlayers.push(tiePlayers.pop());
+                        disqPlayers.push(...tiePlayers);
+                        tiePlayers = [];
                     }
                     disqPlayers.push(player);
                     disqualifiedCount++;
