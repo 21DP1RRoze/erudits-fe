@@ -705,13 +705,26 @@ body {
   transform: translate(-50%, -50%);
 }
 
-.playerTable, .playerTable th, .playerTable tr {
+.hostTable, .hostTable th, .hostTable tr {
   border: 2px solid black;
   padding: 1vh 2vw 1vh 2vw;
 }
 
-.playerTable {
+.hostTable {
   text-align: center;
+}
+
+.success-row {
+  background-color: rgba(88, 239, 0, 0.3);
+}
+.warning-row {
+  background-color: rgba(239, 191, 0, 0.3);
+}
+.danger-row {
+  background-color: rgba(239, 0, 0, 0.3);
+}
+.dead-row {
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .question {
