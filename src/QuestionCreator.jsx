@@ -14,6 +14,8 @@ const QuestionCreator = () => {
 
     const [idToDelete, setIdToDelete] = useState({ groupID: null, questionID: null });
 
+    const [hasTiebreaker, setHasTiebreaker] = useState(false);
+
     const navigate = useNavigate();
 
     const { id } = useParams()
@@ -26,9 +28,11 @@ const QuestionCreator = () => {
 
     }, [id]);
 
-    const storeNewQuestionGroup = async () => {
+    const storeNewQuestionGroup = async (additional) => {
         await API.post('/question-groups', {
             quiz_id: id,
+            is_additional: additional,
+            title: (additional ? "TIEBREAKER" : "")
         }).then((response) => {
             setQuiz(prevQuiz => {
                 const updatedQuizData = {
@@ -55,6 +59,7 @@ const QuestionCreator = () => {
     const deleteQuestionGroup = async (choice, questionGroupId) => {
         setShowConfirmationGroup(false);
         if (choice) {
+            (quiz.data.question_groups.id===[questionGroupId].is_additional) ? setHasTiebreaker(false) : setHasTiebreaker(true); // so only one tiebreaker question group can exist at a time
             await API.delete(`/question-groups/${questionGroupId}`).then(() => {
                 setQuiz(prevQuiz => {
                     const updatedQuizData = {
@@ -247,14 +252,16 @@ const QuestionCreator = () => {
                 )
             });
             const questionGroupId = `questionGroup_${groupIndex}`;
-
+                if(QuestionGroup.is_additional) {
+                    setHasTiebreaker(true);
+                }
             return (
                 <>
                     <div key={questionGroupId} id={"questionGroup" + questionGroupId} className='questionCardContainer mb-3 glass'>
 
                         <form className="questionForm">
 
-                            <div className="pt-4 pb-4 mb-2 glass questionGroupInfo mb-3" style={{ background: 'none' }}>
+                            <div className="pt-4 pb-4 mb-2 glass questionGroupInfo mb-3" style={{ background: (QuestionGroup.is_additional ? '#fff7d1' : 'none') }}>
                                 <div className="groupDetails">
                                     <div className="quizTime"
                                         onChange={(event) => {
@@ -355,10 +362,11 @@ const QuestionCreator = () => {
 
 
                 {QuestionGroups}
-                <button className="addGroupButton glass pt-2 pb-2" onClick={storeNewQuestionGroup}>Add question group
-                    +
-                </button>
-                <button className="addGroupButton glass pt-2 pb-2 mt-2" onClick={saveQuiz}>Submit</button>
+                <div className="addGroup">
+                <button className="addGroupButton glass pt-2 pb-2" onClick={() => storeNewQuestionGroup(false)}>Add question group + </button>
+                <button disabled={hasTiebreaker} className="addTieBreakerButton glass pt-2 pb-2" onClick={() => storeNewQuestionGroup(true)}>Tiebreaker +</button>
+                <button className="submitQuestionsButton glass pt-2 pb-2 mt-2" onClick={saveQuiz}>Submit</button>
+                </div>
 
             </div>}
 

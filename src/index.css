@@ -150,14 +150,7 @@ body {
   width: 100%;
 }
 
-.addGroupButton {
-  width: 95%;
-  margin: 0;
-  position: relative;
-  margin-top: 5vh;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
+
 
 .questionPageContainer {
   overflow-y:scroll;
@@ -782,4 +775,36 @@ body {
 .answer[disabled] {
    outline: 6px #F2E9E4 solid;
 
+}
+
+.addGroupButton {
+  width: 85%;
+  margin: 0;
+  position: relative;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.submitQuestionsButton {
+  width: 100%;
+  margin: 0;
+  position: relative;
+}
+
+.addTieBreakerButton {
+  width: 15%;
+  margin: 0;
+  position: relative;
+  right: 0%;
+  float: right;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.addGroup {
+  margin: 3%;
+}
+
+.addGroupButton:hover, .submitQuestionsButton:hover, .addTieBreakerButton:hover {
+  background: #ffe5ec;
 }
