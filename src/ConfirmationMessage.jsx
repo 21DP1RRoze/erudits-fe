@@ -10,13 +10,13 @@ const ConfirmationMessage = ({ message, onConfirm, QuestionId, QuestionGroupId }
 
     return (
         isVisible && (
-            <div className="confirmationContainer ps-2 pe-2 pb-5">
-                <div className="confirmationMessage">{message}</div>
+            <div className="confirmationContainer p-5">
+                <div className="confirmationMessage pb-4">{message}</div>
                 <div className="confirmationOptions">
-                    <button className="yes p-2 ps-4 pe-4 me-4" onClick={() => handleConfirm(true)}>
+                    <button className="btn-action p-2 ps-4 pe-4 me-4" onClick={() => handleConfirm(true)}>
                         Jā
                     </button>
-                    <button className="no p-2 ps-4 pe-4 ms-4" onClick={() => handleConfirm(false)}>
+                    <button className="btn-action p-2 ps-4 pe-4 ms-4" onClick={() => handleConfirm(false)}>
                         Nē
                     </button>
                 </div>

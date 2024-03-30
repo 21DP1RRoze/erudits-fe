@@ -271,7 +271,7 @@ const QuestionCreator = () => {
                                                 return { ...prevState }; // Return a new object to trigger re-render
                                             });
                                         }}><i className="fa-regular fa-clock fa-2x me-2"></i>
-                                        <select className="timeSelect glass p-1 ps-3" name="time">
+                                        <select className="timeSelect dropDown" name="time">
                                             <option value={1}>01:00</option>
                                             <option value={5}>05:00</option>
                                             <option value={10}>10:00</option>
@@ -288,7 +288,7 @@ const QuestionCreator = () => {
                                             });
                                         }}>
                                         <i className="fa-solid fa-user-large-slash me-2" style={{ fontSize: "22pt" }}></i>
-                                        <select className="disqualificationSelect glass p-1 ps-3" name="disq">
+                                        <select className="disqualificationSelect dropDown" name="disq">
                                             <option value={1}>1</option>
                                             <option value={2}>2</option>
                                             <option value={3}>3</option>
@@ -298,7 +298,7 @@ const QuestionCreator = () => {
 
                                     </div>
                                     <div className="questionPoints">
-                                        <select className="timeSelect glass p-1 ps-3" name="points"
+                                        <select className="timeSelect dropDown" name="points"
                                             onChange={(event) => {
                                                 const newPoints = parseInt(event.target.value);
                                                 setQuestionGroupState(prevState => {
@@ -363,9 +363,9 @@ const QuestionCreator = () => {
 
                 {QuestionGroups}
                 <div className="addGroup">
-                <button className="addGroupButton glass pt-2 pb-2" onClick={() => storeNewQuestionGroup(false)}>Add question group + </button>
-                <button disabled={hasTiebreaker} className="addTieBreakerButton glass pt-2 pb-2" onClick={() => storeNewQuestionGroup(true)}>Tiebreaker +</button>
-                <button className="submitQuestionsButton glass pt-2 pb-2 mt-2" onClick={saveQuiz}>Submit</button>
+                <button className="addGroupButton btn-action pt-2 pb-2" onClick={() => storeNewQuestionGroup(false)}>Add question group + </button>
+                <button disabled={hasTiebreaker} className="addTieBreakerButton btn-action pt-2 pb-2" onClick={() => storeNewQuestionGroup(true)}>Tiebreaker +</button>
+                <button className="mt-3 submitQuestionsButton btn-action pt-2 pb-2 mt-2" onClick={saveQuiz}>Submit</button>
                 </div>
 
             </div>}

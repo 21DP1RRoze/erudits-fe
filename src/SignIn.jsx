@@ -2,15 +2,11 @@ import API from './axiosApi.js';
 import {useState, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Register = () => {
+const Register = ({setShowLogin}) => {
     const [inputUsername, setInputUsername] = useState('');
     const [inputPassword, setInputPassword] = useState('');
     const [inputPasswordConfirmation, setInputPasswordConfirmation] = useState('');
-    const [toggleLoginView, setToggleLoginView] = useState(false);
-
-    const refLogin = useRef(null);
-    const refRegister = useRef(null);
-
+    const [toggleLoginView, setToggleLoginView] = useState(true);
 
     const navigate = useNavigate();
 
@@ -42,49 +38,35 @@ const Register = () => {
         })
     }
 
-    const toggleLogin = () => {
-        if (toggleLoginView) {
-            refLogin.current.style.display = 'block';
-            refRegister.current.style.display='none';
-            setToggleLoginView(false);
-        } else {
-            refLogin.current.style.display = 'none';
-            refRegister.current.style.display='block';
-            setToggleLoginView(true);
-        }
-    }
+
 
     return (
         <>
-            <div ref={refRegister} className="register-container" style={{display: "none"}}>
-            <div className="login-body">
-            <h2>Register</h2>
-            <div className="form">
-                <form onSubmit={handleRegisterSubmit} className="loginForm">
-                    <input className="p-1 mb-3" placeholder="username" value={inputUsername} required onChange={(e) => setInputUsername(e.target.value)} type="text" /> <br/>
-                    <input className="p-1 mb-3" placeholder="password" value={inputPassword} required onChange={(e) => setInputPassword(e.target.value)} type="password" /> <br/>
-                    <input className="p-1 mb-3" placeholder="confirm password" value={inputPasswordConfirmation} required onChange={(e) => setInputPasswordConfirmation(e.target.value)} type="password" /> <br/>
-                    <button className="btn btn-primary me-4" type="submit">Sign up</button>
-                    <a className="ms-5 loginViewToggle" onClick={toggleLogin}>Log in</a>
+        <div onClick={() => setShowLogin(false)} className="loginBackground glass"></div>
+            {toggleLoginView && <div className="loginContainer">
+                <div className="loginInfoText p-3">
+                    <div className="closeButton mt-0 mb-2"><i onClick={() => setShowLogin(false)} className="fa-solid fa-xmark"></i></div>
+                    <h5 className="m-0 mb-4">Please log in to create and modify quizzes.</h5>
+                    <input onChange={(e)=> setInputUsername(e.target.value)} value={inputUsername} className="userInput mb-4 p-1 ps-3" placeholder="username" type="text"></input>
+                    <input onChange={(e)=> setInputPassword(e.target.value)} value={inputPassword} className="userInput mb-4 p-1 ps-3" placeholder="password" type="password"></input><br/>
+                    <button onClick={handleLoginSubmit} className="btn-action p-1 ps-5 pe-5 mb-2">Login</button>
+                    <p className="m-0 mb-1">or</p>
+                    <p className="switchLogin" onClick={() => setToggleLoginView(false)}>create an account</p>
+                </div>
+            </div>}
+            {!toggleLoginView && <div className="registerContainer">
+                <div className="loginInfoText p-3">
+                    <div className="closeButton mt-0 mb-2"><i onClick={() => setShowLogin(false)} className="fa-solid fa-xmark"></i></div>
+                    <h5 className="m-0 mb-4">Please sign up to create and modify quizzes.</h5>
+                    <input onChange={(e)=> setInputUsername(e.target.value)} value={inputUsername} className="userInput mb-4 p-1 ps-3" placeholder="username" type="text"></input>
+                    <input onChange={(e)=> setInputPassword(e.target.value)} value={inputPassword} className="userInput mb-4 p-1 ps-3" placeholder="password" type="password"></input>
+                    <input onChange={(e)=> setInputPasswordConfirmation(e.target.value)} value={inputPasswordConfirmation} className="userInput mb-4 p-1 ps-3" placeholder="confirm password" type="password"></input><br/>
 
-                </form>
+                    <button onClick={handleRegisterSubmit} className="btn-action p-1 ps-5 pe-5 mb-2">Sign up</button>
+                    <p className="m-0 mb-1">or</p>
+                    <p className="switchLogin" onClick={() => setToggleLoginView(true)}>log in</p>
                 </div>
-            </div>
-            </div>
-            
-            <div ref={refLogin} className="login-container">
-            <div className="login-body">
-                <h2>Login</h2>
-                <div className="form">
-                    <form onSubmit={handleLoginSubmit} className="loginForm">
-                        <input className="p-1 mb-3" placeholder="username" value={inputUsername} required onChange={(e) => setInputUsername(e.target.value)} type="text" /> <br/>
-                        <input className="p-1 mb-3" placeholder="password" value={inputPassword} required onChange={(e) => setInputPassword(e.target.value)} type="password" /> <br/>
-                        <button className="btn btn-primary me-4" type="submit">Login</button>
-                        <a className="ms-5 loginViewToggle" onClick={toggleLogin}>Sign up</a>
-                    </form>
-                </div>
-            </div>
-        </div>
+            </div>}
         </>
     );
 }

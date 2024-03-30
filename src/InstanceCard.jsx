@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import API from './axiosApi';
 import { useNavigate } from 'react-router-dom';
 
-const InstanceCard = ({ instance }) => {
+const InstanceCard = ({ instance, loggedIn }) => {
 
     const navigate = useNavigate();
 
@@ -13,6 +13,7 @@ const InstanceCard = ({ instance }) => {
                     <h5 className="card-title">{instance.quiz.title}</h5>
                     <p className="card-text">{instance.quiz.description}</p>
                     <button onClick={() => navigate(`/game/${instance.id}`)} className="urbanist p-1 ps-3 pe-3 btn-action">Pieslēgties</button>
+                    {loggedIn && <i onClick={() => alert("needs to be implemented")} className="editInstanceButton fa-solid fa-xmark"></i>}
                 </div>
             </div>
         </div>

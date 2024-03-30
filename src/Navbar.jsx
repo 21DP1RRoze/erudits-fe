@@ -5,6 +5,8 @@ import SignIn from './SignIn';
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const [show, setShow] = useState(false);
+    const [showLogin, setShowLogin] = useState(false);
 
     const logout = async () => {
         await API.post('/logout');
@@ -14,18 +16,6 @@ const Navbar = () => {
 
     // click to show thing
     const [isOpen, setIsOpen] = useState(true);
-    const ref = useRef(null);
-    const refNavbar = useRef(null);
-
-    const togglePopup = () => {
-        if (!isOpen) {
-            ref.current.style.display = 'none';
-            setIsOpen(true);
-        }else{
-            ref.current.style.display = 'block';
-            setIsOpen(false);
-        }
-    }
 
     const [loggedIn, setLoggedIn] = useState(false);
     useEffect (() => {
@@ -38,26 +28,20 @@ const Navbar = () => {
         }
         fetchData();
     }, []);
+
     
 
     return (
         <>
-            <div ref={ref} className="showPopup" style={{display: "none"}}>
-                        <SignIn/>
+          {showLogin && <SignIn setShowLogin={setShowLogin}/>}
+        <div className="slidingContainer" onClick={() => (show ? setShow(false) : setShow(true))} style={{left: (show ? '8.5%' : '13%')}}>
+          
+            <div className="pullTab">
+            <i className="fa-solid fa-caret-left arrow"></i>
             </div>
-            <div className="navBarActivator" onMouseEnter={() => {refNavbar.current.style.bottom = 0}} onMouseLeave={() => {refNavbar.current.style.bottom = '-60px'}}>
-                <div ref={refNavbar} className="nav-container row p-2 ps-5 pe-5" >
-                    <div className="credits col-2">
-                        darbu taisīja es un viņš
-                    </div>
-                    <div className="col-8"></div>
-                    <div className="authentification col-2">
-                        <i className="fa-solid fa-x me-4 fa-2x navbar-action p-1" style={{display : (loggedIn ? 'block' : 'none')}} onClick={logout}></i>
-                        <i className="fa-solid fa-right-to-bracket fa-2x navbar-action p-1" style={{display : (!loggedIn ? 'block' : 'none')}} onClick={togglePopup}></i>
-                        
-                    </div>
-                </div>
-            </div>
+            {!loggedIn ? <i onClick={()=> setShowLogin(true)}className="loginButton fa-solid fa-unlock"></i> :
+            <i onClick={logout}className="loginButton fa-regular fa-circle-xmark"></i>}
+        </div>
         </>
     );
 }

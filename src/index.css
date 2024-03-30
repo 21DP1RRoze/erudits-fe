@@ -14,43 +14,54 @@ body {
 /* epic gradient!!! */
 
 .css-selector {
-  background: linear-gradient(226deg, #fcd4ca, #f48ec3, #fc94b3);
-  background-size: 600% 600%;
+  background: linear-gradient(270deg, #dec0f1, #7161ef);
+  background-size: 400% 400%;
 
-  -webkit-animation: animation 30s ease infinite;
-  -moz-animation: animation 30s ease infinite;
-  animation: animation 30s ease infinite;
+  -webkit-animation: animation 33s ease infinite;
+  -moz-animation: animation 33s ease infinite;
+  animation: animation 33s ease infinite;
 }
 
 @-webkit-keyframes animation {
-  0%{background-position:97% 0%}
-  50%{background-position:4% 100%}
-  100%{background-position:97% 0%}
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 @-moz-keyframes animation {
-  0%{background-position:97% 0%}
-  50%{background-position:4% 100%}
-  100%{background-position:97% 0%}
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 @keyframes animation {
-  0%{background-position:97% 0%}
-  50%{background-position:4% 100%}
-  100%{background-position:97% 0%}
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
 }
 
 /* homepage box container thing  */
 
 .instance-container {
-
-  margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 
   width: 70%;
-  height: 85%;
+  height: 100%;
+  
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.8px);
+  -webkit-backdrop-filter: blur(12.8px);
+
+  overflow-y: auto;
+  scrollbar-width: none;
 }
+
+.instance-container::-webkit-scrollbar {
+  display: none;
+}
+
 
 .urbanist {
   font-family: "Urbanist", sans-serif;
@@ -72,18 +83,22 @@ body {
 
 .glass {
   background: rgba(255, 255, 255, 0.42);
-  border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12.8px);
   -webkit-backdrop-filter: blur(12.8px);
-  border: 1px solid rgba(255, 255, 255, 0.69);
 }
+
 
 .btn-action {
   border: none;
-  border-radius: 16px;
-  background-color: #f28482;
+  border-radius: 4px;
+  background-color: #7161EF;
+  font-weight: 600;
   color: white;
+}
+
+.btn-action:hover {
+  background-color: #8370EF;
 }
 
 .cat-wave {
@@ -91,69 +106,120 @@ body {
   position:absolute;
 }
 
-.gamesContainer {
-  overflow-y: scroll;
-  height: 77%;
-}
-
-.nav-container {
-  position:fixed;
-  bottom: -60px;
-  width: 100%;
-  background: white;
-  margin: 0;
-  transition: all ease-out 0.2s;
-}
-
-.login-container {
+.slidingContainer {
+  width: 150px;
+  height: 80px;
   position:absolute;
-  background: white;
-  width: 15vw;
-  height: 30vh;
-  right: 2vw;
-  bottom: 10vh;
-  border-radius: 16px;
+  top: 10px;
+  border-top-left-radius: 12pt;
+  border-bottom-left-radius: 12pt;
+  transition: all 0.5s;
+
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.8px);
+  -webkit-backdrop-filter: blur(12.8px);
+}
+.pullTab {
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.8px);
+  -webkit-backdrop-filter: blur(12.8px);
+  width: 30px;
+  height: 80px;
+  border-top-left-radius: 12pt;
+  border-bottom-left-radius: 12pt;
+  
+}
+.arrow {
+  position:absolute;
+  color: #B79CED;
+  font-size: 32pt;
+  top: 17px;
+  left: 7px;
 }
 
-.login-body {
+.loginButton {
+  position:absolute;
+  color: #7161EF;
+  font-size: 24pt;
+  top: 23px;
+  left: 50px;
+}
+
+.loginButton:hover {
+  color: #957FEF;
+  cursor: pointer;
+}
+
+.loginRegisterContainer {
+  z-index: 3;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+
+}
+
+.loginBackground {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  z-index: 1;
+  position: fixed;
+  transition: all 0.5s;
+}
+
+.loginContainer {
+  width: 20%;
+  background: white;
   margin: 0;
-  position: absolute;
+  z-index: 3;
+  position: fixed;
+    top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 5px 5px 5px gray;
+  text-align: center;
+  
+}
+
+.registerContainer {
+  width: 20%;
+  background: white;
+  margin: 0;
+  z-index: 3;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 5px 5px 5px gray;
+  text-align: center;
 }
 
-.register-container {
-  position:absolute;
-  background: white;
-  width: 15vw;
-  height: 35vh;
-  right: 2vw;
-  bottom: 10vh;
-  border-radius: 16px;
+.userInput {
+  border-radius: 2pt;
 }
 
-.navbar-action {
-  cursor: pointer;
-  user-select: none;
-  width: 40px;
+.userInput:focus {
+  outline:none;
 }
 
-.navbar-action:hover {
-  box-shadow: 2px 2px 2px lightgray;
+.switchLogin:hover {
+  cursor:pointer;
+  text-decoration: underline;
+  color: #957FEF;
 }
 
-.navBarActivator {
-  position:absolute;
-  bottom:0;
-  height: 80px;
-  width: 100%;
+.gamesContainer {
+  height: 88%;
 }
 
-
+.quizzes {
+  box-shadow: inset 0px 0px 11px -3px rgba(0,0,0,1);
+}
 
 .questionPageContainer {
-  overflow-y:scroll;
+  overflow-y:auto;
 }
 
 ::-webkit-scrollbar {
@@ -253,9 +319,11 @@ body {
   position:absolute;
   right: 15px;
   bottom: 15px;
+  font-size: 16pt;
+  color: #7161EF;
 }
 
-.editInstanceButton:hover {
+.editInstanceButton:hover, .deleteQuiz:hover {
   cursor:pointer;
 }
 
@@ -263,10 +331,15 @@ body {
   position:absolute;
   right: 15px;
   top: 15px;
-  background-color: #f28482;
   color:white; 
-  border-radius: 12pt;
-  border:none;
+}
+
+.deleteQuiz {
+  position:absolute;
+  right: 55px;
+  bottom: 15px;
+  font-size: 16pt;
+  color: #7161EF;
 }
 
 .manualConnect {
@@ -385,6 +458,16 @@ body {
   padding-top: 2%;
 }
 
+.closeButton {
+  font-size: 16pt;
+  position:relative;
+  right: 10px;
+  text-align: right;
+}
+
+.closeButton:hover {
+  cursor:pointer;
+}
 
 .answer {
   background: #4A4E69;
@@ -521,7 +604,7 @@ body {
   font-size: 14pt;
   position:absolute;
   z-index: 1;
-  left: 10px;
+  left: 5px;
   top: 54px;
 }
 
@@ -726,8 +809,6 @@ body {
 .confirmationContainer {
   background: white;
   z-index: 3;
-  width: 30%;
-  height: 30%;
   margin: 0;
   position: absolute;
   top: 50%;
@@ -801,10 +882,28 @@ body {
   border-bottom-left-radius: 0;
 }
 
+.addTieBreakerButton:disabled {
+  background: #DEC0F1;
+}
+
 .addGroup {
   margin: 3%;
 }
 
-.addGroupButton:hover, .submitQuestionsButton:hover, .addTieBreakerButton:hover {
-  background: #ffe5ec;
+
+.purpleBlock {
+  background: #B79CED;
+  box-shadow: 8px 8px 0px #957FEF;
+}
+
+.homeContent {
+  margin: 2% 5% 2% 5%;
+  
+}
+
+.adminGames {
+  width: 100%;
+  text-align: center;
+  font-size: 24pt;
+  user-select: none;
 }
