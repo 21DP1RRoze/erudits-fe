@@ -59,7 +59,7 @@ const QuestionCreator = () => {
     const deleteQuestionGroup = async (choice, questionGroupId) => {
         setShowConfirmationGroup(false);
         if (choice) {
-            (quiz.data.question_groups.id===[questionGroupId].is_additional) ? setHasTiebreaker(false) : setHasTiebreaker(true); // so only one tiebreaker question group can exist at a time
+            (quiz.data.question_groups.id === [questionGroupId].is_additional) ? setHasTiebreaker(false) : setHasTiebreaker(true); // so only one tiebreaker question group can exist at a time
             await API.delete(`/question-groups/${questionGroupId}`).then(() => {
                 setQuiz(prevQuiz => {
                     const updatedQuizData = {
@@ -252,9 +252,9 @@ const QuestionCreator = () => {
                 )
             });
             const questionGroupId = `questionGroup_${groupIndex}`;
-                if(QuestionGroup.is_additional) {
-                    setHasTiebreaker(true);
-                }
+            if (QuestionGroup.is_additional) {
+                setHasTiebreaker(true);
+            }
             return (
                 <>
                     <div key={questionGroupId} id={"questionGroup" + questionGroupId} className='questionCardContainer mb-3 glass'>
@@ -363,9 +363,9 @@ const QuestionCreator = () => {
 
                 {QuestionGroups}
                 <div className="addGroup">
-                <button className="addGroupButton btn-action pt-2 pb-2" onClick={() => storeNewQuestionGroup(false)}>Add question group + </button>
-                <button disabled={hasTiebreaker} className="addTieBreakerButton btn-action pt-2 pb-2" onClick={() => storeNewQuestionGroup(true)}>Tiebreaker +</button>
-                <button className="mt-3 submitQuestionsButton btn-action pt-2 pb-2 mt-2" onClick={saveQuiz}>Submit</button>
+                    <button className="addGroupButton btn-action pt-2 pb-2" onClick={() => storeNewQuestionGroup(false)}>Add question group + </button>
+                    <button disabled={hasTiebreaker} className="addTieBreakerButton btn-action pt-2 pb-2" onClick={() => storeNewQuestionGroup(true)}>Tiebreaker +</button>
+                    <button className="mt-3 submitQuestionsButton btn-action pt-2 pb-2 mt-2" onClick={saveQuiz}>Submit</button>
                 </div>
 
             </div>}
