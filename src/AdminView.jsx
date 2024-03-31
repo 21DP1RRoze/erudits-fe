@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 const AdminView = ({ instanceId }) => {
     const [quiz, setQuiz] = useState(null);
+    const [quizInstance, setQuizInstance] = useState(null);
+
     const [activeQuestionGroup, setActiveQuestionGroup] = useState({disqualify_amount: 3});
 
     const [disqualifiedPlayers, setDisqualifiedPlayers] = useState(null);
@@ -21,25 +23,18 @@ const AdminView = ({ instanceId }) => {
     useEffect(() => {
         API.get(`/quiz-instances/${instanceId}`).then((response) => {
             setQuiz(response.data.data.quiz);
-            console.log(response.data.data.quiz);
+            setQuizInstance(response.data.data);
+            setActiveQuestionGroup(response.data.data.active_question_group);
         });
         API.get(`/quiz-instances/${instanceId}/players`).then((response) => {
             setPlayers(response.data);
         });
         API.get(`/players`).then((response) => {
             setLoadedPlayers(response.data.data);
+            console.log(response.data.data);
         });
     }, [instanceId]);
 
-    // Magic
-    const objectsEqual = (o1, o2) =>
-        typeof o1 === 'object' && Object.keys(o1).length > 0
-            ? Object.keys(o1).length === Object.keys(o2).length
-            && Object.keys(o1).every(p => objectsEqual(o1[p], o2[p]))
-            : o1 === o2;
-
-    const arraysEqual = (a1, a2) =>
-        a1.length === a2.length && a1.every((o, idx) => objectsEqual(o, a2[idx]));
 
     useEffect(() => {
         if(!loadedPlayers) return;
@@ -49,9 +44,7 @@ const AdminView = ({ instanceId }) => {
                 const sortedArr2 = loadedPlayers.slice().sort();
                 const sortedArr1 = response.data.data.slice().sort();
 
-                if (!arraysEqual(sortedArr1, sortedArr2)) {
-                    setLoadedPlayers(response.data.data);
-                }
+                setLoadedPlayers(response.data.data);
             });
 
         }, pollingInterval);
@@ -203,12 +196,13 @@ const AdminView = ({ instanceId }) => {
                     }
                 }
 
-                // -- If the next player has more score than the last player, remove the last player from the tiebreakers and disqualify
+                // -- If the next player has more score than the last player, remove all players from tiebreakers and disqualify
                 else if (player.points > tiebreakerScore) {
                     // --- If there were any eligible tiebreakers
                     if (tiePlayers.length > 0) {
                         // ---- Remove and disqualify
-                        disqPlayers.push(tiePlayers.pop());
+                        disqPlayers.push(...tiePlayers);
+                        tiePlayers = [];
                     }
                     disqPlayers.push(player);
                     disqualifiedCount++;
@@ -227,13 +221,62 @@ const AdminView = ({ instanceId }) => {
         setAdvancedPlayers(advPlayers);
     }, [activePlayers]);
 
+    const PlayerAnswers = ({ questionGroupId }) => {
+        if (!activePlayers) return null;
+
+        // Filter players based on whether they have answers for the specified question group
+        const filteredPlayers = activePlayers.filter(player =>
+            player.player_answers.some(answer => answer.question_group_id === questionGroupId)
+        );
+
+        // Map filtered players to display their answers for the specified question group
+        const playerAnswerList = filteredPlayers.map((Player, playerIndex) => {
+            // Filter player answers to include only those for the specified question group
+            const playerAnswersForGroup = Player.player_answers
+                .filter(answer => answer.question_group_id === questionGroupId);
+
+            // Map player answers for the specified group to table cells
+            const PlayerSetAnswers = playerAnswersForGroup.map(PlayerAnswer => (
+                <td key={PlayerAnswer.id} className={PlayerAnswer.answer.is_correct ? 'success-row' : 'danger-row'}>
+                    {PlayerAnswer.answer.text}
+                </td>
+            ));
+
+            // Render player name along with their answers for the specified group
+            return (
+                <tr key={Player.id}>
+                    <td>{Player.name}</td>
+                    {PlayerSetAnswers}
+                </tr>
+            );
+        });
+
+        // Render the table containing player names and their answers for the specified group
+        return (
+            <table>
+                <thead>
+                <tr>
+                    <th>Player name</th>
+                    {/* Assuming each player has the same number of answers */}
+                    {activeQuestionGroup.questions.map(question => (
+                        <th key={question.id}>Question {question.id}</th>
+                    ))}
+                </tr>
+                </thead>
+                <tbody>
+                {playerAnswerList}
+                </tbody>
+            </table>
+        );
+    };
+
     const QuestionGroups = useMemo(() => {
         if(!quiz) return null;
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (QuestionGroup.is_additional) return null;
             return (
                 <React.Fragment key={QuestionGroup.id}>
-                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{cursor: 'pointer'}} className="successRow">
+                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{cursor: 'pointer'}} className={QuestionGroup.id === activeQuestionGroup.id ? 'success-row' : ''}>
                         <td>{questionGroupIndex}</td>
                         <td>{QuestionGroup.title}</td>
                         <td>{QuestionGroup.disqualify_amount}</td>
@@ -243,22 +286,7 @@ const AdminView = ({ instanceId }) => {
                     {expandedRow === QuestionGroup.id && (
                         <tr>
                             <td colSpan={5}>
-                                <table>
-                                    <thead>
-                                    <tr>
-                                        <th>Player name</th>
-                                        <th>Points</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {loadedPlayers.map((Player, index) => (
-                                        <tr key={index}>
-                                            <td>{Player.name}</td>
-                                            <td>{Player.points}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
+                                <PlayerAnswers questionGroupId={QuestionGroup.id} />
                             </td>
                         </tr>
                     )}
