@@ -48,11 +48,6 @@ body {
 
   width: 70%;
   height: 100%;
-  
-  background: rgba(255, 255, 255, 0.42);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(12.8px);
-  -webkit-backdrop-filter: blur(12.8px);
 
   overflow-y: auto;
   scrollbar-width: none;
@@ -68,12 +63,12 @@ body {
 }
 
 
-.title {
+.title, .titleHome {
   text-align: center;
-  font-size: 32pt;
+  font-size: 48pt;
   font-family: "Madimi One", sans-serif;
   color: white;
-  text-shadow: 0px 0px 3px black;
+  text-shadow: 4px 4px 2px rgba(0,0,0,0.5);
 }
 
 .container {
@@ -107,12 +102,12 @@ body {
 }
 
 .slidingContainer {
-  width: 150px;
+  width: 80px;
   height: 80px;
   position:absolute;
   top: 10px;
-  border-top-left-radius: 12pt;
-  border-bottom-left-radius: 12pt;
+  border-top-right-radius: 12pt;
+  border-bottom-right-radius: 12pt;
   transition: all 0.5s;
 
   background: rgba(255, 255, 255, 0.42);
@@ -127,16 +122,18 @@ body {
   -webkit-backdrop-filter: blur(12.8px);
   width: 30px;
   height: 80px;
-  border-top-left-radius: 12pt;
-  border-bottom-left-radius: 12pt;
-  
+  border-top-right-radius: 12pt;
+  border-bottom-right-radius: 12pt;
+  position:absolute;
+  right:0;
 }
 .arrow {
   position:absolute;
   color: #B79CED;
   font-size: 32pt;
   top: 17px;
-  left: 7px;
+  left: 2px;
+  transform: rotate(180deg)
 }
 
 .loginButton {
@@ -144,7 +141,7 @@ body {
   color: #7161EF;
   font-size: 24pt;
   top: 23px;
-  left: 50px;
+  left: 10px;
 }
 
 .loginButton:hover {
@@ -427,8 +424,8 @@ body {
 }
 
 .gameView {
-  background: #22223B;
   overflow: hidden;
+  z-index: 3;
 }
 
 .questionContainer {
@@ -644,7 +641,6 @@ body {
 .playerNameContainer {
   text-align: center;
   position: absolute;
-  top: 25%;
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -652,23 +648,34 @@ body {
 }
 
 .playerNameInput {
-  width: 20%;
-  height: 5%;
-  border-radius: 20pt;
+  width: 25%;
+  height: 10%;
+  border-radius: 6pt;
   border: none;
-  padding-left: 20px;
+  text-align: center;
+  font-size: 160%;
+  padding-top: 5px;
+  letter-spacing: 2px;
+  font-family: "Madimi One", sans-serif;
+  box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+  text-transform: uppercase;
 }
 
 .playerNameInput:focus {
   outline:none;
 }
 
+.playerNameInput:disabled {
+  box-shadow: none;
+}
+
 .readyButton {
-  border-radius: 20pt;
-  font-size: 14pt;
+  border-radius: 6pt;
+  font-size: 20pt;
   color: white;
-  font-weight: 600;
   border: none;
+  font-family: "Madimi One", sans-serif;
+  box-shadow: 8px 8px 0px rgba(0,0,0,0.5);;
 }
 
 .readyButtonAnimation {
@@ -704,6 +711,7 @@ body {
 .readyButton:disabled {
   background: gray;
   color: lightgray;
+  box-shadow: none;
 }
 
 .joinText {
@@ -726,10 +734,10 @@ body {
   width: 64px;
   height: 64px;
   margin: 8px;
-  border: 8px solid #fff;
+  border: 8px solid #7161EF;
   border-radius: 50%;
   animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #fff transparent transparent transparent;
+  border-color: #7161EF transparent transparent transparent;
 }
 .lds-ring div:nth-child(1) {
   animation-delay: -0.45s;
@@ -919,4 +927,183 @@ body {
   color:white;
   font-size: 14pt;
   
+}
+
+.eruditsBG {
+  position:absolute;
+  height: 100vh;
+  width: 100vw;
+}
+
+@keyframes tilt-shaking {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes tilt-shakingR {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.layer2 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 2.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shaking 33s ease infinite;
+  height:15vh;
+  width: 17vw;
+  left: 20px;
+  top: 10px;
+}
+.layer3 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 3.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shakingR 33s ease infinite;
+  height: 15vh;
+  width: 17vw;
+  left: 140px;
+  top: 60px;
+}
+.layer4 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 4.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shaking 33s ease infinite;
+  height: 36vh;
+  width: 18vw;
+  right: 20px;
+  bottom: 240px;
+}
+.layer5 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 5.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shakingR 33s ease infinite;
+  height: 48vh;
+  width: 16vw;
+  right: 30px;
+  top: 10px;
+}
+.layer6 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 6.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shaking 33s ease infinite;
+  height: 22vh;
+  width: 28vw;
+  right: 20%;
+  top: 10px;
+}
+.layer7 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 7.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shakingR 33s ease infinite;
+  height: 20vh;
+  width: 24vw;
+  right: 50%;
+  top: 10px;
+}
+.layer8 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 8.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shaking 33s ease infinite;
+  height: 24vh;
+  width: 18vw;
+  right: 20px;
+  bottom: 10px;
+}
+.layer9 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 9.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shakingR 33s ease infinite;
+  height: 33vh;
+  width: 18vw;
+  left: 20px;
+  top: 20%;
+}
+.layer10 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 10.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shaking 33s ease infinite;
+  height: 33vh;
+  width: 18vw;
+  left: 100px;
+  bottom: 20%;
+}
+.layer11 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 11.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shakingR 33s ease infinite;
+  height: 33vh;
+  width: 40vw;
+  left: 20px;
+  bottom: 1%;
+}
+.layer12 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 2.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shaking 33s ease infinite;
+  height: 18vh;
+  width: 20vw;
+  left: 40%;
+  bottom: 3%;
+}
+.layer13 {
+  position: absolute;
+  background-image: url("assets/background-elements/Layer 7.png");
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: tilt-shakingR 33s ease infinite;
+  height: 22vh;
+  width: 24vw;
+  right: 18%;
+  bottom: 3%;
+}
+.layer1 {
+  position:absolute;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  z-index: 2;
+  background: rgba(0,0,0,0.45)
+}
+
+.playerNameContainer {
+  padding: 10% 0;
 }

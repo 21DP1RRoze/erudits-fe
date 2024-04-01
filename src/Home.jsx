@@ -102,13 +102,13 @@ const Home = () => {
             </div>}
             <div className="instance-container">
                 <img className="m-2 ms-3 cat-wave" src={catgif} />
-                <p className="title mt-3">Laipni lūgts sistēmā "Erudīts"!</p>
+                <p className="titleHome mt-3">Laipni lūgts sistēmā "Erudīts"!</p>
                 {loggedIn && <button onClick={() => onCreateQuizBtnClick()} className="p-1 ps-2 pe-2 urbanist newQuizButton btn-action">Create new quiz +</button>}
                 <div className="gamesContainer container p-0">
                     {loggedIn &&
                         <div>
                             <hr />
-                            <div className="adminGames mb-3 title">Jūsu viktorīnas</div>
+                            <div className="adminGames mb-3 titleHome">Jūsu viktorīnas</div>
                             <hr />
                             <div className="quizzes p-2 row pt-3">
                                 {Quizzes}
@@ -117,7 +117,7 @@ const Home = () => {
                     }
 
                     <hr />
-                    <div className="adminGames mb-3 title">Atvērtās spēles</div>
+                    <div className="adminGames mb-3 titleHome">Atvērtās spēles</div>
                     <hr />
                     <div className="quizzes p-2 pt-3 row">
                         {QuizInstances}

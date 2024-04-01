@@ -48,7 +48,7 @@ const GameView = () => {
 
     const savePlayer = async () => {
         await API.post(`/players`, { quiz_instance_id: id, name: player.playerName, points: player.playerPoints, is_disqualified: player.playerIsDisqualified }).then(() => {
-            setReady(true)
+            setReady(true);
         }).catch((error) => {
             alert('Something went wrong.. check the console for more information.');
             console.log(error);
@@ -106,16 +106,30 @@ const GameView = () => {
         <>
             {adminView && <AdminView instanceId={id} />}
             {!adminView && <div className="gameViewContainer">
-
-                {!ready && <div className="playerName glass">
+                <div className="eruditsBG">
+                    <div className="layer1"></div>
+                    <div className="layer2"></div>
+                    <div className="layer3"></div>
+                    <div className="layer4"></div>
+                    <div className="layer5"></div>
+                    <div className="layer6"></div>
+                    <div className="layer7"></div>
+                    <div className="layer8"></div>
+                    <div className="layer9"></div>
+                    <div className="layer10"></div>
+                    <div className="layer11"></div>
+                    <div className="layer12"></div>
+                    <div className="layer13"></div>
+                </div>
+                {!ready && <div className="playerName">
                     {loggedIn && <div onClick={() => setAdminView(true)} className="homeButton"><i className="fa-solid fa-gear fa-2x p-3"></i></div>}
                     <div className="playerNameContainer">
-                        <h1 className="title">Jūs pievienojāties viktorīnai '{questionGroupState.title}'</h1>
+                        <h1 className="title">{questionGroupState.title}</h1>
                         <h2 className="title mt-3" style={{ fontSize: "20pt" }}>Lūdzu, ievadiet komandas nosaukumu:</h2>
-                        <input disabled={(ready) ? true : false} onChange={(e) =>
+                        <input disabled={(ready)} onChange={(e) =>
                             setPlayer({ ...player, playerName: e.target.value })} value={player.playerName}
                             placeholder="Komandas nosaukums" className="mt-4 playerNameInput" type="text" /><br />
-                        <button onClick={() => savePlayer()} disabled={(ready) ? true : false} className="readyButton readyButtonAnimation p-2 ps-4 pe-4 mt-5 mb-4">Esmu gatavs spēlēt!</button> <br />
+                        <button onClick={() => savePlayer()} disabled={(ready)} className="readyButton readyButtonAnimation p-2 ps-4 pe-4 mt-5 mb-4">Esmu gatavs spēlēt!</button> <br />
                         {/* spinner */}
                         {ready && <div>
                             <div className="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
