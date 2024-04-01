@@ -34,7 +34,7 @@ const Navbar = () => {
     return (
         <>
           {showLogin && <SignIn setShowLogin={setShowLogin}/>}
-        <div className="slidingContainer" onClick={() => (show ? setShow(false) : setShow(true))} style={{left: (show ? '0%' : '-2.5vw')}}>
+        <div className="slidingContainer" onClick={() => (show ? setShow(false) : setShow(true))} style={{left: (show ? '0%' : '-50px')}}>
           
             <div className="pullTab">
             <i className="fa-solid fa-caret-left arrow"></i>

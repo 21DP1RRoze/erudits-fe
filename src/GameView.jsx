@@ -11,8 +11,6 @@ const GameView = () => {
     const [ready, setReady] = useState(false);
     const [quizReady, setQuizReady] = useState(true);
     const [player, setPlayer] = useState({ playerName: '', playerPoints: 0, playerIsDisqualified: false });
-    const [loggedIn, setLoggedIn] = useState(false);
-    const [adminView, setAdminView] = useState(false);
     const [currentQuestionGroup, setCurrentQuestionGroup] = useState(0);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -26,11 +24,6 @@ const GameView = () => {
     const { id } = useParams()
 
     useEffect(() => {
-        API.get('/user').then(async (response) => {
-            setLoggedIn(true);
-        }).catch(() => {
-            setLoggedIn(false);
-        })
         API.get(`/quiz-instances/${id}`).then((response) => {
             setQuiz(response.data.data.quiz);
             setQuestionGroupState(response.data.data.quiz);
@@ -104,8 +97,7 @@ const GameView = () => {
 
     return (
         <>
-            {adminView && <AdminView instanceId={id} />}
-            {!adminView && <div className="gameViewContainer">
+            <div className="gameViewContainer">
                 <div className="eruditsBG">
                     <div className="layer1"></div>
                     <div className="layer2"></div>
@@ -122,7 +114,6 @@ const GameView = () => {
                     <div className="layer13"></div>
                 </div>
                 {!ready && <div className="playerName">
-                    {loggedIn && <div onClick={() => setAdminView(true)} className="homeButton"><i className="fa-solid fa-gear fa-2x p-3"></i></div>}
                     <div className="playerNameContainer">
                         <h1 className="title">{questionGroupState.title}</h1>
                         <h2 className="title mt-3" style={{ fontSize: "20pt" }}>Lūdzu, ievadiet komandas nosaukumu:</h2>
@@ -173,7 +164,7 @@ const GameView = () => {
                             <input onChange={(e) => setPlayerAnswers({ ...playerAnswers, [`${currentQuestionGroup}_${currentQuestion}`]: e.target.value })} value={playerAnswers[`${currentQuestionGroup}_${currentQuestion}`]} type="text"></input>
                         </label>}
                 </div>}
-            </div>}
+            </div>
         </>
     );
 }

@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import API from './axiosApi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const AdminView = ({ instanceId }) => {
+const AdminView = ({ }) => {
     const [quiz, setQuiz] = useState(null);
     const [quizInstance, setQuizInstance] = useState(null);
 
-    const [activeQuestionGroup, setActiveQuestionGroup] = useState({disqualify_amount: 3});
+    const [activeQuestionGroup, setActiveQuestionGroup] = useState({ disqualify_amount: 3 });
 
     const [disqualifiedPlayers, setDisqualifiedPlayers] = useState(null);
     const [tiebreakerPlayers, setTiebreakerPlayers] = useState(null);
@@ -20,24 +20,26 @@ const AdminView = ({ instanceId }) => {
 
     const [expandedRow, setExpandedRow] = useState(null);
 
+    const { id } = useParams()
+
     useEffect(() => {
-        API.get(`/quiz-instances/${instanceId}`).then((response) => {
+        API.get(`/quiz-instances/${id}`).then((response) => {
             setQuiz(response.data.data.quiz);
             setQuizInstance(response.data.data);
             setActiveQuestionGroup(response.data.data.active_question_group);
         });
-        API.get(`/quiz-instances/${instanceId}/players`).then((response) => {
+        API.get(`/quiz-instances/${id}/players`).then((response) => {
             setPlayers(response.data);
         });
         API.get(`/players`).then((response) => {
             setLoadedPlayers(response.data.data);
             console.log(response.data.data);
         });
-    }, [instanceId]);
+    }, [id]);
 
 
     useEffect(() => {
-        if(!loadedPlayers) return;
+        if (!loadedPlayers) return;
         const pollingInterval = 2000; // 2 seconds in milliseconds
         const pollInterval = setInterval(() => {
             API.get(`/players`).then((response) => {
@@ -255,28 +257,28 @@ const AdminView = ({ instanceId }) => {
         return (
             <table>
                 <thead>
-                <tr>
-                    <th>Player name</th>
-                    {/* Assuming each player has the same number of answers */}
-                    {activeQuestionGroup.questions.map(question => (
-                        <th key={question.id}>Question {question.id}</th>
-                    ))}
-                </tr>
+                    <tr>
+                        <th>Player name</th>
+                        {/* Assuming each player has the same number of answers */}
+                        {activeQuestionGroup.questions.map(question => (
+                            <th key={question.id}>Question {question.id}</th>
+                        ))}
+                    </tr>
                 </thead>
                 <tbody>
-                {playerAnswerList}
+                    {playerAnswerList}
                 </tbody>
             </table>
         );
     };
 
     const QuestionGroups = useMemo(() => {
-        if(!quiz) return null;
+        if (!quiz) return null;
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (QuestionGroup.is_additional) return null;
             return (
                 <React.Fragment key={QuestionGroup.id}>
-                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{cursor: 'pointer'}} className={QuestionGroup.id === activeQuestionGroup.id ? 'success-row' : ''}>
+                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{ cursor: 'pointer' }} className={QuestionGroup.id === activeQuestionGroup.id ? 'success-row' : ''}>
                         <td>{questionGroupIndex}</td>
                         <td>{QuestionGroup.title}</td>
                         <td>{QuestionGroup.disqualify_amount}</td>
@@ -296,7 +298,7 @@ const AdminView = ({ instanceId }) => {
     }, [quiz, expandedRow]);
 
     const AdditionalQuestionGroups = useMemo(() => {
-        if(!quiz) return null;
+        if (!quiz) return null;
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (!QuestionGroup.is_additional) return null;
             return (
@@ -312,53 +314,56 @@ const AdminView = ({ instanceId }) => {
     }, [quiz]);
 
     return (
-        <div>
-            {quiz && <h1>Currently managing game {quiz.title}</h1>}
-            <h2>Active players</h2>
-            <table className="hostTable">
-                <tbody>
-                    <tr>
-                        <th>Position</th>
-                        <th>Player</th>
-                        <th>Disqualified?</th>
-                        <th>Points</th>
-                    </tr>
-                    {activePlayers && activePlayers.length === 0 && <tr>No players have currently joined this game.</tr>}
-                    {activePlayers && activePlayers.length > 0 && AllActivePlayers}
-                </tbody>
-            </table>
+        <>
+            {quiz && <div>
+                <h1>Currently managing game {quiz.title}</h1>
+                <h2>Active players</h2>
+                <table className="hostTable">
+                    <tbody>
+                        <tr>
+                            <th>Position</th>
+                            <th>Player</th>
+                            <th>Disqualified?</th>
+                            <th>Points</th>
+                        </tr>
+                        {activePlayers && activePlayers.length === 0 && <tr>No players have currently joined this game.</tr>}
+                        {activePlayers && activePlayers.length > 0 && AllActivePlayers}
+                    </tbody>
+                </table>
 
-            <h2>Question groups</h2>
-            <table className="hostTable">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Is active?</th>
-                        <th>Disqualify amount</th>
-                        <th>Answer time</th>
-                        <th>Points</th>
-                    </tr>
-                    {!quiz && <tr>Something went wrong. :(</tr>}
-                    {quiz && QuestionGroups}
-                </tbody>
-            </table>
+                <h2>Question groups</h2>
+                <table className="hostTable">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Is active?</th>
+                            <th>Disqualify amount</th>
+                            <th>Answer time</th>
+                            <th>Points</th>
+                        </tr>
+                        {!quiz && <tr>Something went wrong. :(</tr>}
+                        {quiz && QuestionGroups}
+                    </tbody>
+                </table>
 
-            <h2>Additional question groups</h2>
-            <table className="hostTable">
-                <tbody>
-                <tr>
-                    <th>Name</th>
-                    <th>Is active?</th>
-                    <th>Disqualify amount</th>
-                    <th>Answer time</th>
-                    <th>Points</th>
-                </tr>
-                {!quiz && <tr>Something went wrong. :(</tr>}
-                {quiz && AdditionalQuestionGroups}
-                </tbody>
-            </table>
-            {PositionPlayers}
-        </div>
+                <h2>Additional question groups</h2>
+                <table className="hostTable">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Is active?</th>
+                            <th>Disqualify amount</th>
+                            <th>Answer time</th>
+                            <th>Points</th>
+                        </tr>
+                        {!quiz && <tr>Something went wrong. :(</tr>}
+                        {quiz && AdditionalQuestionGroups}
+                    </tbody>
+                </table>
+                {PositionPlayers}
+            </div>}
+            {!quiz && console.log("instance ID is " + id)}
+        </>
     );
 
 }

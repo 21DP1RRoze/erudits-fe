@@ -1,16 +1,30 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Home from './Home';
 import QuestionCreator from './QuestionCreator';
-import GameView from './GameView';
+import GamePage from './GamePage';
+import API from './axiosApi';
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState();
+  useEffect(() => {
+    async function fetchData() {
+      await API.get('/user').then(async (response) => {
+        setLoggedIn(true);
+      }).catch(() => {
+        setLoggedIn(false);
+      });
+      
+    }
+    fetchData();
+  }, []);
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home loggedIn={loggedIn} />} />
           <Route path='/questioncreator/:id' element={<QuestionCreator />} />
-          <Route path="/game/:id" element={<GameView />} />
+          <Route path="/gamepage/:id" element={<GamePage loggedIn={loggedIn} />} />
         </Routes>
       </BrowserRouter>
     </div>

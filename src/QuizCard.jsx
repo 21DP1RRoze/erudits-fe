@@ -55,7 +55,7 @@ const InstanceCard = ({ quiz, updateInstanceCards, updateQuizzes }) => {
                     <h5 className="card-title">{quiz.title}</h5>
                     <p className="card-text">{quiz.description}</p>
                     <button onClick={() => { createQuizInstance(quiz.id) }} className="urbanist p-1 ps-3 pe-3 btn-action">Atvērt</button>
-                    {loggedIn && <i className="fa-solid fa-pen-to-square editInstanceButton" onClick={() => navigate(`/questioncreator/${quiz.id}`)}></i>}
+                    <i className="fa-solid fa-pen-to-square editInstanceButton" onClick={() => navigate(`/questioncreator/${quiz.id}`)}></i>
                     <i onClick={() => setShowConfirmation(true)} className='deleteQuiz fa-regular fa-trash-can'></i>
                 </div>
             </div>

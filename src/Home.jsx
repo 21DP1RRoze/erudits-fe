@@ -6,10 +6,9 @@ import InstanceCard from './InstanceCard';
 import QuizCard from "./QuizCard";
 import { useNavigate } from 'react-router-dom';
 
-const Home = () => {
+const Home = ({loggedIn}) => {
 
     const navigate = useNavigate();
-    const [loggedIn, setLoggedIn] = useState(false);
     const [user, setUser] = useState(false);
     const [quizzes, setQuizzes] = useState(false);
     const [quizInstances, setQuizInstances] = useState(false);
@@ -18,13 +17,11 @@ const Home = () => {
     useEffect(() => {
         async function fetchData() {
             await API.get('/user').then(async (response) => {
-                setLoggedIn(true);
                 setUser(response.data);
                 await API.get('/quizzes').then((response) => {
                     setQuizzes(response.data.data);
                 });
             }).catch(() => {
-                setLoggedIn(false);
             });
             await API.get('/quiz-instances').then((response) => {
                 setQuizInstances(response.data.data);
@@ -102,7 +99,7 @@ const Home = () => {
             </div>}
             <div className="instance-container">
                 <img className="m-2 ms-3 cat-wave" src={catgif} />
-                <p className="titleHome mt-3">Laipni lūgts sistēmā "Erudīts"!</p>
+                <p className="titleHome mt-3" style={{fontSize: "36pt"}}>Laipni lūgti sistēmā "Erudīts"!</p>
                 {loggedIn && <button onClick={() => onCreateQuizBtnClick()} className="p-1 ps-2 pe-2 urbanist newQuizButton btn-action">Create new quiz +</button>}
                 <div className="gamesContainer container p-0">
                     {loggedIn &&
