@@ -501,7 +501,6 @@ body {
   border-right:#22223B 10px solid;
   text-align: center;
   user-select: none;
-  font-family: "Bebas Neue", sans-serif;
   font-family: "Lilita One", sans-serif;
   color: #22223B;
   font-size: 16rem;
@@ -1106,4 +1105,48 @@ body {
 
 .playerNameContainer {
   padding: 10% 0;
+}
+
+.presentationTable {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 65%;
+  text-align: center;
+  border-collapse: separate;
+  border-spacing: 0 15px;  
+}
+
+.presentationTable td {
+  color: white;
+  font-size: 22pt;
+}
+
+
+.presentationName {
+  border-top-left-radius: 50pt;
+  border-bottom-left-radius: 50pt;
+  background: rgb(65,90,119);
+background: linear-gradient(90deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 100%);
+  text-shadow: 1px 1px 1px black;
+}
+
+.presentationPoints {
+  border-top-right-radius: 50pt;
+  border-bottom-right-radius: 50pt;
+  background: rgb(65,90,119);
+  text-shadow: 1px 1px 1px black;
+background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 100%);
+}
+
+.presentationBackground {
+  background: #0D1B2A;
+  font-family: "Madimi One", sans-serif;
+
+}
+
+.presentationSpacing {
+  height: 0.5em;
 }
