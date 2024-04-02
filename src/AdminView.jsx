@@ -274,6 +274,7 @@ const AdminView = ({ }) => {
 
     const QuestionGroups = useMemo(() => {
         if (!quiz) return null;
+        if (!activeQuestionGroup) return null;
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (QuestionGroup.is_additional) return null;
             return (
@@ -295,7 +296,7 @@ const AdminView = ({ }) => {
                 </React.Fragment>
             )
         });
-    }, [quiz, expandedRow]);
+    }, [quiz, expandedRow, activeQuestionGroup]);
 
     const AdditionalQuestionGroups = useMemo(() => {
         if (!quiz) return null;
