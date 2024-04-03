@@ -605,12 +605,7 @@ body {
 }
 
 .questionText {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-  font-size: 3rem;
+  font-size: 1.5vw;
   color: #F2E9E4;
   user-select: none;
 }
@@ -639,20 +634,21 @@ body {
 
 .playerNameContainer {
   text-align: center;
+  margin: 0;
   position: absolute;
-  height: 100%;
-  width: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   overflow: hidden;
 
 }
 
 .playerNameInput {
-  width: 25%;
-  height: 10%;
+  width: 80%;
   border-radius: 6pt;
   border: none;
   text-align: center;
-  font-size: 160%;
+  font-size: 24pt;
   padding-top: 5px;
   letter-spacing: 2px;
   font-family: "Madimi One", sans-serif;
@@ -810,7 +806,11 @@ body {
 }
 
 .question {
-  padding: 20px;
+  text-align: center;
+}
+
+.questionImage {
+  width: 45%;
 }
 
 .confirmationContainer {
@@ -1147,6 +1147,27 @@ background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 10
 
 }
 
-.presentationSpacing {
-  height: 0.5em;
+.inputGuideLines {
+  width: 75%;
+  font-size: 14pt;
+  border-radius: 6pt;
+  border: none;
+  padding: 5px 10px;
+  text-align: center;
+}
+
+.waiting {
+  position: relative;
+  height:100%;
+  width: 100%;
+  z-index: 3;
+  text-align: center;
+}
+
+.waitingContainer {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

@@ -243,7 +243,14 @@ const QuestionCreator = () => {
                         <div className="answerContainer mt-3" style={{ display: (!Question.is_open_answer) ? 'grid' : 'none' }}>
                             {Answers}
                         </div>
-                        <div className="answersText mt-3" style={{ display: (Question.is_open_answer) ? 'block' : 'none' }}>
+                        <div className="answersText mt-4" style={{ display: (Question.is_open_answer) ? 'block' : 'none' }}>
+                            <input onChange={(event) => {
+                                    const newText = event.target.value;
+                                    setQuestionGroupState(prevState => {
+                                        prevState.question_groups[groupIndex].questions[questionIndex].guidelines = newText;
+                                        return { ...prevState }; // Return a new object to trigger re-render
+                                    });
+                                }} value={Question.guidelines} className="inputGuideLines mb-3" type="text" placeholder='Input guidelines for the player'></input><br/>
                             The player will write their answer.
                         </div>
                         <i onClick={() => (setIdToDelete({ groupID: QuestionGroup.id, questionID: Question.id })) || setShowConfirmationQuestion(true)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>

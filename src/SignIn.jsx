@@ -45,6 +45,7 @@ const Register = ({setShowLogin}) => {
         <div onClick={() => setShowLogin(false)} className="loginBackground glass"></div>
             {toggleLoginView && <div className="loginContainer">
                 <div className="loginInfoText p-3">
+                    <form onSubmit={handleLoginSubmit}>
                     <div className="closeButton mt-0 mb-2"><i onClick={() => setShowLogin(false)} className="fa-solid fa-xmark"></i></div>
                     <h5 className="m-0 mb-4">Please log in to create and modify quizzes.</h5>
                     <input onChange={(e)=> setInputUsername(e.target.value)} value={inputUsername} className="userInput mb-4 p-1 ps-3" placeholder="username" type="text"></input>
@@ -52,10 +53,12 @@ const Register = ({setShowLogin}) => {
                     <button onClick={handleLoginSubmit} className="btn-action p-1 ps-5 pe-5 mb-2">Login</button>
                     <p className="m-0 mb-1">or</p>
                     <p className="switchLogin" onClick={() => setToggleLoginView(false)}>create an account</p>
+                    </form>
                 </div>
             </div>}
             {!toggleLoginView && <div className="registerContainer">
                 <div className="loginInfoText p-3">
+                    <form onSubmit={handleRegisterSubmit}>
                     <div className="closeButton mt-0 mb-2"><i onClick={() => setShowLogin(false)} className="fa-solid fa-xmark"></i></div>
                     <h5 className="m-0 mb-4">Please sign up to create and modify quizzes.</h5>
                     <input onChange={(e)=> setInputUsername(e.target.value)} value={inputUsername} className="userInput mb-4 p-1 ps-3" placeholder="username" type="text"></input>
@@ -65,6 +68,7 @@ const Register = ({setShowLogin}) => {
                     <button onClick={handleRegisterSubmit} className="btn-action p-1 ps-5 pe-5 mb-2">Sign up</button>
                     <p className="m-0 mb-1">or</p>
                     <p className="switchLogin" onClick={() => setToggleLoginView(true)}>log in</p>
+                    </form>
                 </div>
             </div>}
         </>
