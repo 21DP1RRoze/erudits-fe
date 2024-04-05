@@ -53,8 +53,8 @@ const InstanceCard = ({ quiz, updateInstanceCards, updateQuizzes, id }) => {
             {showConfirmation && <ConfirmationMessage message={"Are you sure you want to delete this quiz?"} onConfirm={deleteQuiz}/>}
             <div className="glass card mb-3">
                 <div className="card-body">
-                    <input className="card-title" value={title} onChange={(e) => setTitle(e.target.value) || saveQuiz()}/>
-                    <textarea onChange={(e) => setDescription(e.target.value) || saveQuiz()} value={description} className="card-description" />
+                    <input className="card-title" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={saveQuiz} />
+                    <textarea onChange={(e) => setDescription(e.target.value)} onBlur={saveQuiz} value={description} className="card-description" />
                     <button onClick={() => { createQuizInstance(quiz.id) }} className="urbanist p-1 ps-3 pe-3 btn-action">Atvērt</button>
                     <i className="fa-solid fa-pen-to-square editInstanceButton" onClick={() => navigate(`/questioncreator/${quiz.id}`)}></i>
                     <i onClick={() => setShowConfirmation(true)} className='deleteQuiz fa-regular fa-trash-can'></i>
