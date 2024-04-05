@@ -271,14 +271,14 @@ const QuestionCreator = () => {
                             <div className="pt-4 pb-4 mb-2 glass questionGroupInfo mb-3" style={{ background: (QuestionGroup.is_additional ? '#fff7d1' : 'none') }}>
                                 <div className="groupDetails">
                                     <div className="quizTime"
-                                        onChange={(event) => {
+                                        ><i className="fa-regular fa-clock fa-2x me-2"></i>
+                                        <select onChange={(event) => {
                                             const newTime = parseInt(event.target.value);
                                             setQuestionGroupState(prevState => {
                                                 prevState.question_groups[groupIndex].answer_time = newTime;
                                                 return { ...prevState }; // Return a new object to trigger re-render
                                             });
-                                        }}><i className="fa-regular fa-clock fa-2x me-2"></i>
-                                        <select className="timeSelect dropDown" name="time">
+                                        }} value={questionGroupState.question_groups[groupIndex].answer_time} className="timeSelect dropDown" name="time">
                                             <option value={1}>01:00</option>
                                             <option value={5}>05:00</option>
                                             <option value={10}>10:00</option>
@@ -286,16 +286,16 @@ const QuestionCreator = () => {
                                             <option value={20}>20:00</option>
                                         </select>
                                     </div>
-                                    <div className="playerDisqualifications"
-                                        onChange={(event) => {
+                                    <div className="playerDisqualifications">
+                                        <i className="fa-solid fa-user-large-slash me-2" style={{ fontSize: "22pt" }}></i>
+                                        <select onChange={(event) => {
                                             const newDisq = parseInt(event.target.value);
                                             setQuestionGroupState(prevState => {
                                                 prevState.question_groups[groupIndex].disqualify_amount = newDisq;
                                                 return { ...prevState }; // Return a new object to trigger re-render
                                             });
-                                        }}>
-                                        <i className="fa-solid fa-user-large-slash me-2" style={{ fontSize: "22pt" }}></i>
-                                        <select className="disqualificationSelect dropDown" name="disq">
+                                        }} value={questionGroupState.question_groups[groupIndex].disqualify_amount} className="disqualificationSelect dropDown" name="disq">
+                                            <option value={0}>0</option>
                                             <option value={1}>1</option>
                                             <option value={2}>2</option>
                                             <option value={3}>3</option>
@@ -312,7 +312,7 @@ const QuestionCreator = () => {
                                                     prevState.question_groups[groupIndex].points = newPoints;
                                                     return { ...prevState }; // Return a new object to trigger re-render
                                                 });
-                                            }}>
+                                            }} value={questionGroupState.question_groups[groupIndex].points}>
                                             <option value={1}>1</option>
                                             <option value={2}>2</option>
                                             <option value={3}>3</option>

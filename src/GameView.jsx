@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import API from './axiosApi';
 import AdminView from './AdminView';
 import ConfirmationMessage from './ConfirmationMessage';
+import Countdown from './Countdown';
 
 const GameView = () => {
     const [quiz, setQuiz] = useState(false);
@@ -15,6 +16,7 @@ const GameView = () => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isWaiting, setIsWaiting] = useState(false);
     const [playerAnswers, setPlayerAnswers] = useState({});
+    const [doneCounting, setDoneCounting] = useState(false);
     //timer
     const [seconds, setSeconds] = useState(0);
     const [minutes, setMinutes] = useState(1);
@@ -34,7 +36,7 @@ const GameView = () => {
     useEffect(() => {
         if(quizReady && ready) {
             setMinutes(Math.floor(quiz.question_groups[currentQuestionGroup].answer_time));
-            setIsActive(true);
+            
         }
     },[ready])
 
@@ -92,6 +94,7 @@ const GameView = () => {
         }
         if(minutes === 0 && seconds === 0) {
             setIsWaiting(true);
+            setIsActive(false);
         }
         
     
@@ -101,6 +104,11 @@ const GameView = () => {
       const formatTime = (time) => {
         return time < 10 ? `0${time}` : time;
       };
+
+      const finishCountdown = () => {
+        setDoneCounting(true);
+        setIsActive(true);
+      }
 
       
 
@@ -148,7 +156,9 @@ const GameView = () => {
                     </div>
                 </div>}
 
-                {quizReady && ready && quiz && !isWaiting && <div className="content gameView">
+                {quizReady && ready && quiz && !isWaiting && <Countdown done={finishCountdown}/>}
+
+                {quizReady && ready && quiz && !isWaiting && doneCounting && <div className="content gameView">
                     {showConfirmation && <ConfirmationMessage message="Iesniegt atbildes?" onConfirm={userFinishQuiz} />}
 
                     <div className="questionContainer">
@@ -158,7 +168,7 @@ const GameView = () => {
                             <div className="questionsLeft ms-5"><span>{currentQuestion + 1}/{quiz.question_groups[currentQuestionGroup].questions.length}</span><i className="ms-2 fa-solid fa-check fa-2x" style={{ color: "#f2e9e4" }}></i></div>
                         </div>
                         <div className="p-3 question">
-                            <img src={quiz.question_groups[currentQuestionGroup].questions[currentQuestion].image} alt="question image" className="questionImage mb-2" /><br/>
+                            <img src={quiz.question_groups[currentQuestionGroup].questions[currentQuestion].image} className="questionImage mb-2" /><br/>
                             <span className="questionText">{quiz.question_groups[currentQuestionGroup].questions[currentQuestion].text}</span>
                         </div>
                         <div className="nextButton" onClick={() => nextQuestion()}>{'>'}</div>
@@ -180,7 +190,7 @@ const GameView = () => {
                               });
                             }}
                             disabled={playerAnswers[quiz.question_groups[currentQuestionGroup].questions[currentQuestion].id] === answer.id}
-                            className={`answer answer${index + 1}`}
+                            className="answer"
                           >
                             <span className="answerOptionText">{answer.text}</span>
                           </div>
