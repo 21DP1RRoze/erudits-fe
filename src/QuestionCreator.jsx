@@ -167,6 +167,10 @@ const QuestionCreator = () => {
         if (!quiz) return null;
         return quiz.data.question_groups.map(function (QuestionGroup, groupIndex) {
             let Questions;
+            //set defaults so there isnt a null
+            QuestionGroup.answer_time=QuestionGroup.answer_time || 1;
+            QuestionGroup.disqualify_amount= QuestionGroup.disqualify_amount || 0;
+            QuestionGroup.points= QuestionGroup.points || 1;
             Questions = QuestionGroup.questions.map(function (Question, questionIndex) {
                 let Answers;
                 Answers = Question.answers.map(function (Answer, answerIndex) {
@@ -245,12 +249,12 @@ const QuestionCreator = () => {
                         </div>
                         <div className="answersText mt-4" style={{ display: (Question.is_open_answer) ? 'block' : 'none' }}>
                             <input onChange={(event) => {
-                                    const newText = event.target.value;
-                                    setQuestionGroupState(prevState => {
-                                        prevState.question_groups[groupIndex].questions[questionIndex].guidelines = newText;
-                                        return { ...prevState }; // Return a new object to trigger re-render
-                                    });
-                                }} value={Question.guidelines} className="inputGuideLines mb-3" type="text" placeholder='Input guidelines for the player'></input><br/>
+                                const newText = event.target.value;
+                                setQuestionGroupState(prevState => {
+                                    prevState.question_groups[groupIndex].questions[questionIndex].guidelines = newText;
+                                    return { ...prevState }; // Return a new object to trigger re-render
+                                });
+                            }} value={Question.guidelines} className="inputGuideLines mb-3" type="text" placeholder='Input guidelines for the player'></input><br />
                             The player will write their answer.
                         </div>
                         <i onClick={() => (setIdToDelete({ groupID: QuestionGroup.id, questionID: Question.id })) || setShowConfirmationQuestion(true)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>
@@ -262,7 +266,10 @@ const QuestionCreator = () => {
             if (QuestionGroup.is_additional) {
                 setHasTiebreaker(true);
             }
+            
             return (
+
+            
                 <>
                     <div key={questionGroupId} id={"questionGroup" + questionGroupId} className='questionCardContainer mb-3 glass'>
 
@@ -271,7 +278,7 @@ const QuestionCreator = () => {
                             <div className="pt-4 pb-4 mb-2 glass questionGroupInfo mb-3" style={{ background: (QuestionGroup.is_additional ? '#fff7d1' : 'none') }}>
                                 <div className="groupDetails">
                                     <div className="quizTime"
-                                        ><i className="fa-regular fa-clock fa-2x me-2"></i>
+                                    ><i className="fa-regular fa-clock fa-2x me-2"></i>
                                         <select onChange={(event) => {
                                             const newTime = parseInt(event.target.value);
                                             setQuestionGroupState(prevState => {
@@ -342,7 +349,7 @@ const QuestionCreator = () => {
             )
         });
     }, [quiz, questionGroupState]);
-
+    
     return (
         <div className="content css-selector">
             {showConfirmationQuestion && <ConfirmationMessage message="Are you sure you want to delete this question？" QuestionId={idToDelete.questionID} QuestionGroupId={idToDelete.groupID} onConfirm={deleteQuestion} />}

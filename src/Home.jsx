@@ -56,6 +56,7 @@ const Home = ({loggedIn}) => {
                     quiz={quiz}
                     updateInstanceCards={updateInstanceCards}
                     updateQuizzes={updateQuizzes}
+                    id={quiz.id}
                 />
             )
         });
@@ -71,6 +72,7 @@ const Home = ({loggedIn}) => {
                 <InstanceCard
                     instance={quizInstance}
                     loggedIn={loggedIn}
+                    updateInstanceCards={updateInstanceCards}
                 />
             )
         });
