@@ -268,18 +268,18 @@ const AdminView = ({ }) => {
         );
     };
 
-    function handleStopClick() {
+    const handleStopClick = () => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
             question_group_id: null
-        }).then((response) => {
+        }).then(() => {
             setActiveQuestionGroup(null);
         });
     }
 
-    function handleStartClick(questionGroupId) {
+    const handleStartClick = (questionGroupId) => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
             question_group_id: questionGroupId
-        }).then((response) => {
+        }).then(() => {
             setActiveQuestionGroup(questionGroupId);
         });
     }
