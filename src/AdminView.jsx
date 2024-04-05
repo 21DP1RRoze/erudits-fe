@@ -27,13 +27,12 @@ const AdminView = ({ }) => {
             setQuiz(response.data.data.quiz);
             setQuizInstance(response.data.data);
             setActiveQuestionGroup(response.data.data.active_question_group);
+            console.log(response.data.data);
+
         });
         API.get(`/quiz-instances/${id}/players`).then((response) => {
             setPlayers(response.data);
-        });
-        API.get(`/players`).then((response) => {
             setLoadedPlayers(response.data.data);
-            console.log(response.data.data);
         });
     }, [id]);
 
@@ -42,10 +41,7 @@ const AdminView = ({ }) => {
         if (!loadedPlayers) return;
         const pollingInterval = 2000; // 2 seconds in milliseconds
         const pollInterval = setInterval(() => {
-            API.get(`/players`).then((response) => {
-                const sortedArr2 = loadedPlayers.slice().sort();
-                const sortedArr1 = response.data.data.slice().sort();
-
+            API.get(`/quiz-instances/${id}/players`).then((response) => {
                 setLoadedPlayers(response.data.data);
             });
 
@@ -221,7 +217,7 @@ const AdminView = ({ }) => {
         setDisqualifiedPlayers(disqPlayers);
         setTiebreakerPlayers(tiePlayers);
         setAdvancedPlayers(advPlayers);
-    }, [activePlayers]);
+    }, [activePlayers, activeQuestionGroup]);
 
     const PlayerAnswers = ({ questionGroupId }) => {
         if (!activePlayers) return null;
@@ -260,7 +256,7 @@ const AdminView = ({ }) => {
                     <tr>
                         <th>Player name</th>
                         {/* Assuming each player has the same number of answers */}
-                        {activeQuestionGroup.questions.map(question => (
+                        {(activeQuestionGroup != null && activeQuestionGroup.questions.length) && activeQuestionGroup.questions.map(question => (
                             <th key={question.id}>Question {question.id}</th>
                         ))}
                     </tr>
@@ -272,19 +268,43 @@ const AdminView = ({ }) => {
         );
     };
 
-    const QuestionGroups = useMemo(() => {
+    function handleStopClick() {
+        API.post(`/quiz-instances/${id}/active-question-group`, {
+            question_group_id: null
+        }).then((response) => {
+            setActiveQuestionGroup(null);
+        });
+    }
+
+    function handleStartClick(questionGroupId) {
+        API.post(`/quiz-instances/${id}/active-question-group`, {
+            question_group_id: questionGroupId
+        }).then((response) => {
+            setActiveQuestionGroup(questionGroupId);
+        });
+    }
+
+    function getQuestionGroups() {
         if (!quiz) return null;
-        if (!activeQuestionGroup) return null;
+        // if (!activeQuestionGroup) return null;
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (QuestionGroup.is_additional) return null;
             return (
                 <React.Fragment key={QuestionGroup.id}>
-                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{ cursor: 'pointer' }} className={QuestionGroup.id === activeQuestionGroup.id ? 'success-row' : ''}>
+                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{ cursor: 'pointer' }} className={(activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'success-row' : ''}>
                         <td>{questionGroupIndex}</td>
                         <td>{QuestionGroup.title}</td>
                         <td>{QuestionGroup.disqualify_amount}</td>
                         <td>{QuestionGroup.answer_time}</td>
                         <td>{QuestionGroup.points}</td>
+                        <td>
+                        {(activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) &&
+                            <button onClick={() => handleStopClick()}>Stop</button>
+                        }
+                        {(activeQuestionGroup == null || QuestionGroup.id !== activeQuestionGroup.id) &&
+                            <button disabled={activeQuestionGroup !== null} onClick={() => handleStartClick(QuestionGroup.id)}>Start</button>
+                        }
+                        </td>
                     </tr>
                     {expandedRow === QuestionGroup.id && (
                         <tr>
@@ -296,14 +316,14 @@ const AdminView = ({ }) => {
                 </React.Fragment>
             )
         });
-    }, [quiz, expandedRow, activeQuestionGroup]);
+    }
 
     const AdditionalQuestionGroups = useMemo(() => {
         if (!quiz) return null;
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (!QuestionGroup.is_additional) return null;
             return (
-                <tr>
+                <tr key={questionGroupIndex}>
                     <td>{questionGroupIndex}</td>
                     <td>{QuestionGroup.title}</td>
                     <td>{QuestionGroup.disqualify_amount}</td>
@@ -336,14 +356,15 @@ const AdminView = ({ }) => {
                 <table className="hostTable">
                     <tbody>
                         <tr>
+                            <th>ID</th>
                             <th>Name</th>
-                            <th>Is active?</th>
                             <th>Disqualify amount</th>
                             <th>Answer time</th>
                             <th>Points</th>
+                            <th>Controls</th>
                         </tr>
                         {!quiz && <tr>Something went wrong. :(</tr>}
-                        {quiz && QuestionGroups}
+                        {quiz && getQuestionGroups()}
                     </tbody>
                 </table>
 
