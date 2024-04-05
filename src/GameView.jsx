@@ -9,7 +9,7 @@ const GameView = () => {
     const [quiz, setQuiz] = useState(false);
 
     const [ready, setReady] = useState(false);
-    const [quizReady, setQuizReady] = useState(true);
+    const [quizReady, setQuizReady] = useState(false);
     const [player, setPlayer] = useState({ playerName: '', playerPoints: 0, playerIsDisqualified: false });
     const [currentQuestionGroup, setCurrentQuestionGroup] = useState(0);
     const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -38,7 +38,7 @@ const GameView = () => {
             setMinutes(Math.floor(quiz.question_groups[currentQuestionGroup].answer_time));
             
         }
-    },[ready])
+    },[quizReady, ready])
 
     const savePlayer = async () => {
         await API.post(`/players`, { quiz_instance_id: id, name: player.playerName, points: player.playerPoints, is_disqualified: player.playerIsDisqualified }).then((response) => {
@@ -131,7 +131,7 @@ const GameView = () => {
                     <div className="layer12"></div>
                     <div className="layer13"></div>
                 </div>
-                {!ready && <div className="playerName">
+                {!quizReady && <div className="playerName">
                     <div className="playerNameContainer">
                     {/* <h1 onClick={() => console.log(playerAnswers)}>click to log</h1> */}
 
@@ -144,7 +144,7 @@ const GameView = () => {
                         {/* spinner */}
                         {ready && <div>
                             <div className="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
-                            <h5 className="title" style={{ fontSize: "15pt" }}>Lūdzu, gaidiet spēles sākumu!</h5>
+                            <h5 onClick={()=> {setQuizReady(true)}}className="title" style={{ fontSize: "15pt" }}>Lūdzu, gaidiet spēles sākumu!</h5>
                         </div>}
                     </div>
                 </div>}
