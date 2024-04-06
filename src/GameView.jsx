@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import API from './axiosApi';
 import AdminView from './AdminView';
@@ -11,7 +11,7 @@ const GameView = () => {
     const [ready, setReady] = useState(false);
     const [quizReady, setQuizReady] = useState(false);
     const [player, setPlayer] = useState({ playerName: '', playerPoints: 0, playerIsDisqualified: false });
-    const [currentQuestionGroup, setCurrentQuestionGroup] = useState(0);
+    const [currentQuestionGroup, setCurrentQuestionGroup] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [isWaiting, setIsWaiting] = useState(false);
@@ -43,6 +43,7 @@ const GameView = () => {
     const savePlayer = async () => {
         await API.post(`/players`, { quiz_instance_id: id, name: player.playerName, points: player.playerPoints, is_disqualified: player.playerIsDisqualified }).then((response) => {
             setReady(true);
+            setIsWaiting(true);
             setPlayer({...player, id: response.data.data.id});
         }).catch((error) => {
             alert('Something went wrong.. check the console for more information.');
@@ -59,14 +60,15 @@ const GameView = () => {
     }
 
     const nextQuestion = () => {
-        if (quiz.question_groups[currentQuestionGroup].questions.length - 1 === currentQuestion) {
+        if (currentQuestionGroup.questions.length - 1 === currentQuestion) {
             setShowConfirmation(true)
         } else {
-            setCurrentQuestion(currentQuestion + 1);
+            setCurrentQuestion(currentQuestion => currentQuestion + 1);
         }
     }
 
     const userFinishQuiz = (choice) => {
+        API.post(`/players/${player.id}/deactivate`);
         setShowConfirmation(false);
         if (choice) {
             setIsWaiting(true);
@@ -75,9 +77,26 @@ const GameView = () => {
 
     const previousQuestion = () => {
         if (currentQuestion !== 0) {
-            setCurrentQuestion(currentQuestion - 1);
+            setCurrentQuestion(currentQuestion => currentQuestion - 1);
         }
     }
+
+    useEffect(() => {
+        if (currentQuestionGroup != null) return;
+        if (!ready) return;
+        const pollingInterval = 1000; // 1 second in milliseconds
+        const pollInterval = setInterval(() => {
+            API.get(`quiz-instances/${id}/poll-group`).then((response) => {
+                setCurrentQuestionGroup(response.data.data.active_question_group)
+                setIsWaiting(false)
+                setQuizReady(true)
+            });
+
+        }, pollingInterval);
+        return () => clearInterval(pollInterval);
+    }, [currentQuestionGroup, ready]);
+
+
     //timer courtesy of chatgpt
     useEffect(() => {
         let intervalId;
@@ -97,21 +116,79 @@ const GameView = () => {
             setIsActive(false);
         }
         
-    
-        return () => clearInterval(intervalId);
-      }, [isActive, minutes, seconds]);
-    
-      const formatTime = (time) => {
-        return time < 10 ? `0${time}` : time;
-      };
+		return () => clearInterval(intervalId);
+	}, [isActive, minutes, seconds]);
 
-      const finishCountdown = () => {
-        setDoneCounting(true);
-        setIsActive(true);
-      }
+	const formatTime = (time) => {
+		return time < 10 ? `0${time}` : time;
+	};
 
-      
+	const finishCountdown = () => {
+		setDoneCounting(true);
+		setIsActive(true);
+	}
 
+    const Questions = useMemo(() => {
+        if (!currentQuestionGroup) return null;
+        return currentQuestionGroup.questions.map(function (Question, questionIndex) {
+			let Answers;
+			if (!Question.is_open_answer) {
+				Answers = Question.answers.map(function (Answer, answerIndex) {
+					return (
+						<div
+							key={answerIndex}
+							onClick={(e) => {
+								saveAnswers(Question.id, Answer.id) && setPlayerAnswers({
+								...playerAnswers,
+								[Question.id]: Answer.id
+								});
+							}}
+							disabled={playerAnswers[Question.id] === Answer.id}
+							className="answer"
+							>
+							<span className="answerOptionText">{Answer.text}</span>
+						</div>
+					)
+				})
+			} else {
+				Answers = () => {
+					return (
+						<label className="manualAnswer">
+							<p>{Question.guidelines}</p>
+							<input onChange={(e) => saveOpenAnswers(Question.id, e.target.value) && setPlayerAnswers({ ...playerAnswers, [Question.id]: e.target.value })} value={playerAnswers[Question.id]} type="text"></input>
+						</label>
+					)
+				}
+			}
+
+			return (
+				<>
+					<div className="questionContainer">
+						<div className="previousButton" onClick={() => previousQuestion()}>{'<'}</div>
+						<div className="questionInfo">
+							<div className="clock me-5"><i className="fa-regular fa-clock fa-2x me-2" style={{ color: "#f2e9e4" }}></i><span>{formatTime(minutes)}:{formatTime(seconds)}</span></div>
+							<div className="questionsLeft ms-5"><span>{currentQuestion + 1}/{currentQuestionGroup.questions.length}</span><i className="ms-2 fa-solid fa-check fa-2x" style={{ color: "#f2e9e4" }}></i></div>
+						</div>
+						<div className="p-3 question">
+							<img src={Question.image} className="questionImage mb-2" /><br/>
+							<span className="questionText">{Question.text}</span>
+						</div>
+						<div className="nextButton" onClick={() => nextQuestion()}>{'>'}</div>
+					</div>
+					<div className="answerContainer">
+						{Answers}
+					</div>
+
+				</>
+			)
+		});
+    }, [currentQuestionGroup, currentQuestion, playerAnswers, minutes, seconds, previousQuestion, nextQuestion, saveAnswers, saveOpenAnswers]);
+
+	const CurrentActiveQuestion = useMemo(() => {
+		if (Questions === null) return false;
+		if (currentQuestion === null) return false;
+		return Questions[currentQuestion];
+	}, [Questions, currentQuestion])
 
     return (
         <>
@@ -133,8 +210,6 @@ const GameView = () => {
                 </div>
                 {!quizReady && <div className="playerName">
                     <div className="playerNameContainer">
-                    {/* <h1 onClick={() => console.log(playerAnswers)}>click to log</h1> */}
-
                         <h1 className="title">{quiz.title}</h1>
                         <h2 className="title mt-3" style={{ fontSize: "20pt" }}>Lūdzu, ievadiet komandas nosaukumu:</h2>
                         <input disabled={(ready)} onChange={(e) =>
@@ -160,47 +235,7 @@ const GameView = () => {
 
                 {quizReady && ready && quiz && !isWaiting && doneCounting && <div className="content gameView">
                     {showConfirmation && <ConfirmationMessage message="Iesniegt atbildes?" onConfirm={userFinishQuiz} />}
-
-                    <div className="questionContainer">
-                        <div className="previousButton" onClick={() => previousQuestion()}>{'<'}</div>
-                        <div className="questionInfo">
-                            <div className="clock me-5"><i className="fa-regular fa-clock fa-2x me-2" style={{ color: "#f2e9e4" }}></i><span>{formatTime(minutes)}:{formatTime(seconds)}</span></div>
-                            <div className="questionsLeft ms-5"><span>{currentQuestion + 1}/{quiz.question_groups[currentQuestionGroup].questions.length}</span><i className="ms-2 fa-solid fa-check fa-2x" style={{ color: "#f2e9e4" }}></i></div>
-                        </div>
-                        <div className="p-3 question">
-                            <img src={quiz.question_groups[currentQuestionGroup].questions[currentQuestion].image} className="questionImage mb-2" /><br/>
-                            <span className="questionText">{quiz.question_groups[currentQuestionGroup].questions[currentQuestion].text}</span>
-                        </div>
-                        <div className="nextButton" onClick={() => nextQuestion()}>{'>'}</div>
-                    </div>
-                    {/* <h1 onClick={() => console.log(playerAnswers)}>click to log</h1> */}
-
-                    {!quiz.question_groups[currentQuestionGroup].questions[currentQuestion].is_open_answer &&
-                        <div className="answerContainer">
-                        {quiz.question_groups[currentQuestionGroup].questions[currentQuestion].answers.map((answer, index) => (
-                          <div
-                            key={index}
-                            onClick={(e) => {
-                              saveAnswers(
-                                quiz.question_groups[currentQuestionGroup].questions[currentQuestion].id,
-                                answer.id
-                              ) && setPlayerAnswers({
-                                ...playerAnswers,
-                                [quiz.question_groups[currentQuestionGroup].questions[currentQuestion].id]: answer.id
-                              });
-                            }}
-                            disabled={playerAnswers[quiz.question_groups[currentQuestionGroup].questions[currentQuestion].id] === answer.id}
-                            className="answer"
-                          >
-                            <span className="answerOptionText">{answer.text}</span>
-                          </div>
-                        ))}
-                      </div>}
-                    {quiz.question_groups[currentQuestionGroup].questions[currentQuestion].is_open_answer &&
-                        <label className="manualAnswer">
-                            <p>{quiz.question_groups[currentQuestionGroup].questions[currentQuestion].guidelines}</p>
-                            <input onChange={(e) => saveOpenAnswers(quiz.question_groups[currentQuestionGroup].questions[currentQuestion].id, e.target.value) && setPlayerAnswers({ ...playerAnswers, [quiz.question_groups[currentQuestionGroup].questions[currentQuestion].id]: e.target.value })} value={playerAnswers[`${currentQuestionGroup}_${currentQuestion}`]} type="text"></input>
-                        </label>}
+                    {Questions && CurrentActiveQuestion}
                 </div>}
             </div>
         </>
