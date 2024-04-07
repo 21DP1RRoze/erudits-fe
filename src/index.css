@@ -475,12 +475,12 @@ body {
   height: 100%;
   width: 100%;
   border-radius: 50px;
-  transition: all 0.5s;
   user-select: none;
   background: rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12.8px);
   -webkit-backdrop-filter: blur(12.8px);
+  border: none;
 }
 
 .answer:hover {
@@ -836,7 +836,7 @@ body {
   top: 40%;
 }
 
-.answer[disabled] {
+.answer:disabled {
    outline: 6px #F2E9E4 solid;
 
 }
@@ -1224,4 +1224,15 @@ background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 10
 .card-description:focus, .card-title:focus {
   outline:none;
   border-bottom:#7161EF 1px solid;
+}
+
+.disqualified {
+  text-align: center;
+  font-weight: 700;
+  font-size: 36pt;
+  z-index: 4;
+  color: white;
+  position: fixed;
+  width: 100%;
+  background-color: rgba(255, 200, 0, 0.3);
 }

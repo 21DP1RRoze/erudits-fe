@@ -146,7 +146,7 @@ const GameView = () => {
 			if (!Question.is_open_answer) {
 				Answers = Question.answers.map(function (Answer, answerIndex) {
 					return (
-						<div
+						<button
 							key={answerIndex}
 							onClick={(e) => {
 								saveAnswers(Question.id, Answer.id) && setPlayerAnswers({
@@ -158,7 +158,7 @@ const GameView = () => {
 							className="answer"
 							>
 							<span className="answerOptionText">{Answer.text}</span>
-						</div>
+						</button>
 					)
 				})
 			} else if (Question.is_open_answer) {
@@ -213,6 +213,7 @@ const GameView = () => {
     return (
         <>
             <div className="gameViewContainer">
+            {player.playerIsDisqualified && <div className='disqualified p-2'>Komanda diskvalificēta</div>}
                 <div className="eruditsBG">
                     <div className="layer1"></div>
                     <div className="layer2"></div>
@@ -228,7 +229,10 @@ const GameView = () => {
                     <div className="layer12"></div>
                     <div className="layer13"></div>
                 </div>
+                
+
                 {!quizReady && <div className="playerName">
+                    
                     <div className="playerNameContainer">
                         <h1 className="title">{quiz.title}</h1>
                         <h2 className="title mt-3" style={{ fontSize: "20pt" }}>Lūdzu, ievadiet komandas nosaukumu:</h2>
