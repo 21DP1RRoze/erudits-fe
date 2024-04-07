@@ -7,7 +7,7 @@ const PresentationView = () => {
     const [sort, setSort] = useState(false);
     const [dataloaded, setDataLoaded] = useState(false);
 
-    const id = 1;
+    const id = 2;
     useEffect(() => {
         API.get(`/quiz-instances/${id}/players`).then((response) => {
             setPlayers(response.data);

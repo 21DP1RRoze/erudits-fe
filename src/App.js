@@ -26,7 +26,7 @@ function App() {
           <Route path="/" element={<Home loggedIn={loggedIn} />} />
           <Route path='/questioncreator/:id' element={<QuestionCreator />} />
           <Route path="/gamepage/:id" element={<GamePage loggedIn={loggedIn} />} />
-          <Route path="/skorebord" element={<PresentationView/>}/>
+          <Route path="/scoreboard" element={<PresentationView/>}/>
 
         </Routes>
       </BrowserRouter>

@@ -39,7 +39,7 @@ const AdminView = ({ }) => {
 
     useEffect(() => {
         if (!loadedPlayers) return;
-        const pollingInterval = 2000; // 2 seconds in milliseconds
+        const pollingInterval = 1000; // 1 second in milliseconds
         const pollInterval = setInterval(() => {
             API.get(`/quiz-instances/${id}/players`).then((response) => {
                 setLoadedPlayers(response.data.data);
@@ -61,13 +61,18 @@ const AdminView = ({ }) => {
 
     const DisqualifiedPlayers = useMemo(() => {
         if (!disqualifiedPlayers) return null;
-        return disqualifiedPlayers.map(function (Player, playerIndex) {
+        const sortedPlayers = [...disqualifiedPlayers].sort((a, b) => b.points - a.points);
+        return sortedPlayers.map(function (Player, playerIndex) {
             return (
                 <tr className='danger-row'>
                     <td>{playerIndex}</td>
                     <td>{Player.name}</td>
                     <td>{Player.is_disqualified}</td>
                     <td>{Player.points}</td>
+                    <td>
+                        <button onClick={() => handleKickPlayer(Player.id)}>Kick</button>
+                        <button onClick={() => handleDisqualifyPlayer(Player.id)}>Disqualify</button>
+                    </td>
                 </tr>
             )
         })
@@ -75,13 +80,18 @@ const AdminView = ({ }) => {
 
     const TiebreakPlayers = useMemo(() => {
         if (!tiebreakerPlayers) return null;
-        return tiebreakerPlayers.map(function (Player, playerIndex) {
+        const sortedPlayers = [...tiebreakerPlayers].sort((a, b) => b.points - a.points);
+        return sortedPlayers.map(function (Player, playerIndex) {
             return (
                 <tr className='warning-row'>
                     <td>{playerIndex}</td>
                     <td>{Player.name}</td>
                     <td>{Player.is_disqualified}</td>
                     <td>{Player.points}</td>
+                    <td>
+                        <button onClick={() => handleKickPlayer(Player.id)}>Kick</button>
+                        <button onClick={() => handleDisqualifyPlayer(Player.id)}>Disqualify</button>
+                    </td>
                 </tr>
             )
         })
@@ -89,27 +99,89 @@ const AdminView = ({ }) => {
 
     const AdvancedPlayers = useMemo(() => {
         if (!advancedPlayers) return null;
-        return advancedPlayers.map(function (Player, playerIndex) {
+        const sortedPlayers = [...advancedPlayers].sort((a, b) => b.points - a.points);
+        return sortedPlayers.map(function (Player, playerIndex) {
             return (
                 <tr>
                     <td>{playerIndex}</td>
                     <td>{Player.name}</td>
                     <td>{Player.is_disqualified}</td>
                     <td>{Player.points}</td>
+                    <td>
+                        <button onClick={() => handleKickPlayer(Player.id)}>Kick</button>
+                        <button onClick={() => handleDisqualifyPlayer(Player.id)}>Disqualify</button>
+                    </td>
                 </tr>
             )
         })
     }, [advancedPlayers]);
 
+    const handleKickPlayer = (playerId) => {
+        API.delete(`/players/${playerId}`).then(() => {
+            setLoadedPlayers(prevPlayers => prevPlayers.filter(player => player.id !== playerId));
+            setActivePlayers(prevPlayers => prevPlayers.filter(player => player.id !== playerId));
+
+        })
+    }
+
+    const handleDisqualifyPlayer = (playerId) => {
+        API.post(`/players/${playerId}/disqualify`).then(() => {
+            setLoadedPlayers(prevPlayers => {
+                return prevPlayers.map(player => {
+                    if (player.id === playerId) {
+                        return { ...player, is_disqualified: true };
+                    }
+                    return player;
+                });
+            });
+
+            setActivePlayers(prevPlayers => {
+                return prevPlayers.map(player => {
+                    if (player.id === playerId) {
+                        return { ...player, is_disqualified: true };
+                    }
+                    return player;
+                });
+            });
+        })
+    }
+
+    const handleRequalifyPlayer = (playerId) => {
+        API.post(`/players/${playerId}/requalify`).then(() => {
+            setLoadedPlayers(prevPlayers => {
+                return prevPlayers.map(player => {
+                    if (player.id === playerId) {
+                        return { ...player, is_disqualified: false };
+                    }
+                    return player;
+                });
+            });
+
+            setActivePlayers(prevPlayers => {
+                return prevPlayers.map(player => {
+                    if (player.id === playerId) {
+                        return { ...player, is_disqualified: false };
+                    }
+                    return player;
+                });
+            });
+        })
+    }
+
     const InactivePlayers = useMemo(() => {
         if (!inactivePlayers) return null;
-        return inactivePlayers.map(function (Player, playerIndex) {
+        const sortedPlayers = [...inactivePlayers].sort((a, b) => b.points - a.points);
+        return sortedPlayers.map(function (Player, playerIndex) {
             return (
                 <tr className='dead-row'>
                     <td>{playerIndex}</td>
                     <td>{Player.name}</td>
                     <td>{Player.is_disqualified}</td>
                     <td>{Player.points}</td>
+                    <td>
+                        <button onClick={() => handleKickPlayer(Player.id)}>Kick</button>
+                        <button onClick={() => handleRequalifyPlayer(Player.id)}>Requalify</button>
+                    </td>
                 </tr>
             )
         })
@@ -128,7 +200,8 @@ const AdminView = ({ }) => {
 
     const PositionPlayers = useMemo(() => {
         if (!activePlayers || activePlayers.length === 0) return null;
-        if (!activeQuestionGroup) return null;
+        let disqualifyAmount = 0;
+        if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount;
 
         const sortedPlayers = [...activePlayers].sort((a, b) => a.points - b.points);
 
@@ -138,8 +211,10 @@ const AdminView = ({ }) => {
         let disqPlayers = [];
         let tiePlayers = [];
 
-        console.log("NEW CYCLE")
         for (const player of sortedPlayers) {
+            // If no disqualifications needed, break
+            if (disqualifyAmount === 0) break;
+
             // If there are no players left
             // NOTE: THIS SHOULD NEVER RUN - only if all the teams have the same score, which is VERY unlikely
             if (disqualifiedCount >= sortedPlayers.length) break;
@@ -153,9 +228,16 @@ const AdminView = ({ }) => {
             }
 
             // If all potential candidates for disqualification are set
-            else if (disqualifiedCount >= activeQuestionGroup.disqualify_amount) {
-                // -- If the next player has more score than the last player, break the loop
-                if (player.points > tiebreakerScore) break;
+            else if (disqualifiedCount >= disqualifyAmount) {
+                // -- If the next player has more score than the last player
+                if (player.points > tiebreakerScore) {
+                    // --- If there are no disqPlayers and tiePlayer count is disqualifiedCount, all tiePlayers are disqualified
+                    if(disqPlayers.length === 0 && tiePlayers.length === disqualifyAmount) {
+                        disqPlayers.push(...tiePlayers);
+                        tiePlayers = [];
+                    }
+                    break;
+                }
 
                 // -- If the next player has the same score with the last player
                 else if (player.points === tiebreakerScore) {
@@ -176,7 +258,7 @@ const AdminView = ({ }) => {
             }
 
             // If more potential candidates are needed
-            else if (disqualifiedCount < activeQuestionGroup.disqualify_amount) {
+            else if (disqualifiedCount < disqualifyAmount) {
                 // -- If the next player has the same score with the last player
                 if (player.points === tiebreakerScore) {
                     // --- If the last player wasn't considered a tiebreaker
@@ -207,6 +289,19 @@ const AdminView = ({ }) => {
                     tiebreakerScore = player.points;
                 }
             }
+            // If after checking this player all potential candidates are set
+            if (disqualifiedCount >= disqualifyAmount) {
+                // If there are no more players to check
+                if (disqualifiedCount === sortedPlayers.length) {
+                    // If potential candidate amount is the same as players currently tiebreaking
+                    if (disqualifyAmount === tiePlayers.length) {
+                        // Disqualify all players currently tiebreaking
+                        disqPlayers.push(...tiePlayers);
+                        tiePlayers = [];
+                        break;
+                    }
+                }
+            }
         }
 
         const advPlayers = activePlayers.filter(player => {
@@ -222,52 +317,69 @@ const AdminView = ({ }) => {
     const PlayerAnswers = ({ questionGroupId }) => {
         if (!activePlayers) return null;
 
-        // Filter players based on whether they have answers for the specified question group
-        const filteredPlayers = activePlayers.filter(player =>
-            player.player_answers.some(answer => answer.question_group_id === questionGroupId)
-        );
+        const questionGroup = quiz.question_groups.find(group => group.id === questionGroupId);
+        if (!questionGroup) return null;
 
         // Map filtered players to display their answers for the specified question group
-        const playerAnswerList = filteredPlayers.map((Player, playerIndex) => {
+        const playerAnswerList = activePlayers.map((Player, playerIndex) => {
             // Filter player answers to include only those for the specified question group
             const playerAnswersForGroup = Player.player_answers
                 .filter(answer => answer.question_group_id === questionGroupId);
 
-            // Map player answers for the specified group to table cells
-            const PlayerSetAnswers = playerAnswersForGroup.map(PlayerAnswer => (
-                <td key={PlayerAnswer.id} className={PlayerAnswer.answer.is_correct ? 'success-row' : 'danger-row'}>
-                    {PlayerAnswer.answer.text}
-                </td>
-            ));
+            // Create a map of PlayerAnswer objects for quick lookup
+            const playerAnswersMap = {};
+            playerAnswersForGroup.forEach(answer => {
+                playerAnswersMap[answer.question_id] = answer;
+            });
+
+            const hasAnsweredAllQuestions = questionGroup.questions.every(question =>
+                playerAnswersMap.hasOwnProperty(question.id)
+            );
+
+            // Map questions from the specified question group to table cells
+            const playerSetAnswers = questionGroup.questions.map(question => {
+                const playerAnswer = playerAnswersMap[question.id];
+                if (playerAnswer) {
+                    // If PlayerAnswer exists, render the answer
+                    return (
+                        <td key={playerAnswer.id} className={playerAnswer.answer.is_correct ? 'success-row' : 'danger-row'}>
+                            {playerAnswer.answer.text}
+                        </td>
+                    );
+                } else {
+                    // If PlayerAnswer does not exist, render an empty cell
+                    return <td key={question.id}>-</td>;
+                }
+            });
+            const rowClass = hasAnsweredAllQuestions ? 'success-row' : '';
 
             // Render player name along with their answers for the specified group
             return (
-                <tr key={Player.id}>
+                <tr key={Player.id} className={rowClass}>
                     <td>{Player.name}</td>
-                    {PlayerSetAnswers}
+                    {playerSetAnswers}
                 </tr>
             );
         });
 
-        // Render the table containing player names and their answers for the specified group
-        return (
-            <table>
-                <thead>
-                    <tr>
-                        <th>Player name</th>
-                        {/* Assuming each player has the same number of answers */}
-                        {(activeQuestionGroup != null && activeQuestionGroup.questions.length) && activeQuestionGroup.questions.map(question => (
-                            <th key={question.id}>Question {question.id}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {playerAnswerList}
-                </tbody>
-            </table>
-        );
+            // Render the table containing player names and their answers for the specified group
+            return (
+                <table style={{width: '100%'}}>
+                    <thead>
+                        <tr>
+                            <th>Player name</th>
+                            {/* Assuming each player has the same number of answers */}
+                            {questionGroup?.questions?.length && questionGroup.questions.map(question => (
+                                <th key={question.id}>Question {question.id}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {playerAnswerList}
+                    </tbody>
+                </table>
+            );
     };
-
     const handleStopClick = () => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
             question_group_id: null
@@ -276,22 +388,23 @@ const AdminView = ({ }) => {
         });
     }
 
-    const handleStartClick = (questionGroupId) => {
+    const handleStartClick = (questionGroup) => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
-            question_group_id: questionGroupId
+            question_group_id: questionGroup.id,
+            question_group_time: new Date().toISOString(),
         }).then(() => {
-            setActiveQuestionGroup(questionGroupId);
+            setActiveQuestionGroup(questionGroup);
+            console.log(new Date().toISOString())
         });
     }
 
-    function getQuestionGroups() {
+    const getQuestionGroups = useMemo(() => {
         if (!quiz) return null;
-        // if (!activeQuestionGroup) return null;
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (QuestionGroup.is_additional) return null;
             return (
                 <React.Fragment key={QuestionGroup.id}>
-                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{ cursor: 'pointer' }} className={(activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'success-row' : ''}>
+                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{ cursor: 'pointer' }} className={(quizInstance.has_question_group_ended ? 'warning-row' : (activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'success-row' : '')}>
                         <td>{questionGroupIndex}</td>
                         <td>{QuestionGroup.title}</td>
                         <td>{QuestionGroup.disqualify_amount}</td>
@@ -299,16 +412,16 @@ const AdminView = ({ }) => {
                         <td>{QuestionGroup.points}</td>
                         <td>
                         {(activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) &&
-                            <button onClick={() => handleStopClick()}>Stop</button>
+                            <button onClick={(e) => { e.stopPropagation(); handleStopClick()} }>Stop</button>
                         }
                         {(activeQuestionGroup == null || QuestionGroup.id !== activeQuestionGroup.id) &&
-                            <button disabled={activeQuestionGroup !== null} onClick={() => handleStartClick(QuestionGroup.id)}>Start</button>
+                            <button disabled={activeQuestionGroup != null} onClick={(e) => { e.stopPropagation(); handleStartClick(QuestionGroup)} }>Start</button>
                         }
                         </td>
                     </tr>
                     {expandedRow === QuestionGroup.id && (
                         <tr>
-                            <td colSpan={5}>
+                            <td colSpan={6}>
                                 <PlayerAnswers questionGroupId={QuestionGroup.id} />
                             </td>
                         </tr>
@@ -316,7 +429,7 @@ const AdminView = ({ }) => {
                 </React.Fragment>
             )
         });
-    }
+    }, [quiz, activeQuestionGroup, expandedRow, activePlayers]);
 
     const AdditionalQuestionGroups = useMemo(() => {
         if (!quiz) return null;
@@ -334,12 +447,32 @@ const AdminView = ({ }) => {
         });
     }, [quiz]);
 
+    const handleTiebreakCycle = () => {
+
+    }
+
+    const handleDisqualifyCycle = () => {
+        const disqualifiedPlayerIds = disqualifiedPlayers.map(player => {
+            player.is_disqualified = true;
+            return player.id;
+        });
+        API.post('/players/disqualify-selected', {
+            player_ids: disqualifiedPlayerIds
+        })
+        API.post(`/quiz-instances/${id}/active-question-group`, {
+            question_group_id: null
+        })
+        setActiveQuestionGroup(null);
+        setDisqualifiedPlayers(null);
+    }
+
     return (
-        <>
+        <div>
             {quiz && <div>
                 <h1>Currently managing game {quiz.title}</h1>
+                <div style={{display: 'flex', textAlign: 'center', justifyContent: "center", width: '100%', flexDirection: "column"}}>
                 <h2>Active players</h2>
-                <table className="hostTable">
+                <table className="hostTable" style={{ width: '80%', margin: "auto"}}>
                     <tbody>
                         <tr>
                             <th>Position</th>
@@ -351,9 +484,18 @@ const AdminView = ({ }) => {
                         {activePlayers && activePlayers.length > 0 && AllActivePlayers}
                     </tbody>
                 </table>
+                </div>
+
+                <div style={{margin: '10px', display: 'flex', gap: '10px', textAlign: 'center', justifyContent: "center"}}>
+                    {TiebreakPlayers && <button disabled={TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
+                    <button style={{ background: '#75c4fa', fontWeight: 800 }}>SHOW LEADERBOARD</button>
+                    {DisqualifiedPlayers && <button onClick={handleDisqualifyCycle} disabled={DisqualifiedPlayers.length === 0} style={{ background: '#fa5757', fontWeight: 800 }}>RUN DISQUALIFICATION CYCLE</button>}
+                </div>
+
+                <h2>Currently active question group</h2>
 
                 <h2>Question groups</h2>
-                <table className="hostTable">
+                <table className="hostTable" style={{width: '100%'}}>
                     <tbody>
                         <tr>
                             <th>ID</th>
@@ -364,12 +506,12 @@ const AdminView = ({ }) => {
                             <th>Controls</th>
                         </tr>
                         {!quiz && <tr>Something went wrong. :(</tr>}
-                        {quiz && getQuestionGroups()}
+                        {quiz && getQuestionGroups}
                     </tbody>
                 </table>
 
                 <h2>Additional question groups</h2>
-                <table className="hostTable">
+                <table className="hostTable" style={{width: '100%'}}>
                     <tbody>
                         <tr>
                             <th>Name</th>
@@ -385,7 +527,7 @@ const AdminView = ({ }) => {
                 {PositionPlayers}
             </div>}
             {!quiz && console.log("instance ID is " + id)}
-        </>
+        </div>
     );
 
 }

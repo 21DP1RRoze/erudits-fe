@@ -11,6 +11,7 @@ const GameView = () => {
     const [ready, setReady] = useState(false);
     const [quizReady, setQuizReady] = useState(false);
     const [player, setPlayer] = useState({ playerName: '', playerPoints: 0, playerIsDisqualified: false });
+    const [playerActive, setPlayerActive] = useState(true)
     const [currentQuestionGroup, setCurrentQuestionGroup] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -35,8 +36,7 @@ const GameView = () => {
 
     useEffect(() => {
         if(quizReady && ready) {
-            setMinutes(Math.floor(quiz.question_groups[currentQuestionGroup].answer_time));
-            
+            setMinutes(Math.floor(currentQuestionGroup.answer_time));
         }
     },[quizReady, ready])
 
@@ -68,9 +68,11 @@ const GameView = () => {
     }
 
     const userFinishQuiz = (choice) => {
-        API.post(`/players/${player.id}/deactivate`);
         setShowConfirmation(false);
         if (choice) {
+            API.post(`/players/${player.id}/deactivate`);
+            setPlayerActive(false);
+            setIsActive(false);
             setIsWaiting(true);
         }
     }
@@ -82,19 +84,27 @@ const GameView = () => {
     }
 
     useEffect(() => {
-        if (currentQuestionGroup != null) return;
+        // If there is a question group active, but player has already completed it, continue
+        if (currentQuestionGroup != null) {
+            if (playerActive) return
+        }
         if (!ready) return;
         const pollingInterval = 1000; // 1 second in milliseconds
         const pollInterval = setInterval(() => {
-            API.get(`quiz-instances/${id}/poll-group`).then((response) => {
-                setCurrentQuestionGroup(response.data.data.active_question_group)
-                setIsWaiting(false)
-                setQuizReady(true)
+            API.get(`/quiz-instances/${id}/poll-group`).then((response) => {
+                if(!response.data.data?.active_question_group) return;
+                if(response.data.data.active_question_group.id === currentQuestionGroup?.id) return;
+                else {
+                    setCurrentQuestionGroup(response.data.data.active_question_group)
+                    setIsWaiting(false)
+                    setQuizReady(true)
+                }
+                console.log("diff id?", response.data.data.active_question_group.id, currentQuestionGroup?.id)
             });
 
         }, pollingInterval);
         return () => clearInterval(pollInterval);
-    }, [currentQuestionGroup, ready]);
+    }, [currentQuestionGroup, ready, playerActive]);
 
 
     //timer courtesy of chatgpt
@@ -124,13 +134,14 @@ const GameView = () => {
 	};
 
 	const finishCountdown = () => {
+        setIsActive(true);
 		setDoneCounting(true);
-		setIsActive(true);
 	}
 
     const Questions = useMemo(() => {
         if (!currentQuestionGroup) return null;
-        return currentQuestionGroup.questions.map(function (Question, questionIndex) {
+        if (!isActive) return null;
+        return currentQuestionGroup.questions.map(function (Question) {
 			let Answers;
 			if (!Question.is_open_answer) {
 				Answers = Question.answers.map(function (Answer, answerIndex) {
@@ -150,16 +161,26 @@ const GameView = () => {
 						</div>
 					)
 				})
-			} else {
-				Answers = () => {
-					return (
-						<label className="manualAnswer">
-							<p>{Question.guidelines}</p>
-							<input onChange={(e) => saveOpenAnswers(Question.id, e.target.value) && setPlayerAnswers({ ...playerAnswers, [Question.id]: e.target.value })} value={playerAnswers[Question.id]} type="text"></input>
-						</label>
-					)
-				}
+			} else if (Question.is_open_answer) {
+                let tempAnswerArray = [{id: 0}]
+                Answers = tempAnswerArray.map(function() {
+                    return (
+                        <label className="manualAnswer">
+                            <p>{Question.guidelines}</p>
+                            <input
+                                onChange={(e) => {
+                                    saveOpenAnswers(Question.id, e.target.value);
+                                    setPlayerAnswers({ ...playerAnswers, [Question.id]: e.target.value });
+                                }}
+                                value={playerAnswers[Question.id]}
+                                type="text"
+                            />
+                        </label>
+                    )
+                })
 			}
+
+            console.log(Answers)
 
 			return (
 				<>
@@ -175,14 +196,13 @@ const GameView = () => {
 						</div>
 						<div className="nextButton" onClick={() => nextQuestion()}>{'>'}</div>
 					</div>
-					<div className="answerContainer">
+                    <div className="answerContainer">
 						{Answers}
 					</div>
-
 				</>
 			)
 		});
-    }, [currentQuestionGroup, currentQuestion, playerAnswers, minutes, seconds, previousQuestion, nextQuestion, saveAnswers, saveOpenAnswers]);
+    }, [currentQuestionGroup, currentQuestion, playerAnswers, minutes, seconds, previousQuestion, nextQuestion, saveAnswers, saveOpenAnswers, isActive]);
 
 	const CurrentActiveQuestion = useMemo(() => {
 		if (Questions === null) return false;
@@ -219,7 +239,7 @@ const GameView = () => {
                         {/* spinner */}
                         {ready && <div>
                             <div className="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
-                            <h5 onClick={()=> {setQuizReady(true)}}className="title" style={{ fontSize: "15pt" }}>Lūdzu, gaidiet spēles sākumu!</h5>
+                            <h5 onClick={()=> {setQuizReady(true)}} className="title" style={{ fontSize: "15pt" }}>Lūdzu, gaidiet spēles sākumu!</h5>
                         </div>}
                     </div>
                 </div>}
