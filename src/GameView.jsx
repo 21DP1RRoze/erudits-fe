@@ -91,7 +91,13 @@ const GameView = () => {
         if (!ready) return;
         const pollingInterval = 1000; // 1 second in milliseconds
         const pollInterval = setInterval(() => {
-            API.get(`/quiz-instances/${id}/poll-group`).then((response) => {
+            API.get(`/quiz-instances/${id}/poll-group/${player.id}`).then((response) => {
+                if(!player.playerIsDisqualified && response.data.is_disqualified) {
+                    setPlayer(prevState => ({
+                        ...prevState,
+                        playerIsDisqualified: true
+                    }));
+                }
                 if(!response.data.data?.active_question_group) return;
                 if(response.data.data.active_question_group.id === currentQuestionGroup?.id) return;
                 else {
@@ -99,12 +105,12 @@ const GameView = () => {
                     setIsWaiting(false)
                     setQuizReady(true)
                 }
-                console.log("diff id?", response.data.data.active_question_group.id, currentQuestionGroup?.id)
+                console.log(response)
             });
 
         }, pollingInterval);
         return () => clearInterval(pollInterval);
-    }, [currentQuestionGroup, ready, playerActive]);
+    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified]);
 
 
     //timer courtesy of chatgpt
@@ -179,8 +185,6 @@ const GameView = () => {
                     )
                 })
 			}
-
-            console.log(Answers)
 
 			return (
 				<>
