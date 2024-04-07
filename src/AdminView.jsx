@@ -404,7 +404,7 @@ const AdminView = ({ }) => {
             if (QuestionGroup.is_additional) return null;
             return (
                 <React.Fragment key={QuestionGroup.id}>
-                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{ cursor: 'pointer' }} className={(quizInstance.has_question_group_ended ? 'warning-row' : (activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'success-row' : '')}>
+                    <tr onClick={() => toggleRow(QuestionGroup.id)} style={{ cursor: 'pointer' }} className={(quizInstance.has_question_group_ended && activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'warning-row' : ((activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'success-row' : '')}>
                         <td>{questionGroupIndex}</td>
                         <td>{QuestionGroup.title}</td>
                         <td>{QuestionGroup.disqualify_amount}</td>
@@ -487,9 +487,13 @@ const AdminView = ({ }) => {
                 </div>
 
                 <div style={{margin: '10px', display: 'flex', gap: '10px', textAlign: 'center', justifyContent: "center"}}>
-                    {TiebreakPlayers && <button disabled={TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
-                    <button style={{ background: '#75c4fa', fontWeight: 800 }}>SHOW LEADERBOARD</button>
-                    {DisqualifiedPlayers && <button onClick={handleDisqualifyCycle} disabled={DisqualifiedPlayers.length === 0} style={{ background: '#fa5757', fontWeight: 800 }}>RUN DISQUALIFICATION CYCLE</button>}
+                    {quizInstance &&
+                        <button disabled={!quizInstance.has_question_group_ended} style={{background: '#75c4fa', fontWeight: 800}}>SHOW LEADERBOARD</button>
+                    }
+                    =>
+                    {TiebreakPlayers && <button disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
+                    =>
+                    {DisqualifiedPlayers && <button onClick={handleDisqualifyCycle} disabled={!quizInstance.has_question_group_ended || DisqualifiedPlayers.length === 0 || TiebreakPlayers.length > 0} style={{ background: '#fa5757', fontWeight: 800 }}>RUN DISQUALIFICATION CYCLE</button>}
                 </div>
 
                 <h2>Currently active question group</h2>
