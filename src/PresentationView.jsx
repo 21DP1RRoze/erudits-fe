@@ -8,6 +8,12 @@ const PresentationView = () => {
     const [sort, setSort] = useState(false);
     const { id } = useParams();
     const [toDisqualify, setToDisqualify] = useState();
+    const [showCountdown, setShowCountdown] = useState(false);
+
+    //timer
+    const [seconds, setSeconds] = useState(0);
+    const [minutes, setMinutes] = useState(1);
+    const [isActive, setIsActive] = useState(false);
 
     useEffect(() => {
         API.get(`/quiz-instances/${id}/players`).then((response) => {
@@ -15,21 +21,22 @@ const PresentationView = () => {
         });
         API.get(`/quiz-instances/${id}`).then((response) => {
             setToDisqualify(response.data.data.active_question_group.disqualify_amount);
+
+            setMinutes(Math.floor(response.data.data.active_question_group.answer_time));
         })
     }, [])
 
 
     const classifyPlayers = (amount, arrayToSort) => {
         const array = arrayToSort.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
-        for(let i=0; i<array.length; i++) {
-            if(array[i].is_disqualified) {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].is_disqualified) {
                 array.splice(i, 1);
 
             }
         }
-    
+        console.log(toDisqualify);
         let disqualified = 0;
-        console.log(array.length, amount);
         while (array.length <= amount) {
             amount--;
         }
@@ -37,15 +44,13 @@ const PresentationView = () => {
             if (disqualified === amount) {
                 break;
             }
-           
+
 
             if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
-                console.log("1 disqualified")
                 disqualified++;
                 array[player].presentation_disqualified = true;
             }
             else if (array[player].points === array[player + 1].points) {
-                console.log("tiebreak")
                 disqualified = disqualified + 0.5;
                 array[player].presentation_tiebreaker = true;
                 array[player + 1].presentation_tiebreaker = true;
@@ -71,7 +76,7 @@ const PresentationView = () => {
 
     const mapPlayers = useMemo(() => {
         if (!players && !toDisqualify) return null;
-        return (!sort ? players.data : handleSort(classifyPlayers(1, players.data))).map(function (Player, playerIndex) {
+        return (!sort ? players.data : handleSort(classifyPlayers(toDisqualify, players.data))).map(function (Player, playerIndex) {
 
             return (
                 !Player.is_disqualified && <tr key={playerIndex}>
@@ -98,17 +103,46 @@ const PresentationView = () => {
         })
     }, [sort, players]);
 
+    useEffect(() => {
+        let intervalId;
+    
+        if (isActive && (minutes > 0 || seconds > 0)) {
+          intervalId = setInterval(() => {
+            if (seconds === 0 && minutes !== 0) {
+              setSeconds(59);
+              setMinutes(prevMinutes => prevMinutes - 1);
+            } else if (seconds !== 0) {
+              setSeconds(prevSeconds => prevSeconds - 1);
+            }
+          }, 1000);
+        }
+        if(minutes === 0 && seconds === 0) {
+            setIsActive(false);
+        }
+        
+		return () => clearInterval(intervalId);
+	}, [isActive, minutes, seconds]);
+    const formatTime = (time) => {
+        return time < 10 ? `0${time}` : time;
+    };
 
 
     return (
         <div className='content presentationBackground'>
-            <button onClick={() => (sort ? setSort(false) : setSort(true))}>sort</button>
-            <button>countdown</button>
-            <table className="presentationTable">
-                {mapPlayers}
+            <button onClick={() => showCountdown ? setShowCountdown(false) : setShowCountdown(true)}>{showCountdown ? 'leaderoard' : 'countdown'}</button>
+            <button onClick={() => setIsActive(true)}>start countdown</button>
+            {!showCountdown && <div>
+                <button onClick={() => (sort ? setSort(false) : setSort(true))}>sort</button>
+                <table className="presentationTable">
+                    {mapPlayers}
 
 
-            </table>
+                </table>
+            </div>}
+            {showCountdown && 
+            <div className="countdownContainer">
+                <span className='countdownClock'>{formatTime(minutes)}:{formatTime(seconds)}</span>
+            </div>}
         </div>
     )
 }

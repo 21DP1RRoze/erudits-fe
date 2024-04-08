@@ -822,6 +822,7 @@ body {
   transform: translate(-50%, -50%);
   text-align: center;
   box-shadow: 3px 3px 5px 1px black;
+  transition: all 0.2s;
 }
 
 .confirmationMessage {
@@ -838,6 +839,7 @@ body {
 
 .answer:disabled {
    outline: 6px #F2E9E4 solid;
+   transition: all 0.2s;
 
 }
 
@@ -1147,7 +1149,7 @@ background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 10
 .presentationBackground {
   background: #0D1B2A;
   font-family: "Madimi One", sans-serif;
-
+  overflow: hidden;
 }
 
 .inputGuideLines {
@@ -1305,4 +1307,19 @@ background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 10
 
 .thirdPlace span {
   color: #dd9072;
+}
+
+.countdownClock {
+  margin: auto;
+  font-size: 312pt;
+  color: white;
+  text-align: center;
+
+}
+
+.countdownContainer {
+  height: 100%;
+  width: 100%;
+  display:flex;
+
 }

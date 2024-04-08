@@ -527,7 +527,7 @@ const AdminView = ({ }) => {
 
                 <div style={{margin: '10px', display: 'flex', gap: '10px', textAlign: 'center', justifyContent: "center"}}>
                     {quizInstance &&
-                        <button disabled={!quizInstance.has_question_group_ended} style={{background: '#75c4fa', fontWeight: 800}}>SHOW LEADERBOARD</button>
+                        <button onClick={() => (window.open(`/scoreboard/${id}`, '_blank').focus())} disabled={!quizInstance.has_question_group_ended} style={{background: '#75c4fa', fontWeight: 800}}>SHOW LEADERBOARD</button>
                     }
                     =>
                     {TiebreakPlayers && <button onClick={handleTiebreakCycle} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}

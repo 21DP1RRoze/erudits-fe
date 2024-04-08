@@ -59,6 +59,7 @@ const GameView = () => {
             setPlayerActive(false);
             setIsActive(false);
             setIsWaiting(true);
+            setCurrentQuestion(0);
         }
     }
 
@@ -173,6 +174,7 @@ const GameView = () => {
 					return (
 						<button
 							key={answerIndex}
+                            disabled={playerAnswers[Question.id] === Answer.id}
 							onClick={() => {
                                 if(playerAnswers[Question.id] === Answer.id) return;
 								saveAnswers(Question.id, Answer.id) && setPlayerAnswers({
@@ -245,7 +247,7 @@ const GameView = () => {
         if (!tiebreakerQuestion) return null;
         let Answers = tiebreakerQuestion.answers.map(function (Answer, answerIndex) {
             return (
-                <div
+                <button
                     key={answerIndex}
                     onClick={() => {
                         setTiebreakerAnswer(Answer);
@@ -254,7 +256,7 @@ const GameView = () => {
                     className="answer"
                 >
                     <span className="answerOptionText">{Answer.text}</span>
-                </div>
+                </button>
             )
         })
         return (
