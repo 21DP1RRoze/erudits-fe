@@ -529,9 +529,9 @@ const AdminView = ({ }) => {
                     {quizInstance &&
                         <button onClick={() => (window.open(`/scoreboard/${id}`, '_blank').focus())} disabled={!quizInstance.has_question_group_ended} style={{background: '#75c4fa', fontWeight: 800}}>SHOW LEADERBOARD</button>
                     }
-                    =>
+            {"=>"}
                     {TiebreakPlayers && <button onClick={handleTiebreakCycle} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
-                    =>
+                    {"=>"}
                     {TiebreakPlayers && <button onClick={calculateTiebreakerAnswers} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>CALCULATE TIEBREAKERS</button>}
                     ||
                     {DisqualifiedPlayers && <button onClick={handleDisqualifyCycle} disabled={!quizInstance.has_question_group_ended || DisqualifiedPlayers.length === 0 || TiebreakPlayers.length > 0} style={{ background: '#fa5757', fontWeight: 800 }}>RUN DISQUALIFICATION CYCLE</button>}
