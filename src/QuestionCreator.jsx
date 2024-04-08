@@ -244,14 +244,14 @@ const QuestionCreator = () => {
                         <form>
                             {/* Display the uploaded image */}
                             {Question.image && (
-                                <img src={Question.image} />
-                            )}
+                                <img src={Question.image} width="200px" alt=""/>
+                            )} <br />
 
                             {/* Label for the file input */}
-                            <label htmlFor="imageUpload" className="p-1 ps-2 pe-2 formButton">
+                            <label htmlFor={"imageUpload" + questionIndex} className="mt-2 p-1 ps-2 pe-2 formButton" >
                                 Upload image
                             </label>
-                            <br />
+                           
 
                             {/* File input */}
                             <input
@@ -265,7 +265,7 @@ const QuestionCreator = () => {
                                         });
                                     
                                 }}
-                                id="imageUpload"
+                                id={"imageUpload" + questionIndex}
                                 accept="image/*"
                                 className="mt-1 imageUpload"
                                 type="file"
@@ -285,6 +285,13 @@ const QuestionCreator = () => {
                                 });
                             }} value={Question.guidelines} className="inputGuideLines mb-3" type="text" placeholder='Input guidelines for the player'></input><br />
                             The player will write their answer.
+                            <input onChange={(event) => {
+                                const newText = event.target.value;
+                                setQuestionGroupState(prevState => {
+                                    prevState.question_groups[groupIndex].questions[questionIndex].guidelines = newText;
+                                    return { ...prevState }; // Return a new object to trigger re-render
+                                });
+                            }} value={Question.guidelines} className="inputGuideLines mt-3" type="text" placeholder='Input correct answer'></input><br />
                         </div>
                         <i onClick={() => (setIdToDelete({ groupID: QuestionGroup.id, questionID: Question.id })) || setShowConfirmationQuestion(true)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>
                         <hr />
@@ -401,7 +408,7 @@ const QuestionCreator = () => {
                             });
                         }} />
                 </div>
-                <h1 onClick={() => console.log(questionGroupState)}>click to log</h1>
+                {/* <h1 onClick={() => console.log(questionGroupState)}>click to log</h1> */}
 
 
                 {QuestionGroups}
