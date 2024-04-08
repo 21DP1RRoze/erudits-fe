@@ -87,7 +87,7 @@ const AdminView = ({ }) => {
                     <td>{playerIndex}</td>
                     <td>{Player.name}</td>
                     <td>{Player.is_disqualified}</td>
-                    <td>{Player.points}</td>
+                    <td>{Player.tiebreaker_points}</td>
                     <td>
                         <button onClick={() => handleKickPlayer(Player.id)}>Kick</button>
                         <button onClick={() => handleDisqualifyPlayer(Player.id)}>Disqualify</button>
@@ -197,6 +197,24 @@ const AdminView = ({ }) => {
             </React.Fragment>
         );
     }, [TiebreakPlayers, DisqualifiedPlayers, AdvancedPlayers, InactivePlayers])
+
+    const TiebreakPlayerTable = useMemo(() => {
+        return (
+            <table style={{width: '100%'}}>
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Player</th>
+                        <th>Disqualified?</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {TiebreakPlayers}
+                </tbody>
+            </table>
+        );
+    }, [TiebreakPlayers]);
 
     const PositionPlayers = useMemo(() => {
         if (!activePlayers || activePlayers.length === 0) return null;
@@ -436,7 +454,7 @@ const AdminView = ({ }) => {
         return quiz.question_groups.map(function (QuestionGroup, questionGroupIndex) {
             if (!QuestionGroup.is_additional) return null;
             return (
-                <tr key={questionGroupIndex}>
+                <tr key={questionGroupIndex} className={(quizInstance.has_question_group_ended && activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'warning-row' : ((activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) ? 'success-row' : '')}>
                     <td>{questionGroupIndex}</td>
                     <td>{QuestionGroup.title}</td>
                     <td>{QuestionGroup.disqualify_amount}</td>
@@ -448,6 +466,21 @@ const AdminView = ({ }) => {
     }, [quiz]);
 
     const handleTiebreakCycle = () => {
+        // Set is_tiebreak on all tiebreak players to true
+        const tiebreakPlayerIds = tiebreakerPlayers.map(player => {
+            player.is_tiebreak = true;
+            return player.id;
+        });
+        API.post('/players/tiebreak-selected', {
+            player_ids: tiebreakPlayerIds
+        });
+        API.post(`quiz-instances/${id}/active-tiebreaker-question-group`).then((response) => {
+            let previousQuestionGroupDisqualifyAmount = activeQuestionGroup.disqualify_amount;
+            setActiveQuestionGroup(response.data.data);
+            setActiveQuestionGroup(prevGroup => {
+                return { ...prevGroup, disqualify_amount: previousQuestionGroupDisqualifyAmount }
+            });
+        });
 
     }
 
@@ -464,6 +497,12 @@ const AdminView = ({ }) => {
         })
         setActiveQuestionGroup(null);
         setDisqualifiedPlayers(null);
+    }
+
+    const calculateTiebreakerAnswers = () => {
+        API.get(`/quiz-instances/${id}/compare-tiebreakers`).then((response) => {
+            console.log(response.data.data);
+        });
     }
 
     return (
@@ -491,10 +530,15 @@ const AdminView = ({ }) => {
                         <button disabled={!quizInstance.has_question_group_ended} style={{background: '#75c4fa', fontWeight: 800}}>SHOW LEADERBOARD</button>
                     }
                     =>
-                    {TiebreakPlayers && <button disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
+                    {TiebreakPlayers && <button onClick={handleTiebreakCycle} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
                     =>
+                    {TiebreakPlayers && <button onClick={calculateTiebreakerAnswers} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>CALCULATE TIEBREAKERS</button>}
+                    ||
                     {DisqualifiedPlayers && <button onClick={handleDisqualifyCycle} disabled={!quizInstance.has_question_group_ended || DisqualifiedPlayers.length === 0 || TiebreakPlayers.length > 0} style={{ background: '#fa5757', fontWeight: 800 }}>RUN DISQUALIFICATION CYCLE</button>}
                 </div>
+
+                <h2>Tiebreak players</h2>
+                {TiebreakPlayerTable}
 
                 <h2>Currently active question group</h2>
 
