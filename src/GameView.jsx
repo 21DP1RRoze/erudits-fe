@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import API from './axiosApi';
-import AdminView from './AdminView';
 import ConfirmationMessage from './ConfirmationMessage';
 import Countdown from './Countdown';
 
@@ -10,7 +9,7 @@ const GameView = () => {
 
     const [ready, setReady] = useState(false);
     const [quizReady, setQuizReady] = useState(false);
-    const [player, setPlayer] = useState({ playerName: '', playerPoints: 0, playerIsDisqualified: false });
+    const [player, setPlayer] = useState({ playerName: '', playerPoints: 0, playerIsDisqualified: false, playerIsTiebreaker: false, questionedAt: null, answeredAt: null });
     const [playerActive, setPlayerActive] = useState(true)
     const [currentQuestionGroup, setCurrentQuestionGroup] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -18,6 +17,8 @@ const GameView = () => {
     const [isWaiting, setIsWaiting] = useState(false);
     const [playerAnswers, setPlayerAnswers] = useState({});
     const [doneCounting, setDoneCounting] = useState(false);
+    const [tiebreakerQuestion, setTiebreakerQuestion] = useState(false);
+    const [tiebreakerAnswer, setTiebreakerAnswer] = useState(false);
     //timer
     const [seconds, setSeconds] = useState(0);
     const [minutes, setMinutes] = useState(1);
@@ -38,7 +39,7 @@ const GameView = () => {
         if(quizReady && ready) {
             setMinutes(Math.floor(currentQuestionGroup.answer_time));
         }
-    },[quizReady, ready])
+    },[currentQuestionGroup?.answer_time, quizReady, ready])
 
     const savePlayer = async () => {
         await API.post(`/players`, { quiz_instance_id: id, name: player.playerName, points: player.playerPoints, is_disqualified: player.playerIsDisqualified }).then((response) => {
@@ -51,22 +52,6 @@ const GameView = () => {
         });
     }
 
-    const saveAnswers = async (currentQuestionId, currentAnswerId) => {
-        await API.post(`/answers/set-selected-answer`, { player_id: player.id, question_id: currentQuestionId, answer_id: currentAnswerId})
-      }
-
-    const saveOpenAnswers = async (currentQuestionId, answer) => {
-        await API.post(`/answers/set-open-answer`, { player_id: player.id, question_id: currentQuestionId, answer: answer})
-    }
-
-    const nextQuestion = () => {
-        if (currentQuestionGroup.questions.length - 1 === currentQuestion) {
-            setShowConfirmation(true)
-        } else {
-            setCurrentQuestion(currentQuestion => currentQuestion + 1);
-        }
-    }
-
     const userFinishQuiz = (choice) => {
         setShowConfirmation(false);
         if (choice) {
@@ -74,12 +59,6 @@ const GameView = () => {
             setPlayerActive(false);
             setIsActive(false);
             setIsWaiting(true);
-        }
-    }
-
-    const previousQuestion = () => {
-        if (currentQuestion !== 0) {
-            setCurrentQuestion(currentQuestion => currentQuestion - 1);
         }
     }
 
@@ -98,9 +77,22 @@ const GameView = () => {
                         playerIsDisqualified: true
                     }));
                 }
+                if(!player.playerIsTiebreaker && response.data.is_tiebreaking) {
+                    setPlayer(prevState => ({
+                        ...prevState,
+                        playerIsTiebreaker: true
+                    }));
+                    getRandomTiebreakerQuestion();
+                }
                 if(!response.data.data?.active_question_group) return;
                 if(response.data.data.active_question_group.id === currentQuestionGroup?.id) return;
                 else {
+                    // If the player is tiebreaking and the question group is not additional, continue
+                    // There is literally no use of this check, but I'm keeping it here
+                    if (player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional) return;
+                    // If the player is not tiebreaking and the question group is additional, continue
+                    if (!player.playerIsTiebreaker && response.data.data.active_question_group.is_additional) return;
+
                     setCurrentQuestionGroup(response.data.data.active_question_group)
                     setIsWaiting(false)
                     setQuizReady(true)
@@ -110,7 +102,7 @@ const GameView = () => {
 
         }, pollingInterval);
         return () => clearInterval(pollInterval);
-    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified]);
+    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, player.playerIsTiebreaker, id, player.id, player.playerIsTiebreaker]);
 
 
     //timer courtesy of chatgpt
@@ -142,9 +134,36 @@ const GameView = () => {
 	const finishCountdown = () => {
         setIsActive(true);
 		setDoneCounting(true);
+
+        if (player.playerIsTiebreaker) {
+            setPlayer(prevState => ({
+                ...prevState,
+                questionedAt: new Date().toISOString()
+            }));
+        }
 	}
 
     const Questions = useMemo(() => {
+        const previousQuestion = () => {
+            if (currentQuestion !== 0) {
+                setCurrentQuestion(currentQuestion => currentQuestion - 1);
+            }
+        }
+        const saveAnswers = async (currentQuestionId, currentAnswerId) => {
+            await API.post(`/answers/set-selected-answer`, { player_id: player.id, question_id: currentQuestionId, answer_id: currentAnswerId})
+        }
+
+        const saveOpenAnswers = async (currentQuestionId, answer) => {
+            await API.post(`/answers/set-open-answer`, { player_id: player.id, question_id: currentQuestionId, answer: answer})
+        }
+
+        const nextQuestion = () => {
+            if (currentQuestionGroup.questions.length - 1 === currentQuestion) {
+                setShowConfirmation(true)
+            } else {
+                setCurrentQuestion(currentQuestion => currentQuestion + 1);
+            }
+        }
         if (!currentQuestionGroup) return null;
         if (!isActive) return null;
         return currentQuestionGroup.questions.map(function (Question) {
@@ -154,13 +173,13 @@ const GameView = () => {
 					return (
 						<button
 							key={answerIndex}
-							onClick={(e) => {
+							onClick={() => {
+                                if(playerAnswers[Question.id] === Answer.id) return;
 								saveAnswers(Question.id, Answer.id) && setPlayerAnswers({
 								...playerAnswers,
 								[Question.id]: Answer.id
 								});
 							}}
-							disabled={playerAnswers[Question.id] === Answer.id}
 							className="answer"
 							>
 							<span className="answerOptionText">{Answer.text}</span>
@@ -195,7 +214,7 @@ const GameView = () => {
 							<div className="questionsLeft ms-5"><span>{currentQuestion + 1}/{currentQuestionGroup.questions.length}</span><i className="ms-2 fa-solid fa-check fa-2x" style={{ color: "#f2e9e4" }}></i></div>
 						</div>
 						<div className="p-3 question">
-							<img src={Question.image} className="questionImage mb-2" /><br/>
+							<img src={Question.image} className="questionImage mb-2" alt={'question'}/><br/>
 							<span className="questionText">{Question.text}</span>
 						</div>
 						<div className="nextButton" onClick={() => nextQuestion()}>{'>'}</div>
@@ -206,13 +225,73 @@ const GameView = () => {
 				</>
 			)
 		});
-    }, [currentQuestionGroup, currentQuestion, playerAnswers, minutes, seconds, previousQuestion, nextQuestion, saveAnswers, saveOpenAnswers, isActive]);
+    }, [currentQuestionGroup, isActive, currentQuestion, player.id, minutes, seconds, playerAnswers]);
 
 	const CurrentActiveQuestion = useMemo(() => {
 		if (Questions === null) return false;
 		if (currentQuestion === null) return false;
 		return Questions[currentQuestion];
 	}, [Questions, currentQuestion])
+
+    const getRandomTiebreakerQuestion = async () => {
+        await API.get(`/quiz-instances/${id}/get-random-tiebreaker-question`).then((response) => {
+            setTiebreakerQuestion(() => {
+                return response.data.data;
+            });
+        });
+    }
+
+    const TiebreakerQuestion = useMemo(() => {
+        if (!tiebreakerQuestion) return null;
+        let Answers = tiebreakerQuestion.answers.map(function (Answer, answerIndex) {
+            return (
+                <div
+                    key={answerIndex}
+                    onClick={() => {
+                        setTiebreakerAnswer(Answer);
+                        setShowConfirmation(true);
+                    }}
+                    className="answer"
+                >
+                    <span className="answerOptionText">{Answer.text}</span>
+                </div>
+            )
+        })
+        return (
+            <>
+                <div className="questionContainer">
+                    <div className="questionInfo">
+                        <div className="questionsLeft ms-5"><span>1/1</span><i className="ms-2 fa-solid fa-check fa-2x" style={{ color: "#f2e9e4" }}></i></div>
+                    </div>
+                    <div className="p-3 question">
+                        <span className="questionText">{tiebreakerQuestion.text}</span>
+                    </div>
+                </div>
+                <div className="answerContainer">
+                    {Answers}
+                </div>
+            </>
+        )
+    }, [tiebreakerQuestion]);
+
+    const userFinishTiebreakerQuiz = (choice) => {
+        setShowConfirmation(false);
+        if (choice) {
+            // Set answeredAt timestamp
+            setPlayer(prevState => ({
+                ...prevState,
+                answeredAt: new Date().toISOString()
+            }));
+            API.post(`/answers/set-tiebreaker-answer`, {
+                player_id: player.id,
+                question_id: tiebreakerQuestion.id,
+                answer_id: tiebreakerAnswer.id,
+                questioned_at: player.questionedAt,
+                answered_at: new Date().toISOString(),
+            });
+            setPlayerActive(false);
+        }
+    }
 
     return (
         <>
@@ -259,12 +338,25 @@ const GameView = () => {
                     </div>
                 </div>}
 
-                {quizReady && ready && quiz && !isWaiting && <Countdown done={finishCountdown}/>}
+                {(
+                    (quizReady && ready && quiz && !isWaiting && currentQuestionGroup.is_additional && player.playerIsTiebreaker) ||
+                    (quizReady && ready && quiz && !isWaiting && !currentQuestionGroup.is_additional && !player.playerIsTiebreaker)
+                ) && <Countdown done={finishCountdown}/>}
 
-                {quizReady && ready && quiz && !isWaiting && doneCounting && <div className="content gameView">
+                {quizReady && ready && quiz && !isWaiting && doneCounting && !currentQuestionGroup.is_additional &&
+                    <div className="content gameView">
                     {showConfirmation && <ConfirmationMessage message="Iesniegt atbildes?" onConfirm={userFinishQuiz} />}
                     {Questions && CurrentActiveQuestion}
-                </div>}
+                    </div>
+                }
+
+                {quizReady && ready && quiz && !isWaiting && doneCounting && player.playerIsTiebreaker && !player.playerIsDisqualified &&
+                    <div className="content gameView">
+                        {showConfirmation &&
+                            <ConfirmationMessage message="Iesniegt atbildes?" onConfirm={userFinishTiebreakerQuiz}/>}
+                        {TiebreakerQuestion}
+                    </div>
+                }
             </div>
         </>
     );
