@@ -54,12 +54,14 @@ const PresentationView = () => {
                 disqualified = disqualified + 0.5;
                 array[player].presentation_tiebreaker = true;
                 array[player + 1].presentation_tiebreaker = true;
-                if (array[player + 2] !== undefined && array[player].points === array[player + 2].points) {
-                    array[player + 2].presentation_tiebreaker = true;
+                for(let i=2; i<array.length; i++) {
+                    if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
+                        array[player + i].presentation_tiebreaker = true;
+                    } else {
+                        break;
+                    }
                 }
-                if (array[player + 3] !== undefined && array[player].points === array[player + 3].points) {
-                    array[player + 3].presentation_tiebreaker = true;
-                }
+                
                 break;
             }
         }

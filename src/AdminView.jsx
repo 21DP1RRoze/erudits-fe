@@ -493,12 +493,16 @@ const AdminView = () => {
                         return (
                             <td key={openAnswer ? openAnswer.id : question.id}>
                                 {openAnswer ? (openAnswer.answer) : '-'}
+                                
+                                {openAnswer && 
+                                <div>
                                 <hr/>
                                 <select onChange={(e) => API.post(`/open-answers/${openAnswer.id}/points`, {points: e.target.value})}>
                                     <option value={0}>0</option>
                                     <option value={1}>1</option>
                                     <option value={2}>2</option>
                                 </select>
+                                </div>}
                             </td>
                         )
                     } else {
