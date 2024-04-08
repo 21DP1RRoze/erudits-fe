@@ -31,21 +31,22 @@ const AdminView = () => {
         });
         API.get(`/quiz-instances/${id}/players`).then((response) => {
             setLoadedPlayers(response.data.data);
+            console.log(response.data.data)
         });
     }, [id]);
 
 
-    useEffect(() => {
-        if (!loadedPlayers) return;
-        const pollingInterval = 1000; // 1 second in milliseconds
-        const pollInterval = setInterval(() => {
-            API.get(`/quiz-instances/${id}/players`).then((response) => {
-                setLoadedPlayers(response.data.data);
-            });
-
-        }, pollingInterval);
-        return () => clearInterval(pollInterval);
-    }, [loadedPlayers]);
+    // useEffect(() => {
+    //     if (!loadedPlayers) return;
+    //     const pollingInterval = 1000; // 1 second in milliseconds
+    //     const pollInterval = setInterval(() => {
+    //         API.get(`/quiz-instances/${id}/players`).then((response) => {
+    //             setLoadedPlayers(response.data.data);
+    //         });
+    //
+    //     }, pollingInterval);
+    //     return () => clearInterval(pollInterval);
+    // }, [loadedPlayers]);
 
     const toggleRow = (id) => {
         setExpandedRow(expandedRow === id ? null : id);
@@ -625,10 +626,17 @@ const AdminView = () => {
         setFreezePlayers(false);
     }
 
+    const handleRefreshClick = () => {
+        API.get(`/quiz-instances/${id}/players`).then((response) => {
+            setLoadedPlayers(response.data.data);
+        });
+    }
+
     return (
         <div>
             {quiz && <div>
                 <h1>Currently managing game {quiz.title}</h1>
+                <button onClick={handleRefreshClick}>REFRESH</button>
                 <div style={{display: 'flex', textAlign: 'center', justifyContent: "center", width: '100%', flexDirection: "column"}}>
                 <h2>Active players</h2>
                 <table className="hostTable" style={{ width: '80%', margin: "auto"}}>
