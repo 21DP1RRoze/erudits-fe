@@ -288,10 +288,10 @@ const QuestionCreator = () => {
                             <input onChange={(event) => {
                                 const newText = event.target.value;
                                 setQuestionGroupState(prevState => {
-                                    prevState.question_groups[groupIndex].questions[questionIndex].guidelines = newText;
+                                    prevState.question_groups[groupIndex].questions[questionIndex].correct_answer = newText;
                                     return { ...prevState }; // Return a new object to trigger re-render
                                 });
-                            }} value={Question.guidelines} className="inputGuideLines mt-3" type="text" placeholder='Input correct answer'></input><br />
+                            }} value={Question.correct_answer} className="inputGuideLines mt-3" type="text" placeholder='Input correct answer'></input><br />
                         </div>
                         <i onClick={() => (setIdToDelete({ groupID: QuestionGroup.id, questionID: Question.id })) || setShowConfirmationQuestion(true)} className='p-2 deleteQuestionButton fa-regular fa-trash-can'></i>
                         <hr />
@@ -408,7 +408,7 @@ const QuestionCreator = () => {
                             });
                         }} />
                 </div>
-                {/* <h1 onClick={() => console.log(questionGroupState)}>click to log</h1> */}
+                <h1 onClick={() => console.log(questionGroupState)}>click to log</h1>
 
 
                 {QuestionGroups}

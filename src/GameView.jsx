@@ -201,10 +201,12 @@ const GameView = () => {
                             <p>{Question.guidelines}</p>
                             <input
                                 onChange={(e) => {
-                                    saveOpenAnswers(Question.id, e.target.value);
                                     setPlayerAnswers({ ...playerAnswers, [Question.id]: e.target.value });
                                 }}
-                                value={playerAnswers[Question.id]}
+                                onBlur={(e) => {
+                                    saveOpenAnswers(Question.id, e.target.value);
+                                }}
+                                value={playerAnswers[Question.id] || ''}
                                 type="text"
                             />
                         </label>
@@ -312,6 +314,7 @@ const GameView = () => {
     return (
         <>
             <div className="gameViewContainer">
+                <h1 onClick={() => console.log(playerAnswers)}>log</h1>
             {player.playerIsDisqualified && <div className='disqualified p-2'>Komanda diskvalificēta</div>}
                 <div className="eruditsBG">
                     <div className="layer1"></div>

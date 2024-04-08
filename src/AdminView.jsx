@@ -16,6 +16,8 @@ const AdminView = () => {
     const [activePlayers, setActivePlayers] = useState(null);
     const [inactivePlayers, setInactivePlayers] = useState(null);
 
+    const [players, setPlayers] = useState([]);
+
     const [expandedRow, setExpandedRow] = useState(null);
     const [freezePlayers, setFreezePlayers] = useState(false);
 
@@ -23,6 +25,7 @@ const AdminView = () => {
 
     useEffect(() => {
         API.get(`/quiz-instances/${id}`).then((response) => {
+            setPlayers(response.data); /// DO NOT TOUCH1!!!!
             setQuiz(response.data.data.quiz);
             setQuizInstance(response.data.data);
             setActiveQuestionGroup(response.data.data.active_question_group);
@@ -50,6 +53,12 @@ const AdminView = () => {
     const toggleRow = (id) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
+
+    const getActivePlayers = useMemo(() => { //DO NOT TOUCH!!!!!!!
+        if (!loadedPlayers) return;
+        setActivePlayers(loadedPlayers.filter(player => !player.is_disqualified));
+        setInactivePlayers(loadedPlayers.filter(player => player.is_disqualified));
+    }, [loadedPlayers])
 
     const DisqualifiedPlayers = useMemo(() => {
         if (!disqualifiedPlayers) return null;
@@ -96,7 +105,7 @@ const AdminView = () => {
                     <td>{Player.is_disqualified}</td>
                     <td>{Player.points}</td>
                     <td>{Player.tiebreaker_points}</td>
-                    { Player.player_answers.length === 0 &&
+                    {Player.player_answers.length === 0 &&
                         <>
                             <td>-</td>
                             <td>-</td>
@@ -235,7 +244,7 @@ const AdminView = () => {
 
     const TiebreakPlayerTable = useMemo(() => {
         return (
-            <table style={{width: '100%'}}>
+            <table style={{ width: '100%' }}>
                 <thead>
                     <tr>
                         <th>Position</th>
@@ -295,7 +304,7 @@ const AdminView = () => {
                 // -- If the next player has more score than the last player
                 if (player.points > tiebreakerScore) {
                     // --- If there are no disqPlayers and tiePlayer count is disqualifiedCount, all tiePlayers are disqualified
-                    if(disqPlayers.length === 0 && tiePlayers.length === disqualifyAmount) {
+                    if (disqPlayers.length === 0 && tiePlayers.length === disqualifyAmount) {
                         disqPlayers.push(...tiePlayers);
                         tiePlayers = [];
                     }
@@ -442,43 +451,69 @@ const AdminView = () => {
 
     const PlayerAnswers = ({ questionGroupId }) => {
         if (!activePlayers) return null;
-
+    
         const questionGroup = quiz.question_groups.find(group => group.id === questionGroupId);
         if (!questionGroup) return null;
-
+    
         // Map filtered players to display their answers for the specified question group
         const playerAnswerList = activePlayers.map((Player, playerIndex) => {
             // Filter player answers to include only those for the specified question group
             const playerAnswersForGroup = Player.player_answers
                 .filter(answer => answer.question_group_id === questionGroupId);
-
+    
+            const openAnswersForGroup = Player.open_answers
+                ? Player.open_answers.filter(answer => answer.question_group_id === questionGroupId)
+                : [];
+    
+            console.log("open answers", openAnswersForGroup);
+    
             // Create a map of PlayerAnswer objects for quick lookup
             const playerAnswersMap = {};
             playerAnswersForGroup.forEach(answer => {
                 playerAnswersMap[answer.question_id] = answer;
             });
-
+    
+            const openAnswersMap = {};
+            openAnswersForGroup.forEach(answer => {
+                openAnswersMap[answer.question_id] = answer;
+            });
+    
             const hasAnsweredAllQuestions = questionGroup.questions.every(question =>
                 playerAnswersMap.hasOwnProperty(question.id)
             );
-
+    
             // Map questions from the specified question group to table cells
             const playerSetAnswers = questionGroup.questions.map(question => {
                 const playerAnswer = playerAnswersMap[question.id];
-                if (playerAnswer) {
+                const openAnswer = openAnswersMap[question.id];
+                if (playerAnswer || openAnswer) {
                     // If PlayerAnswer exists, render the answer
-                    return (
-                        <td key={playerAnswer.id} className={playerAnswer.answer.is_correct ? 'success-row' : 'danger-row'}>
-                            {playerAnswer.answer.text}
-                        </td>
-                    );
+                    if (question.is_open_answer) {
+                        return (
+                            <td key={openAnswer ? openAnswer.id : question.id}>
+                                {openAnswer ? (openAnswer.answer) : '-'}
+                                <hr/>
+                                <select onChange={(e) => API.post(`/open-answers/${openAnswer.id}/points`, {points: e.target.value})}>
+                                    <option value={0}>0</option>
+                                    <option value={1}>1</option>
+                                    <option value={2}>2</option>
+                                </select>
+                            </td>
+                        )
+                    } else {
+                        return (
+                            <td key={playerAnswer.id} className={playerAnswer.answer.is_correct ? 'success-row' : 'danger-row'}>
+                                {playerAnswer.answer.text}
+                            </td>
+                        );
+                    }
                 } else {
                     // If PlayerAnswer does not exist, render an empty cell
                     return <td key={question.id}>-</td>;
                 }
             });
             const rowClass = hasAnsweredAllQuestions ? 'success-row' : '';
-
+    
             // Render player name along with their answers for the specified group
             return (
                 <tr key={Player.id} className={rowClass}>
@@ -487,25 +522,30 @@ const AdminView = () => {
                 </tr>
             );
         });
-
-            // Render the table containing player names and their answers for the specified group
-            return (
-                <table style={{width: '100%'}}>
-                    <thead>
-                        <tr>
-                            <th>Player name</th>
-                            {/* Assuming each player has the same number of answers */}
-                            {questionGroup?.questions?.length && questionGroup.questions.map(question => (
-                                <th key={question.id}>Question {question.id}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {playerAnswerList}
-                    </tbody>
-                </table>
-            );
+    
+        // Render the table containing player names and their answers for the specified group
+        return (
+            <table style={{ width: '100%' }}>
+                <thead>
+                    <tr>
+                        <th>Player name</th>
+                        {/* Assuming each player has the same number of answers */}
+                        {questionGroup?.questions?.length && questionGroup.questions.map(question => (
+                            <th key={question.id}>Question {question.id}<br /><hr />
+                                {(question.is_open_answer) ? (question.correct_answer) : 'not open answer'}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {playerAnswerList}
+                </tbody>
+            </table>
+        );
     };
+    
+    
+    
 
     const OpenAnswers = ({ questionGroupId }) => {
         if (!activePlayers) return null;
@@ -517,6 +557,7 @@ const AdminView = () => {
             // Filter player answers to include only those for the specified question group
             const openAnswersForGroup = Player.open_answers
                 .filter(answer => answer.question_group_id === questionGroupId);
+            console.log("open answers", openAnswersForGroup);
 
         });
     }
@@ -551,12 +592,12 @@ const AdminView = () => {
                         <td>{QuestionGroup.answer_time}</td>
                         <td>{QuestionGroup.points}</td>
                         <td>
-                        {(activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) &&
-                            <button onClick={(e) => { e.stopPropagation(); handleStopClick()} }>Stop</button>
-                        }
-                        {(activeQuestionGroup == null || QuestionGroup.id !== activeQuestionGroup.id) &&
-                            <button disabled={activeQuestionGroup != null} onClick={(e) => { e.stopPropagation(); handleStartClick(QuestionGroup)} }>Start</button>
-                        }
+                            {(activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) &&
+                                <button onClick={(e) => { e.stopPropagation(); handleStopClick() }}>Stop</button>
+                            }
+                            {(activeQuestionGroup == null || QuestionGroup.id !== activeQuestionGroup.id) &&
+                                <button disabled={activeQuestionGroup != null} onClick={(e) => { e.stopPropagation(); handleStartClick(QuestionGroup) }}>Start</button>
+                            }
                         </td>
                     </tr>
                     {expandedRow === QuestionGroup.id && (
@@ -629,27 +670,27 @@ const AdminView = () => {
         <div>
             {quiz && <div>
                 <h1>Currently managing game {quiz.title}</h1>
-                <div style={{display: 'flex', textAlign: 'center', justifyContent: "center", width: '100%', flexDirection: "column"}}>
-                <h2>Active players</h2>
-                <table className="hostTable" style={{ width: '80%', margin: "auto"}}>
-                    <tbody>
-                        <tr>
-                            <th>Position</th>
-                            <th>Player</th>
-                            <th>Disqualified?</th>
-                            <th>Points</th>
-                        </tr>
-                        {activePlayers && activePlayers.length === 0 && <tr>No players have currently joined this game.</tr>}
-                        {activePlayers && activePlayers.length > 0 && AllActivePlayers}
-                    </tbody>
-                </table>
+                <div style={{ display: 'flex', textAlign: 'center', justifyContent: "center", width: '100%', flexDirection: "column" }}>
+                    <h2>Active players</h2>
+                    <table className="hostTable" style={{ width: '80%', margin: "auto" }}>
+                        <tbody>
+                            <tr>
+                                <th>Position</th>
+                                <th>Player</th>
+                                <th>Disqualified?</th>
+                                <th>Points</th>
+                            </tr>
+                            {activePlayers && activePlayers.length === 0 && <tr>No players have currently joined this game.</tr>}
+                            {activePlayers && activePlayers.length > 0 && AllActivePlayers}
+                        </tbody>
+                    </table>
                 </div>
 
-                <div style={{margin: '10px', display: 'flex', gap: '10px', textAlign: 'center', justifyContent: "center"}}>
+                <div style={{ margin: '10px', display: 'flex', gap: '10px', textAlign: 'center', justifyContent: "center" }}>
                     {quizInstance &&
-                        <button onClick={() => (window.open(`/scoreboard/${id}`, '_blank').focus())} disabled={!quizInstance.has_question_group_ended} style={{background: '#75c4fa', fontWeight: 800}}>SHOW LEADERBOARD</button>
+                        <button onClick={() => (window.open(`/scoreboard/${id}`, '_blank').focus())} disabled={!quizInstance.has_question_group_ended} style={{ background: '#75c4fa', fontWeight: 800 }}>SHOW LEADERBOARD</button>
                     }
-            {"=>"}
+                    {"=>"}
                     {TiebreakPlayers && <button onClick={handleTiebreakCycle} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
                     {"=>"}
                     {TiebreakPlayers && <button onClick={PositionTiebreakerPlayers} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>CALCULATE TIEBREAKERS</button>}
@@ -664,7 +705,7 @@ const AdminView = () => {
                 <h2>Currently active question group</h2>
 
                 <h2>Question groups</h2>
-                <table className="hostTable" style={{width: '100%'}}>
+                <table className="hostTable" style={{ width: '100%' }}>
                     <tbody>
                         <tr>
                             <th>ID</th>
@@ -680,7 +721,7 @@ const AdminView = () => {
                 </table>
 
                 <h2>Additional question groups</h2>
-                <table className="hostTable" style={{width: '100%'}}>
+                <table className="hostTable" style={{ width: '100%' }}>
                     <tbody>
                         <tr>
                             <th>Name</th>
