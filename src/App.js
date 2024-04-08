@@ -5,6 +5,7 @@ import QuestionCreator from './QuestionCreator';
 import GamePage from './GamePage';
 import API from './axiosApi';
 import PresentationView from './PresentationView';
+import EndView from './EndView';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState();
@@ -26,7 +27,8 @@ function App() {
           <Route path="/" element={<Home loggedIn={loggedIn} />} />
           <Route path='/questioncreator/:id' element={<QuestionCreator />} />
           <Route path="/gamepage/:id" element={<GamePage loggedIn={loggedIn} />} />
-          <Route path="/scoreboard" element={<PresentationView/>}/>
+          <Route path="/scoreboard/:id" element={<PresentationView/>}/>
+          <Route path="/end/:id" element={<EndView/>}/>
 
         </Routes>
       </BrowserRouter>
