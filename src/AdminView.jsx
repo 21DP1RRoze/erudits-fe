@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import API from './axiosApi';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const AdminView = ({ }) => {
+const AdminView = () => {
     const [quiz, setQuiz] = useState(null);
     const [quizInstance, setQuizInstance] = useState(null);
 
@@ -11,8 +11,6 @@ const AdminView = ({ }) => {
     const [disqualifiedPlayers, setDisqualifiedPlayers] = useState(null);
     const [tiebreakerPlayers, setTiebreakerPlayers] = useState(null);
     const [advancedPlayers, setAdvancedPlayers] = useState(null);
-
-    const [players, setPlayers] = useState([]);
 
     const [loadedPlayers, setLoadedPlayers] = useState(null);
     const [activePlayers, setActivePlayers] = useState(null);
@@ -32,7 +30,6 @@ const AdminView = ({ }) => {
 
         });
         API.get(`/quiz-instances/${id}/players`).then((response) => {
-            setPlayers(response.data);
             setLoadedPlayers(response.data.data);
         });
     }, [id]);
@@ -53,12 +50,6 @@ const AdminView = ({ }) => {
     const toggleRow = (id) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
-
-    const getActivePlayers = useMemo(() => {
-        if (!loadedPlayers) return;
-        setActivePlayers(loadedPlayers.filter(player => !player.is_disqualified));
-        setInactivePlayers(loadedPlayers.filter(player => player.is_disqualified));
-    }, [loadedPlayers])
 
     const DisqualifiedPlayers = useMemo(() => {
         if (!disqualifiedPlayers) return null;
@@ -515,6 +506,20 @@ const AdminView = ({ }) => {
                 </table>
             );
     };
+
+    const OpenAnswers = ({ questionGroupId }) => {
+        if (!activePlayers) return null;
+
+        const questionGroup = quiz.question_groups.find(group => group.id === questionGroupId);
+        if (!questionGroup) return null;
+
+        const openAnswerList = activePlayers.map((Player, playerIndex) => {
+            // Filter player answers to include only those for the specified question group
+            const openAnswersForGroup = Player.open_answers
+                .filter(answer => answer.question_group_id === questionGroupId);
+
+        });
+    }
     const handleStopClick = () => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
             question_group_id: null
@@ -558,6 +563,9 @@ const AdminView = ({ }) => {
                         <tr>
                             <td colSpan={6}>
                                 <PlayerAnswers questionGroupId={QuestionGroup.id} />
+                            </td>
+                            <td colSpan={6}>
+                                <OpenAnswers questionGroupId={QuestionGroup.id} />
                             </td>
                         </tr>
                     )}
