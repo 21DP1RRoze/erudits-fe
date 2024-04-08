@@ -1,56 +1,69 @@
 import API from './axiosApi'
 import { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 
 const PresentationView = () => {
     const [players, setPlayers] = useState();
     const [sort, setSort] = useState(false);
-    const [dataloaded, setDataLoaded] = useState(false);
+    const { id } = useParams();
+    const [toDisqualify, setToDisqualify] = useState();
+    const [showCountdown, setShowCountdown] = useState(false);
 
-    const id = 2;
+    //timer
+    const [seconds, setSeconds] = useState(0);
+    const [minutes, setMinutes] = useState(1);
+    const [isActive, setIsActive] = useState(false);
+
     useEffect(() => {
         API.get(`/quiz-instances/${id}/players`).then((response) => {
             setPlayers(response.data);
-            setDataLoaded(true);
-
-
         });
+        API.get(`/quiz-instances/${id}`).then((response) => {
+            setToDisqualify(response.data.data.active_question_group.disqualify_amount);
 
+            setMinutes(Math.floor(response.data.data.active_question_group.answer_time));
+        })
     }, [])
 
 
     const classifyPlayers = (amount, arrayToSort) => {
         const array = arrayToSort.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
-        let disqualified = 0;
-            for (let player = 0; player < array.length; player++) {
-                if (disqualified === amount) {
-                    break;
-                }
-                
-                if(array[player].is_disqualified) {
-                    continue;
-                }
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].is_disqualified) {
+                array.splice(i, 1);
 
-                if (array[player].points < array[player + 1].points || (amount-disqualified)>1) {
-                    console.log("1 disqualified")
-                    disqualified++;
-                    array[player].presentation_disqualified = true;
-                }
-                else if (array[player].points === array[player + 1].points) {
-                    console.log("tiebreak")
-                    disqualified = disqualified + 0.5;
-                    array[player].presentation_tiebreaker = true;
-                    array[player+1].presentation_tiebreaker = true;
-                    if(array[player+2] !== undefined && array[player].points === array[player+2].points) {
-                        array[player+2].presentation_tiebreaker = true;
-                    }
-                    if(array[player+3] !== undefined && array[player].points === array[player+3].points) {
-                        array[player+3].presentation_tiebreaker = true;
-                    }
-                    break;
-                }
             }
-        
+        }
+        console.log(toDisqualify);
+        let disqualified = 0;
+        while (array.length <= amount) {
+            amount--;
+        }
+        for (let player = 0; player < array.length; player++) {
+            if (disqualified === amount) {
+                break;
+            }
+
+
+            if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
+                disqualified++;
+                array[player].presentation_disqualified = true;
+            }
+            else if (array[player].points === array[player + 1].points) {
+                disqualified = disqualified + 0.5;
+                array[player].presentation_tiebreaker = true;
+                array[player + 1].presentation_tiebreaker = true;
+                if (array[player + 2] !== undefined && array[player].points === array[player + 2].points) {
+                    array[player + 2].presentation_tiebreaker = true;
+                }
+                if (array[player + 3] !== undefined && array[player].points === array[player + 3].points) {
+                    array[player + 3].presentation_tiebreaker = true;
+                }
+                break;
+            }
+        }
+
         return array;
     }
 
@@ -62,8 +75,8 @@ const PresentationView = () => {
 
 
     const mapPlayers = useMemo(() => {
-        if (!players) return null;
-        return (!sort ? players.data : handleSort(classifyPlayers(4, players.data))).map(function (Player, playerIndex) {
+        if (!players && !toDisqualify) return null;
+        return (!sort ? players.data : handleSort(classifyPlayers(toDisqualify, players.data))).map(function (Player, playerIndex) {
 
             return (
                 !Player.is_disqualified && <tr key={playerIndex}>
@@ -74,7 +87,7 @@ const PresentationView = () => {
                                     'linear-gradient(270deg, rgba(244,7,82,1) 0%, rgba(249,171,143,1) 100%)' :
                                     'linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 100%)'
                         }} className="presentationName">
-                        { Player.name}</td>
+                        {Player.name}</td>
                     <td style=
                         {{
                             background: (Player.presentation_tiebreaker) ?
@@ -90,17 +103,46 @@ const PresentationView = () => {
         })
     }, [sort, players]);
 
+    useEffect(() => {
+        let intervalId;
+    
+        if (isActive && (minutes > 0 || seconds > 0)) {
+          intervalId = setInterval(() => {
+            if (seconds === 0 && minutes !== 0) {
+              setSeconds(59);
+              setMinutes(prevMinutes => prevMinutes - 1);
+            } else if (seconds !== 0) {
+              setSeconds(prevSeconds => prevSeconds - 1);
+            }
+          }, 1000);
+        }
+        if(minutes === 0 && seconds === 0) {
+            setIsActive(false);
+        }
+        
+		return () => clearInterval(intervalId);
+	}, [isActive, minutes, seconds]);
+    const formatTime = (time) => {
+        return time < 10 ? `0${time}` : time;
+    };
 
 
     return (
         <div className='content presentationBackground'>
-            <button onClick={() => (sort ? setSort(false) : setSort(true))}>sort</button>
-            <button onClick={console.log()}>countdown</button>
-            <table className="presentationTable">
-                {mapPlayers}
+            <button onClick={() => showCountdown ? setShowCountdown(false) : setShowCountdown(true)}>{showCountdown ? 'leaderoard' : 'countdown'}</button>
+            <button onClick={() => setIsActive(true)}>start countdown</button>
+            {!showCountdown && <div>
+                <button onClick={() => (sort ? setSort(false) : setSort(true))}>sort</button>
+                <table className="presentationTable">
+                    {mapPlayers}
 
 
-            </table>
+                </table>
+            </div>}
+            {showCountdown && 
+            <div className="countdownContainer">
+                <span className='countdownClock'>{formatTime(minutes)}:{formatTime(seconds)}</span>
+            </div>}
         </div>
     )
 }

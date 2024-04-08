@@ -475,12 +475,12 @@ body {
   height: 100%;
   width: 100%;
   border-radius: 50px;
-  transition: all 0.5s;
   user-select: none;
   background: rgba(255, 255, 255, 0.3);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12.8px);
   -webkit-backdrop-filter: blur(12.8px);
+  border: none;
 }
 
 .answer:hover {
@@ -822,6 +822,7 @@ body {
   transform: translate(-50%, -50%);
   text-align: center;
   box-shadow: 3px 3px 5px 1px black;
+  transition: all 0.2s;
 }
 
 .confirmationMessage {
@@ -836,8 +837,9 @@ body {
   top: 40%;
 }
 
-.answer[disabled] {
+.answer:disabled {
    outline: 6px #F2E9E4 solid;
+   transition: all 0.2s;
 
 }
 
@@ -934,6 +936,7 @@ body {
   position:absolute;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
 }
 
 @keyframes tilt-shaking {
@@ -1146,7 +1149,7 @@ background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 10
 .presentationBackground {
   background: #0D1B2A;
   font-family: "Madimi One", sans-serif;
-
+  overflow: hidden;
 }
 
 .inputGuideLines {
@@ -1224,4 +1227,99 @@ background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 10
 .card-description:focus, .card-title:focus {
   outline:none;
   border-bottom:#7161EF 1px solid;
+}
+
+.disqualified {
+  text-align: center;
+  font-weight: 700;
+  font-size: 36pt;
+  z-index: 4;
+  color: white;
+  position: fixed;
+  width: 100%;
+  background-color: rgba(255, 200, 0, 0.3);
+}
+
+.endViewContainer {
+  background:#22223B;
+  display:flex;
+  height: 100svh;
+  overflow:hidden;
+}
+
+.winnerContainer {
+  width: 60%;
+  height: 80%;
+  margin:auto;
+  display:flex;
+  justify-content: space-between;
+  z-index: 2;
+  gap:10px;
+}
+
+.secondPlace, .firstPlace, .thirdPlace {
+  height:100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  text-align: center;
+}
+
+.secondPlace .podium {
+  background: #e5e5e5;
+  height: 50%;
+}
+
+.firstPlace .podium {
+  background: #dbb42c;
+  height: 75%;
+}
+.thirdPlace .podium {
+  background: #dd9072;
+  height: 25%;
+}
+
+.podium {
+  width: 100%;
+  box-shadow: inset 0px 0px 20px black;
+}
+
+.winnerContainer h1 {
+  color:white;
+  font-family: "Madimi One", sans-serif;
+
+}
+
+.winnerContainer span {
+  font-size: 60pt;
+  font-family: "Lilita One", sans-serif;
+  text-shadow: 0px 2px 5px black;
+}
+
+.firstPlace span {
+  color: #dbb42c;
+}
+
+.secondPlace span {
+  color: #e5e5e5;
+}
+
+.thirdPlace span {
+  color: #dd9072;
+}
+
+.countdownClock {
+  margin: auto;
+  font-size: 312pt;
+  color: white;
+  text-align: center;
+
+}
+
+.countdownContainer {
+  height: 100%;
+  width: 100%;
+  display:flex;
+
 }
