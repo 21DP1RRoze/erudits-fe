@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 const EndView = () => {
     const { id } = useParams();
     const [players, setPlayers] = useState();
+    const [array, setArray] = useState();
 
     useEffect(() => {
         API.get(`/quiz-instances/${id}/players`).then((response) => {
@@ -13,24 +14,33 @@ const EndView = () => {
 
     }, [])
 
+
+    useEffect(() => {
+        if (players !== undefined) {
+            const filteredPlayers = players.filter(player => !player.is_disqualified);
+            const sortedPlayers = filteredPlayers.sort((a, b) => b.points - a.points);
+            setArray(sortedPlayers);
+        }
+    }, [players]);
+
     return (
-        players !== undefined && <div className="endViewContainer">
+        players !== undefined && array !== undefined && <div className="endViewContainer">
             <div className="winnerContainer">
 
                 <div className="secondPlace">
-                    <h1>{players.sort((a, b) => (a["points"] > b["points"] ? -1 : 1))[1].name}</h1>
+                    <h1>{array[1].name}</h1>
                     <div className="podium"><span>2</span></div>
 
                 </div>
 
                 <div className="firstPlace">
-                    <h1>{players.sort((a, b) => (a["points"] > b["points"] ? -1 : 1))[0].name}</h1>
+                    <h1>{array[0].name}</h1>
                     <div className="podium"><span>1</span></div>
 
                 </div>
 
                 <div className="thirdPlace">
-                    <h1>{players.sort((a, b) => (a["points"] > b["points"] ? -1 : 1))[2].name}</h1>
+                    <h1>{array[2].name}</h1>
                     <div className="podium"><span>3</span></div>
 
                 </div>
