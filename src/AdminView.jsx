@@ -19,6 +19,7 @@ const AdminView = ({ }) => {
     const [inactivePlayers, setInactivePlayers] = useState(null);
 
     const [expandedRow, setExpandedRow] = useState(null);
+    const [freezePlayers, setFreezePlayers] = useState(false);
 
     const { id } = useParams()
 
@@ -80,14 +81,57 @@ const AdminView = ({ }) => {
 
     const TiebreakPlayers = useMemo(() => {
         if (!tiebreakerPlayers) return null;
-        const sortedPlayers = [...tiebreakerPlayers].sort((a, b) => b.points - a.points);
+        const sortedPlayers = [...tiebreakerPlayers].sort((a, b) => {
+            // Sort by points descending
+            if (a.tiebreaker_points !== b.tiebreaker_points) {
+                return b.tiebreaker_points - a.tiebreaker_points;
+            }
+            // If points are equal, sort by time difference ascending
+            else {
+                // Calculate time difference for the first player
+                const timeDifferenceA = a.player_answers.length > 0 ? (new Date(a.player_answers[0].answered_at) - new Date(a.player_answers[0].questioned_at)) / 1000 : Infinity;
+
+                // Calculate time difference for the second player
+                const timeDifferenceB = b.player_answers.length > 0 ? (new Date(b.player_answers[0].answered_at) - new Date(b.player_answers[0].questioned_at)) / 1000 : Infinity;
+
+                return timeDifferenceA - timeDifferenceB;
+            }
+        });
         return sortedPlayers.map(function (Player, playerIndex) {
             return (
                 <tr className='warning-row'>
                     <td>{playerIndex}</td>
                     <td>{Player.name}</td>
                     <td>{Player.is_disqualified}</td>
+                    <td>{Player.points}</td>
                     <td>{Player.tiebreaker_points}</td>
+                    { Player.player_answers.length === 0 &&
+                        <>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </>
+                    }
+                    {Player.player_answers.length > 0 && Player.player_answers.map((answer, index) => {
+                        if (answer.questioned_at) {
+                            const timeDifference = (new Date(answer.answered_at) - new Date(answer.questioned_at)) / 1000;
+                            return (
+                                <React.Fragment key={index}>
+                                    <td>{answer.questioned_at}</td>
+                                    <td>{answer.answered_at}</td>
+                                    <td>{timeDifference} seconds</td>
+                                </React.Fragment>
+                            );
+                        } else {
+                            return (
+                                <React.Fragment key={index}>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </React.Fragment>
+                            );
+                        }
+                    })}
                     <td>
                         <button onClick={() => handleKickPlayer(Player.id)}>Kick</button>
                         <button onClick={() => handleDisqualifyPlayer(Player.id)}>Disqualify</button>
@@ -207,6 +251,10 @@ const AdminView = ({ }) => {
                         <th>Player</th>
                         <th>Disqualified?</th>
                         <th>Points</th>
+                        <th>Tiebreaker points</th>
+                        <th>Questioned at</th>
+                        <th>Answered at</th>
+                        <th>Time difference</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -218,6 +266,12 @@ const AdminView = ({ }) => {
 
     const PositionPlayers = useMemo(() => {
         if (!activePlayers || activePlayers.length === 0) return null;
+        if (freezePlayers) {
+            setDisqualifiedPlayers([...disqualifiedPlayers]);
+            setTiebreakerPlayers([...tiebreakerPlayers]);
+            setAdvancedPlayers([...advancedPlayers]);
+            return null;
+        }
         let disqualifyAmount = 0;
         if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount;
 
@@ -330,7 +384,70 @@ const AdminView = ({ }) => {
         setDisqualifiedPlayers(disqPlayers);
         setTiebreakerPlayers(tiePlayers);
         setAdvancedPlayers(advPlayers);
-    }, [activePlayers, activeQuestionGroup]);
+    }, [activePlayers, activeQuestionGroup, freezePlayers]);
+
+    const PositionTiebreakerPlayers = () => {
+        if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
+        setFreezePlayers(true);
+        let disqualifyAmount = 0;
+        if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount;
+
+        const sortedPlayers = [...tiebreakerPlayers].sort((a, b) => {
+            // Helper function to calculate time difference
+            const getTimeDifference = player => {
+                const tiebreakerAnswer = player.player_answers.find(answer => answer.questioned_at);
+                if (tiebreakerAnswer) {
+                    return (new Date(tiebreakerAnswer.answered_at) - new Date(tiebreakerAnswer.questioned_at)) / 1000;
+                }
+                return Infinity; // Return Infinity if the player has not answered any tiebreaker questions
+            };
+
+            // Sort by points ascending and time difference descending
+            if (a.tiebreaker_points !== b.tiebreaker_points) {
+                return a.tiebreaker_points - b.tiebreaker_points; // Sort by points ascending
+            } else {
+                // If points are equal, sort by time difference descending
+                const timeDifferenceA = getTimeDifference(a);
+                const timeDifferenceB = getTimeDifference(b);
+                return timeDifferenceB - timeDifferenceA;
+            }
+        });
+
+        let disqPlayers = [];
+        let tiePlayers = [];
+
+        // Group players by whether they have answered tiebreaker questions or not
+        const playersWithTiebreakerAnswers = sortedPlayers.filter(player => {
+            return player.player_answers.some(answer => answer.questioned_at);
+        });
+
+        const playersWithoutTiebreakerAnswers = sortedPlayers.filter(player => {
+            return !player.player_answers.some(answer => answer.questioned_at);
+        });
+
+        if (playersWithoutTiebreakerAnswers.length > 1 && disqualifyAmount < sortedPlayers.length) {
+            // If there are multiple players with no tiebreaker answers and the number of players to be disqualified
+            // is less than the total number of players, treat it as a tiebreaker situation between those players
+            tiePlayers = [...playersWithoutTiebreakerAnswers];
+        } else {
+            // Proceed with regular disqualification logic
+            disqPlayers = playersWithTiebreakerAnswers.slice(0, disqualifyAmount);
+        }
+
+        const advPlayers = sortedPlayers.filter(player => {
+            return !disqPlayers.includes(player) && !tiePlayers.includes(player);
+        });
+
+        // Output the results in console
+        console.log("Players to be disqualified total: ", disqualifyAmount);
+        console.log("Disqualified players: ", disqPlayers);
+        console.log("Tiebreaker players: ", tiePlayers);
+        console.log("Advanced players: ", advPlayers);
+
+        setDisqualifiedPlayers([...disqualifiedPlayers, ...disqPlayers]);
+        setTiebreakerPlayers(tiePlayers);
+        setAdvancedPlayers([...advancedPlayers, ...advPlayers]);
+    }
 
     const PlayerAnswers = ({ questionGroupId }) => {
         if (!activePlayers) return null;
@@ -447,7 +564,7 @@ const AdminView = ({ }) => {
                 </React.Fragment>
             )
         });
-    }, [quiz, activeQuestionGroup, expandedRow, activePlayers]);
+    }, [quiz, quizInstance?.has_question_group_ended, activeQuestionGroup, expandedRow, toggleRow, handleStopClick, handleStartClick]);
 
     const AdditionalQuestionGroups = useMemo(() => {
         if (!quiz) return null;
@@ -463,7 +580,7 @@ const AdminView = ({ }) => {
                 </tr>
             )
         });
-    }, [quiz]);
+    }, [activeQuestionGroup, quiz, quizInstance?.has_question_group_ended]);
 
     const handleTiebreakCycle = () => {
         // Set is_tiebreak on all tiebreak players to true
@@ -481,7 +598,7 @@ const AdminView = ({ }) => {
                 return { ...prevGroup, disqualify_amount: previousQuestionGroupDisqualifyAmount }
             });
         });
-
+        setFreezePlayers(true);
     }
 
     const handleDisqualifyCycle = () => {
@@ -497,12 +614,7 @@ const AdminView = ({ }) => {
         })
         setActiveQuestionGroup(null);
         setDisqualifiedPlayers(null);
-    }
-
-    const calculateTiebreakerAnswers = () => {
-        API.get(`/quiz-instances/${id}/compare-tiebreakers`).then((response) => {
-            console.log(response.data.data);
-        });
+        setFreezePlayers(false);
     }
 
     return (
@@ -532,7 +644,8 @@ const AdminView = ({ }) => {
             {"=>"}
                     {TiebreakPlayers && <button onClick={handleTiebreakCycle} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>RUN TIEBREAK CYCLE</button>}
                     {"=>"}
-                    {TiebreakPlayers && <button onClick={calculateTiebreakerAnswers} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>CALCULATE TIEBREAKERS</button>}
+                    {TiebreakPlayers && <button onClick={PositionTiebreakerPlayers} disabled={!quizInstance.has_question_group_ended || TiebreakPlayers.length === 0} style={{ background: '#fcba03', fontWeight: 800 }}>CALCULATE TIEBREAKERS</button>}
+
                     ||
                     {DisqualifiedPlayers && <button onClick={handleDisqualifyCycle} disabled={!quizInstance.has_question_group_ended || DisqualifiedPlayers.length === 0 || TiebreakPlayers.length > 0} style={{ background: '#fa5757', fontWeight: 800 }}>RUN DISQUALIFICATION CYCLE</button>}
                 </div>

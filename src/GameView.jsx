@@ -136,6 +136,11 @@ const GameView = () => {
         setIsActive(true);
 		setDoneCounting(true);
 
+        setPlayer(prevState => ({
+            ...prevState,
+            questionedAt: new Date().toISOString()
+        }));
+
         if (player.playerIsTiebreaker) {
             setPlayer(prevState => ({
                 ...prevState,
@@ -244,6 +249,15 @@ const GameView = () => {
     }
 
     const TiebreakerQuestion = useMemo(() => {
+        const saveTiebreakerAnswer = async (currentQuestionId, currentAnswerId) => {
+            await API.post(`/answers/set-tiebreaker-answer`, {
+                player_id: player.id,
+                question_id: currentQuestionId,
+                answer_id: currentAnswerId,
+                questioned_at: player.questionedAt,
+                answered_at: new Date().toISOString(),
+            })
+        }
         if (!tiebreakerQuestion) return null;
         let Answers = tiebreakerQuestion.answers.map(function (Answer, answerIndex) {
             return (
