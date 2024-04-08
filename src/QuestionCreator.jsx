@@ -168,9 +168,9 @@ const QuestionCreator = () => {
         return quiz.data.question_groups.map(function (QuestionGroup, groupIndex) {
             let Questions;
             //set defaults so there isnt a null
-            QuestionGroup.answer_time=QuestionGroup.answer_time || 1;
-            QuestionGroup.disqualify_amount= QuestionGroup.disqualify_amount || 0;
-            QuestionGroup.points= QuestionGroup.points || 1;
+            QuestionGroup.answer_time = QuestionGroup.answer_time || 1;
+            QuestionGroup.disqualify_amount = QuestionGroup.disqualify_amount || 0;
+            QuestionGroup.points = QuestionGroup.points || 1;
             Questions = QuestionGroup.questions.map(function (Question, questionIndex) {
                 let Answers;
                 Answers = Question.answers.map(function (Answer, answerIndex) {
@@ -241,8 +241,37 @@ const QuestionCreator = () => {
                                     return { ...prevState }; // Return a new object to trigger re-render
                                 });
                             }} type="text"></input><br />
-                        <label htmlFor="imageUpload" className="p-1 ps-2 pe-2 formButton">Upload image</label><br />
-                        <input id="imageUpload" accept="image/*" className="mt-1 imageUpload" type="file" />
+                        <form>
+                            {/* Display the uploaded image */}
+                            {Question.image && (
+                                <img src={Question.image} />
+                            )}
+
+                            {/* Label for the file input */}
+                            <label htmlFor="imageUpload" className="p-1 ps-2 pe-2 formButton">
+                                Upload image
+                            </label>
+                            <br />
+
+                            {/* File input */}
+                            <input
+                                onChange={(e) => {
+                                    const newImage = e.target.files[0].name;
+                                        setQuestionGroupState((prevState) => {
+                                            prevState.question_groups[groupIndex].questions[
+                                                questionIndex
+                                            ].image = "/images/"+newImage;
+                                            return { ...prevState }; // Return a new object to trigger re-render
+                                        });
+                                    
+                                }}
+                                id="imageUpload"
+                                accept="image/*"
+                                className="mt-1 imageUpload"
+                                type="file"
+                            />
+                        </form>
+
 
                         <div className="answerContainer mt-3" style={{ display: (!Question.is_open_answer) ? 'grid' : 'none' }}>
                             {Answers}
@@ -266,10 +295,10 @@ const QuestionCreator = () => {
             if (QuestionGroup.is_additional) {
                 setHasTiebreaker(true);
             }
-            
+
             return (
 
-            
+
                 <>
                     <div key={questionGroupId} id={"questionGroup" + questionGroupId} className='questionCardContainer mb-3 glass'>
 
@@ -349,7 +378,7 @@ const QuestionCreator = () => {
             )
         });
     }, [quiz, questionGroupState]);
-    
+
     return (
         <div className="content css-selector">
             {showConfirmationQuestion && <ConfirmationMessage message="Are you sure you want to delete this question？" QuestionId={idToDelete.questionID} QuestionGroupId={idToDelete.groupID} onConfirm={deleteQuestion} />}
@@ -372,7 +401,7 @@ const QuestionCreator = () => {
                             });
                         }} />
                 </div>
-                {/* <h1 onClick={() => console.log(questionGroupState)}>click to log</h1> */}
+                <h1 onClick={() => console.log(questionGroupState)}>click to log</h1>
 
 
                 {QuestionGroups}
