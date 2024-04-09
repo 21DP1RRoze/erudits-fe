@@ -6,6 +6,7 @@ import Countdown from './Countdown';
 
 const GameView = () => {
     const [quiz, setQuiz] = useState(false);
+    const [quizInstance, setQuizInstance] = useState(false);
 
     const [ready, setReady] = useState(false);
     const [quizReady, setQuizReady] = useState(false);
@@ -28,8 +29,37 @@ const GameView = () => {
     const { id } = useParams()
 
     useEffect(() => {
+        const playerId = localStorage.getItem("playerId");
+        if (playerId != null) {
+            API.get(`/players/${playerId}`).then((response) => {
+                setReady(true);
+                setIsWaiting(true);
+                setPlayer({
+                    id: response.data.data.id,
+                    playerName: '',
+                    playerPoints: 0,
+                    playerIsDisqualified: false,
+                    playerIsTiebreaker: false,
+                    questionedAt: null,
+                    answeredAt: null
+                })
+            }).catch((error) => {
+                localStorage.removeItem("playerId");
+            });
+        }
+    },[])
+
+    useEffect(() => {
         API.get(`/quiz-instances/${id}`).then((response) => {
             setQuiz(response.data.data.quiz);
+            setQuizInstance({
+                id: response.data.data.id,
+                isPublic: response.data.data.is_public,
+                isActive: response.data.data.is_active,
+                activeQuestionGroup: response.data.data.active_question_group,
+                activeQuestionGroupStart: response.data.data.active_question_group_start,
+                hasQuestionGroupEnded: response.data.data.has_question_group_ended
+            })
         });
 
         
@@ -37,12 +67,22 @@ const GameView = () => {
 
     useEffect(() => {
         if(quizReady && ready) {
-            setMinutes(Math.floor(currentQuestionGroup.answer_time));
+            if (quizInstance.activeQuestionGroupStart) {
+                const timeLeft = (Math.floor(currentQuestionGroup.answer_time) * 60000) - (new Date() - new Date(quizInstance.activeQuestionGroupStart))
+                const minutes= Math.floor(timeLeft / 60000)
+                const seconds = parseInt(((timeLeft % 60000) / 1000).toFixed(0))
+
+                setMinutes(minutes);
+                setSeconds(seconds);
+            } else {
+                setMinutes(Math.floor(currentQuestionGroup.answer_time));
+            }
         }
-    },[currentQuestionGroup?.answer_time, quizReady, ready])
+    },[currentQuestionGroup?.answer_time, quizReady, ready, quizInstance])
 
     const savePlayer = async () => {
         await API.post(`/players`, { quiz_instance_id: id, name: player.playerName, points: player.playerPoints, is_disqualified: player.playerIsDisqualified }).then((response) => {
+            localStorage.setItem("playerId", response.data.data.id);
             setReady(true);
             setIsWaiting(true);
             setPlayer({...player, id: response.data.data.id});
