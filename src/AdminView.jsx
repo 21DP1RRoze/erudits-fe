@@ -273,7 +273,6 @@ const AdminView = () => {
         let amount = activeQuestionGroup?.disqualify_amount;
         const array = activePlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
-        console.log(amount);
         if(array.length < 2 || amount === undefined) {
             console.log('no segregation needed')
         } else {
