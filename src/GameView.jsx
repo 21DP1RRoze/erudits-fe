@@ -81,9 +81,12 @@ const GameView = () => {
                     }));
                     getRandomTiebreakerQuestion();
                 }
-                if(!response.data.data?.active_question_group) return;
-                if(response.data.data.active_question_group.id === currentQuestionGroup?.id) return;
-                else {
+                if(!response.data.data?.active_question_group) {
+                    console.log('cav1')
+                }
+                if(response.data.data?.active_question_group.id === currentQuestionGroup?.id) {
+                    console.log('cav')
+                } else {
                     // If the player is tiebreaking and the question group is not additional, continue
                     // There is literally no use of this check, but I'm keeping it here
                     if (player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional) return;
@@ -94,9 +97,11 @@ const GameView = () => {
                     setIsWaiting(false)
                     waiting = false
                     setQuizReady(true)
-                    if(waiting) {
-                        fetchData()
-                    }
+                    console.log('Esmu elså')
+                }
+                console.log(waiting)
+                if (waiting) {
+                    fetchData()
                 }
             });
         }, 1000)
