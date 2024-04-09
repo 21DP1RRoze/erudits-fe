@@ -1,6 +1,6 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import API from './axiosApi';
-import {useParams} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const AdminView = () => {
     const [quiz, setQuiz] = useState(null);
@@ -265,7 +265,7 @@ const AdminView = () => {
         //     return null;
         // };
         if (activePlayers === null) return null;
-      
+     
         let disqPlayers = [];
         let tiePlayers = [];
         let advPlayers = [];
@@ -285,7 +285,7 @@ const AdminView = () => {
                 if (disqualified === amount) {
                     break;
                 }
-
+              
                 if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
                     disqualified++;
                     array[player].presentation_disqualified = true;
@@ -296,7 +296,7 @@ const AdminView = () => {
                     array[player + 1].presentation_tiebreaker = true;
                     array[player].presentation_disqualified = false;
                     array[player + 1].presentation_disqualified = false;
-                    for(let i=1; i<array.length; i++) {
+                    for (let i = 1; i < array.length; i++) {
                         if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
                             array[player + i].presentation_tiebreaker = true;
                         } else {
@@ -312,7 +312,7 @@ const AdminView = () => {
         let sortedArray = array.sort((a, b) => (a["points"] > b["points"] ? -1 : 1));
 
         sortedArray.map((player) => {
-            if(player.presentation_tiebreaker) {
+            if (player.presentation_tiebreaker) {
                 tiePlayers.push(player);
             } else if (player.presentation_disqualified) {
                 disqPlayers.push(player);
@@ -392,37 +392,37 @@ const AdminView = () => {
 
     const PlayerAnswers = ({ questionGroupId }) => {
         if (!activePlayers) return null;
-    
+
         const questionGroup = quiz.question_groups.find(group => group.id === questionGroupId);
         if (!questionGroup) return null;
-    
+
         // Map filtered players to display their answers for the specified question group
         const playerAnswerList = activePlayers.map((Player, playerIndex) => {
             // Filter player answers to include only those for the specified question group
             const playerAnswersForGroup = Player.player_answers
                 .filter(answer => answer.question_group_id === questionGroupId);
-    
+
             const openAnswersForGroup = Player.open_answers
                 ? Player.open_answers.filter(answer => answer.question_group_id === questionGroupId)
                 : [];
-    
+
             console.log("open answers", openAnswersForGroup);
-    
+
             // Create a map of PlayerAnswer objects for quick lookup
             const playerAnswersMap = {};
             playerAnswersForGroup.forEach(answer => {
                 playerAnswersMap[answer.question_id] = answer;
             });
-    
+
             const openAnswersMap = {};
             openAnswersForGroup.forEach(answer => {
                 openAnswersMap[answer.question_id] = answer;
             });
-    
+
             const hasAnsweredAllQuestions = questionGroup.questions.every(question =>
                 playerAnswersMap.hasOwnProperty(question.id)
             );
-    
+
             // Map questions from the specified question group to table cells
             const playerSetAnswers = questionGroup.questions.map(question => {
                 const playerAnswer = playerAnswersMap[question.id];
@@ -433,16 +433,16 @@ const AdminView = () => {
                         return (
                             <td key={openAnswer ? openAnswer.id : question.id}>
                                 {openAnswer ? (openAnswer.answer) : '-'}
-                                
-                                {openAnswer && 
-                                <div>
-                                <hr/>
-                                <select onChange={(e) => API.post(`/open-answers/${openAnswer.id}/points`, {points: e.target.value})}>
-                                    <option value={0}>0</option>
-                                    <option value={1}>1</option>
-                                    <option value={2}>2</option>
-                                </select>
-                                </div>}
+
+                                {openAnswer &&
+                                    <div>
+                                        <hr />
+                                        <select onChange={(e) => API.post(`/open-answers/${openAnswer.id}/points`, { points: e.target.value })}>
+                                            <option value={0}>0</option>
+                                            <option value={1}>1</option>
+                                            <option value={2}>2</option>
+                                        </select>
+                                    </div>}
                             </td>
                         )
                     } else {
@@ -458,7 +458,7 @@ const AdminView = () => {
                 }
             });
             const rowClass = hasAnsweredAllQuestions ? 'success-row' : '';
-    
+
             // Render player name along with their answers for the specified group
             return (
                 <tr key={Player.id} className={rowClass}>
@@ -467,7 +467,7 @@ const AdminView = () => {
                 </tr>
             );
         });
-    
+
         // Render the table containing player names and their answers for the specified group
         return (
             <table style={{ width: '100%' }}>
@@ -511,6 +511,7 @@ const AdminView = () => {
             setActiveQuestionGroup(null);
         });
     }
+    
 
     const handleStartClick = (questionGroup) => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
@@ -568,6 +569,8 @@ const AdminView = () => {
                     <td>{QuestionGroup.disqualify_amount}</td>
                     <td>{QuestionGroup.answer_time}</td>
                     <td>{QuestionGroup.points}</td>
+                    <td><button onClick={(e) => { e.stopPropagation(); handleStopClick() }}>Stop</button>
+                    </td>
                 </tr>
             )
         });
@@ -614,7 +617,7 @@ const AdminView = () => {
         });
     }
 
-    
+
 
     return (
         <div>
