@@ -64,14 +64,9 @@ const GameView = () => {
         }
     }
 
-    useEffect(() => {
-        // If there is a question group active, but player has already completed it, continue
-        if (currentQuestionGroup != null) {
-            if (playerActive) return
-        }
-        if (!ready) return;
-        const pollingInterval = 1000; // 1 second in milliseconds
-        const pollInterval = setInterval(() => {
+    const fetchData = () => {
+        setTimeout(() => {
+            let waiting = true
             API.get(`/quiz-instances/${id}/poll-group/${player.id}`).then((response) => {
                 if(!player.playerIsDisqualified && response.data.is_disqualified) {
                     setPlayer(prevState => ({
@@ -97,14 +92,31 @@ const GameView = () => {
 
                     setCurrentQuestionGroup(response.data.data.active_question_group)
                     setIsWaiting(false)
+                    waiting = false
                     setQuizReady(true)
+                    if(waiting) {
+                        fetchData()
+                    }
                 }
-                console.log(response)
             });
+        }, 1000)
+    }
 
-        }, pollingInterval);
-        return () => clearInterval(pollInterval);
-    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, player.playerIsTiebreaker, id, player.id, player.playerIsTiebreaker]);
+    useEffect(() => {
+        // If there is a question group active, but player has already completed it, continue
+        if (currentQuestionGroup != null) {
+            if (playerActive) return
+        }
+        if (!ready) return;
+        const pollingInterval = 1000; // 1 second in milliseconds
+        // const pollInterval = setTimeout(() => {
+        //     // BIJA POLLS
+        //     fetchData()
+        //     console.log(123)
+        // }, pollingInterval);
+        fetchData()
+        // return () => clearInterval(pollInterval);
+    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, player.playerIsTiebreaker, id, player.id, player.playerIsTiebreaker, isWaiting]);
 
 
     //timer courtesy of chatgpt
@@ -258,7 +270,7 @@ const GameView = () => {
                 player_id: player.id,
                 question_id: currentQuestionId,
                 answer_id: currentAnswerId,
-                questioned_at: player.questionedAt.toISOString(),
+                questioned_at: player.questionedAt,
                 answered_at: new Date().toISOString(),
             })
         }
@@ -306,7 +318,7 @@ const GameView = () => {
                 player_id: player.id,
                 question_id: tiebreakerQuestion.id,
                 answer_id: tiebreakerAnswer.id,
-                questioned_at: player.questionedAt.toISOString(),
+                questioned_at: player.questionedAt,
                 answered_at: new Date().toISOString(),
             });
             setIsActive(false);
