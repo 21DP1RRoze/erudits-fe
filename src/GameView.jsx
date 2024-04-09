@@ -347,11 +347,7 @@ const GameView = () => {
                             setPlayer({ ...player, playerName: e.target.value })} value={player.playerName}
                             placeholder="Komandas nosaukums" className="mt-4 playerNameInput" type="text" /><br />
                         <button onClick={() => savePlayer()} disabled={(ready)} className="readyButton readyButtonAnimation p-2 ps-4 pe-4 mt-5 mb-4">Esmu gatavs spēlēt!</button> <br />
-                        {/* spinner */}
-                        {ready && <div>
-                            <div className="lds-ring mb-4"><div></div><div></div><div></div><div></div></div>
-                            <h5 onClick={()=> {setQuizReady(true)}} className="title" style={{ fontSize: "15pt" }}>Lūdzu, gaidiet spēles sākumu!</h5>
-                        </div>}
+                       
                     </div>
                 </div>}
 

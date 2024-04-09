@@ -431,15 +431,15 @@ const AdminView = () => {
                             <td key={openAnswer ? openAnswer.id : question.id}>
                                 {openAnswer ? (openAnswer.answer) : '-'}
 
-                                {openAnswer &&
-                                    <div>
+                                {openAnswer && openAnswer.length >0 ?
+                                    (<div>
                                         <hr />
                                         <select onChange={(e) => API.post(`/open-answers/${openAnswer.id}/points`, { points: e.target.value })}>
                                             <option value={0}>0</option>
                                             <option value={1}>1</option>
                                             <option value={2}>2</option>
                                         </select>
-                                    </div>}
+                                    </div>) : '-'}
                             </td>
                         )
                     } else {
@@ -508,7 +508,7 @@ const AdminView = () => {
             setActiveQuestionGroup(null);
         });
     }
-    
+
 
     const handleStartClick = (questionGroup) => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
@@ -567,7 +567,9 @@ const AdminView = () => {
                     <td>{QuestionGroup.disqualify_amount}</td>
                     <td>{QuestionGroup.answer_time}</td>
                     <td>{QuestionGroup.points}</td>
-                    <td><button onClick={(e) => { e.stopPropagation(); handleStopClick() }}>Stop</button>
+                    <td>{(activeQuestionGroup != null && QuestionGroup.id === activeQuestionGroup.id) &&
+                        <button onClick={(e) => { e.stopPropagation(); handleStopClick() }}>Stop</button>
+                    }
                     </td>
                 </tr>
             )
