@@ -35,6 +35,9 @@ const PresentationView = () => {
 
             }
         }
+        let disqPlayers = [];
+        let tiePlayers = [];
+        let advPlayers = [];
         console.log(toDisqualify);
         let disqualified = 0;
         while (array.length <= amount) {
@@ -61,11 +64,25 @@ const PresentationView = () => {
                         break;
                     }
                 }
-                
+
                 break;
             }
         }
 
+        array.map((player) => {
+            if(player.presentation_tiebreaker) {
+                tiePlayers.push(player);
+            } else if (player.presentation_disqualified) {
+                disqPlayers.push(player);
+            } else {
+                advPlayers.push(player);
+            }
+            return player;
+        })
+
+        console.log(tiePlayers)
+        console.log(disqPlayers)
+        console.log(advPlayers)
         return array;
     }
 
