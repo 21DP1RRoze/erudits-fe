@@ -43,7 +43,6 @@ const GameView = () => {
                     questionedAt: null,
                     answeredAt: null
                 })
-                console.log('nu kip ir')
             }).catch((error) => {
                 localStorage.removeItem("playerId");
             });
