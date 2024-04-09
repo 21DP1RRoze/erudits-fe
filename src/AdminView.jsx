@@ -265,6 +265,10 @@ const AdminView = () => {
         );
     }, [TiebreakPlayers]);
 
+
+
+    
+
     const PositionPlayers = useMemo(() => {
         if (!activePlayers || activePlayers.length === 0) return null;
         if (freezePlayers) {
@@ -677,11 +681,66 @@ const AdminView = () => {
         });
     }
 
+    const classifyPlayers = (amount, arrayToSort) => {
+        const array = arrayToSort.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].is_disqualified) {
+                array.splice(i, 1);
+
+            }
+        }
+        let disqualified = 0;
+        let dPlayers = [];
+        let tPlayers = [];
+
+        while (array.length <= amount) {
+            amount--;
+        }
+        for (let player = 0; player < array.length; player++) {
+            if (disqualified === amount) {
+                break;
+            }
+
+
+            if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
+                disqualified++;
+                dPlayers.push(array[player]);
+            }
+            else if (array[player].points === array[player + 1].points) {
+                disqualified = disqualified + 0.5;
+                array[player].presentation_tiebreaker = true;
+                array[player + 1].presentation_tiebreaker = true;
+                tPlayers.push(array[player]);
+                tPlayers.push(array[player+1]);
+                dPlayers.splice(array[player], 1)
+                dPlayers.splice(array[player +1], 1)
+
+
+                for(let i=1; i<array.length; i++) {
+                    if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
+                        array[player + i].presentation_tiebreaker = true;
+                        tPlayers.push(array[player+i]);
+                        dPlayers.splice(array[player+i], 1)
+
+                    } else {
+                        break;
+                    }
+                }
+                
+                break;
+            }
+        }
+        console.log("disqualified: ",dPlayers, "tied: ", tPlayers);
+        return dPlayers, tPlayers;
+    }
+
+
     return (
         <div>
             {quiz && <div>
                 <h1>Currently managing game {quiz.title}</h1>
                 <button onClick={handleRefreshClick}>REFRESH</button>
+                <h1 onClick={() => classifyPlayers(4, activePlayers)}>log</h1>
                 <div style={{ display: 'flex', textAlign: 'center', justifyContent: "center", width: '100%', flexDirection: "column" }}>
                     <h2>Active players</h2>
                     <table className="hostTable" style={{ width: '80%', margin: "auto" }}>

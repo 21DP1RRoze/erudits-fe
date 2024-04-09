@@ -9,6 +9,7 @@ const PresentationView = () => {
     const { id } = useParams();
     const [toDisqualify, setToDisqualify] = useState();
     const [showCountdown, setShowCountdown] = useState(false);
+    
 
     //timer
     const [seconds, setSeconds] = useState(0);
@@ -134,10 +135,11 @@ const PresentationView = () => {
             <button onClick={() => showCountdown ? setShowCountdown(false) : setShowCountdown(true)}>{showCountdown ? 'leaderoard' : 'countdown'}</button>
             <button onClick={() => setIsActive(true)}>start countdown</button>
             {!showCountdown && <div>
+                <h1 onClick={()=>console.log(classifyPlayers)}>log</h1>
                 <button onClick={() => (sort ? setSort(false) : setSort(true))}>sort</button>
                 <table className="presentationTable">
                     {mapPlayers}
-
+                
 
                 </table>
             </div>}

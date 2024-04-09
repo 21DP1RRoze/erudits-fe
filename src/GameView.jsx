@@ -60,6 +60,7 @@ const GameView = () => {
             setIsActive(false);
             setIsWaiting(true);
             setCurrentQuestion(0);
+            setDoneCounting(false)
         }
     }
 
@@ -135,6 +136,7 @@ const GameView = () => {
 	const finishCountdown = () => {
         setIsActive(true);
 		setDoneCounting(true);
+        setIsWaiting(false);
 
         setPlayer(prevState => ({
             ...prevState,
@@ -223,7 +225,7 @@ const GameView = () => {
 							<div className="questionsLeft ms-5"><span>{currentQuestion + 1}/{currentQuestionGroup.questions.length}</span><i className="ms-2 fa-solid fa-check fa-2x" style={{ color: "#f2e9e4" }}></i></div>
 						</div>
 						<div className="p-3 question">
-							<img src={Question.image} className="questionImage mb-2" alt={'question'}/><br/>
+							<img src={Question.image} className="questionImage mb-2" alt=''/><br/>
 							<span className="questionText">{Question.text}</span>
 						</div>
 						<div className="nextButton" onClick={() => nextQuestion()}>{'>'}</div>
@@ -256,7 +258,7 @@ const GameView = () => {
                 player_id: player.id,
                 question_id: currentQuestionId,
                 answer_id: currentAnswerId,
-                questioned_at: player.questionedAt,
+                questioned_at: player.questionedAt.toISOString(),
                 answered_at: new Date().toISOString(),
             })
         }
@@ -281,7 +283,7 @@ const GameView = () => {
                     <div className="questionInfo">
                         <div className="questionsLeft ms-5"><span>1/1</span><i className="ms-2 fa-solid fa-check fa-2x" style={{ color: "#f2e9e4" }}></i></div>
                     </div>
-                    <div className="p-3 question">
+                    <div className="p-3 tieBreakerQuestion">
                         <span className="questionText">{tiebreakerQuestion.text}</span>
                     </div>
                 </div>
@@ -304,9 +306,13 @@ const GameView = () => {
                 player_id: player.id,
                 question_id: tiebreakerQuestion.id,
                 answer_id: tiebreakerAnswer.id,
-                questioned_at: player.questionedAt,
+                questioned_at: player.questionedAt.toISOString(),
                 answered_at: new Date().toISOString(),
             });
+            setIsActive(false);
+            setIsWaiting(true);
+            setCurrentQuestion(0);
+            setDoneCounting(false)
             setPlayerActive(false);
         }
     }
@@ -314,7 +320,6 @@ const GameView = () => {
     return (
         <>
             <div className="gameViewContainer">
-                <h1 onClick={() => console.log(playerAnswers)}>log</h1>
             {player.playerIsDisqualified && <div className='disqualified p-2'>Komanda diskvalificēta</div>}
                 <div className="eruditsBG">
                     <div className="layer1"></div>
@@ -368,7 +373,7 @@ const GameView = () => {
                     {Questions && CurrentActiveQuestion}
                     </div>
                 }
-
+                
                 {quizReady && ready && quiz && !isWaiting && doneCounting && player.playerIsTiebreaker && !player.playerIsDisqualified &&
                     <div className="content gameView">
                         {showConfirmation &&
