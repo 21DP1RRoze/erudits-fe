@@ -264,44 +264,48 @@ const AdminView = () => {
         //     setAdvancedPlayers([...advancedPlayers]);
         //     return null;
         // };
-        if (activeQuestionGroup === null) return null;
-        if (loadedPlayers === null) return null;
-
+        if (activePlayers === null) return null;
+     
         let disqPlayers = [];
         let tiePlayers = [];
         let advPlayers = [];
 
-        let amount = activeQuestionGroup.disqualify_amount;
-        const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
+        let amount = activeQuestionGroup?.disqualify_amount;
+        const array = activePlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
-        let disqualified = 0;
-        while (array.length <= amount) {
-            amount--;
-        }
-        for (let player = 0; player < array.length; player++) {
-            if (disqualified === amount) {
-                break;
+        console.log(amount);
+        if(array.length < 2 || amount === undefined) {
+            console.log('no segregation needed')
+        } else {
+            let disqualified = 0;
+            while (array.length <= amount) {
+                amount--;
             }
-
-            if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
-                disqualified++;
-                array[player].presentation_disqualified = true;
-            }
-            else if (array[player].points === array[player + 1].points) {
-                disqualified = disqualified + 0.5;
-                array[player].presentation_tiebreaker = true;
-                array[player + 1].presentation_tiebreaker = true;
-                array[player].presentation_disqualified = false;
-                array[player + 1].presentation_disqualified = false;
-                for (let i = 1; i < array.length; i++) {
-                    if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
-                        array[player + i].presentation_tiebreaker = true;
-                    } else {
-                        break;
-                    }
+            for (let player = 0; player < array.length; player++) {
+                if (disqualified === amount) {
+                    break;
                 }
+              
+                if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
+                    disqualified++;
+                    array[player].presentation_disqualified = true;
+                }
+                else if (array[player].points === array[player + 1].points) {
+                    disqualified = disqualified + 0.5;
+                    array[player].presentation_tiebreaker = true;
+                    array[player + 1].presentation_tiebreaker = true;
+                    array[player].presentation_disqualified = false;
+                    array[player + 1].presentation_disqualified = false;
+                    for (let i = 1; i < array.length; i++) {
+                        if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
+                            array[player + i].presentation_tiebreaker = true;
+                        } else {
+                            break;
+                        }
+                    }
 
-                break;
+                    break;
+                }
             }
         }
 
@@ -315,14 +319,13 @@ const AdminView = () => {
             } else {
                 advPlayers.push(player);
             }
-
-            setDisqualifiedPlayers(disqPlayers);
-            setTiebreakerPlayers(tiePlayers);
-            setAdvancedPlayers(advPlayers);
             return player;
         })
+        setDisqualifiedPlayers(disqPlayers);
+        setTiebreakerPlayers(tiePlayers);
+        setAdvancedPlayers(advPlayers);
         return array;
-    }, [loadedPlayers, activeQuestionGroup, freezePlayers])
+    }, [activePlayers, activeQuestionGroup?.disqualify_amount, freezePlayers])
 
     const PositionTiebreakerPlayers = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
@@ -516,7 +519,6 @@ const AdminView = () => {
             question_group_time: new Date().toISOString(),
         }).then(() => {
             setActiveQuestionGroup(questionGroup);
-            console.log(new Date().toISOString())
         });
     }
 
@@ -622,7 +624,6 @@ const AdminView = () => {
             {quiz && <div>
                 <h1>Currently managing game {quiz.title}</h1>
                 <button onClick={handleRefreshClick}>REFRESH</button>
-                <h1 onClick={() => classifyPlayers(4, activePlayers)}>log</h1>
                 <div style={{ display: 'flex', textAlign: 'center', justifyContent: "center", width: '100%', flexDirection: "column" }}>
                     <h2>Active players</h2>
                     <table className="hostTable" style={{ width: '80%', margin: "auto" }}>
