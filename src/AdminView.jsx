@@ -605,7 +605,7 @@ const AdminView = () => {
         API.post('/players/disqualify-selected', {
             player_ids: disqualifiedPlayerIds
         })
-        API.post(`/quiz-instances/${id}/active-question-group`, {
+        API.post(`/quiz-instances/${id}/clear-tiebreaker-data`, {
             question_group_id: null
         })
         setActiveQuestionGroup(null);
