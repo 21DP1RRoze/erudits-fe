@@ -408,7 +408,7 @@ const QuestionCreator = () => {
                             });
                         }} />
                 </div>
-                <h1 onClick={() => console.log(questionGroupState)}>click to log</h1>
+                {/* <h1 onClick={() => console.log(questionGroupState)}>click to log</h1> */}
 
 
                 {QuestionGroups}

@@ -805,6 +805,7 @@ body {
 
 .question {
   text-align: center;
+
 }
 
 .questionImage {
@@ -1322,4 +1323,11 @@ background: linear-gradient(270deg, rgba(65,90,119,1) 0%, rgba(119,141,169,1) 10
   width: 100%;
   display:flex;
 
+}
+
+.tieBreakerQuestion {
+  text-align: center;
+  margin: 0 auto;
+  grid-column: 2;
+  grid-row: 2;
 }
