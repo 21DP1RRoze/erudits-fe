@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import API from './axiosApi';
-import { useNavigate, useParams } from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 
 const AdminView = () => {
     const [quiz, setQuiz] = useState(null);
@@ -121,14 +121,6 @@ const AdminView = () => {
                                     <td>{answer.questioned_at}</td>
                                     <td>{answer.answered_at}</td>
                                     <td>{timeDifference} seconds</td>
-                                </React.Fragment>
-                            );
-                        } else {
-                            return (
-                                <React.Fragment key={index}>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
                                 </React.Fragment>
                             );
                         }
@@ -265,135 +257,76 @@ const AdminView = () => {
         );
     }, [TiebreakPlayers]);
 
-
-
-    
-
-    const PositionPlayers = useMemo(() => {
-        if (!activePlayers || activePlayers.length === 0) return null;
-        if (freezePlayers) {
-            setDisqualifiedPlayers([...disqualifiedPlayers]);
-            setTiebreakerPlayers([...tiebreakerPlayers]);
-            setAdvancedPlayers([...advancedPlayers]);
-            return null;
-        }
-        let disqualifyAmount = 0;
-        if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount;
-
-        const sortedPlayers = [...activePlayers].sort((a, b) => a.points - b.points);
-
-        let disqualifiedCount = 0;
-        let tiebreakerScore = 0;
-
+    const classifyPlayers = useMemo(() => {
+        // if (freezePlayers) {
+        //     setDisqualifiedPlayers([...disqualifiedPlayers]);
+        //     setTiebreakerPlayers([...tiebreakerPlayers]);
+        //     setAdvancedPlayers([...advancedPlayers]);
+        //     return null;
+        // };
+        if (activeQuestionGroup === null) return null;
+        if (loadedPlayers === null) return null;
+      
         let disqPlayers = [];
         let tiePlayers = [];
+        let advPlayers = [];
 
-        for (const player of sortedPlayers) {
-            // If no disqualifications needed, break
-            if (disqualifyAmount === 0) break;
+        let amount = activeQuestionGroup.disqualify_amount;
+        const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
-            // If there are no players left
-            // NOTE: THIS SHOULD NEVER RUN - only if all the teams have the same score, which is VERY unlikely
-            if (disqualifiedCount >= sortedPlayers.length) break;
-
-            // If this is the first player
-            else if (disqualifiedCount === 0) {
-                // -- Disqualify
-                disqPlayers.push(player);
-                disqualifiedCount++;
-                tiebreakerScore = player.points;
+        let disqualified = 0;
+        while (array.length <= amount) {
+            amount--;
+        }
+        for (let player = 0; player < array.length; player++) {
+            if (disqualified === amount) {
+                break;
             }
 
-            // If all potential candidates for disqualification are set
-            else if (disqualifiedCount >= disqualifyAmount) {
-                // -- If the next player has more score than the last player
-                if (player.points > tiebreakerScore) {
-                    // --- If there are no disqPlayers and tiePlayer count is disqualifiedCount, all tiePlayers are disqualified
-                    if (disqPlayers.length === 0 && tiePlayers.length === disqualifyAmount) {
-                        disqPlayers.push(...tiePlayers);
-                        tiePlayers = [];
-                    }
-                    break;
-                }
-
-                // -- If the next player has the same score with the last player
-                else if (player.points === tiebreakerScore) {
-                    // --- If the last player wasn't considered a tiebreaker
-                    if (tiePlayers.length === 0) {
-                        // ---- Add both the last and the current player as tiebreakers
-                        tiePlayers.push(disqPlayers.pop());
-                        tiePlayers.push(player);
-                        disqualifiedCount++;
-                    }
-
-                    // --- Else, add the current player as a tiebreaker
-                    else {
-                        tiePlayers.push(player);
-                        disqualifiedCount++;
-                    }
-                }
+            if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
+                disqualified++;
+                array[player].presentation_disqualified = true;
             }
-
-            // If more potential candidates are needed
-            else if (disqualifiedCount < disqualifyAmount) {
-                // -- If the next player has the same score with the last player
-                if (player.points === tiebreakerScore) {
-                    // --- If the last player wasn't considered a tiebreaker
-                    if (tiePlayers.length === 0) {
-                        // ---- Add both the last and the current player as tiebreakers
-                        tiePlayers.push(disqPlayers.pop());
-                        tiePlayers.push(player);
-                        disqualifiedCount++;
-                    }
-
-                    // --- Else, add the current player as a tiebreaker
-                    else {
-                        tiePlayers.push(player);
-                        disqualifiedCount++;
-                    }
-                }
-
-                // -- If the next player has more score than the last player, remove all players from tiebreakers and disqualify
-                else if (player.points > tiebreakerScore) {
-                    // --- If there were any eligible tiebreakers
-                    if (tiePlayers.length > 0) {
-                        // ---- Remove and disqualify
-                        disqPlayers.push(...tiePlayers);
-                        tiePlayers = [];
-                    }
-                    disqPlayers.push(player);
-                    disqualifiedCount++;
-                    tiebreakerScore = player.points;
-                }
-            }
-            // If after checking this player all potential candidates are set
-            if (disqualifiedCount >= disqualifyAmount) {
-                // If there are no more players to check
-                if (disqualifiedCount === sortedPlayers.length) {
-                    // If potential candidate amount is the same as players currently tiebreaking
-                    if (disqualifyAmount === tiePlayers.length) {
-                        // Disqualify all players currently tiebreaking
-                        disqPlayers.push(...tiePlayers);
-                        tiePlayers = [];
+            else if (array[player].points === array[player + 1].points) {
+                disqualified = disqualified + 0.5;
+                array[player].presentation_tiebreaker = true;
+                array[player + 1].presentation_tiebreaker = true;
+                array[player].presentation_disqualified = false;
+                array[player + 1].presentation_disqualified = false;
+                for(let i=1; i<array.length; i++) {
+                    if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
+                        array[player + i].presentation_tiebreaker = true;
+                    } else {
                         break;
                     }
                 }
+
+                break;
             }
         }
 
-        const advPlayers = activePlayers.filter(player => {
-            return !disqPlayers.includes(player) && !tiePlayers.includes(player);
-        });
+        let sortedArray = array.sort((a, b) => (a["points"] > b["points"] ? -1 : 1));
 
-        // Update states accordingly
-        setDisqualifiedPlayers(disqPlayers);
-        setTiebreakerPlayers(tiePlayers);
-        setAdvancedPlayers(advPlayers);
-    }, [activePlayers, activeQuestionGroup, freezePlayers]);
+        sortedArray.map((player) => {
+            if(player.presentation_tiebreaker) {
+                tiePlayers.push(player);
+            } else if (player.presentation_disqualified) {
+                disqPlayers.push(player);
+            } else {
+                advPlayers.push(player);
+            }
+
+            setDisqualifiedPlayers(disqPlayers);
+            setTiebreakerPlayers(tiePlayers);
+            setAdvancedPlayers(advPlayers);
+            return player;
+        })
+        return array;
+    }, [loadedPlayers, activeQuestionGroup, freezePlayers])
 
     const PositionTiebreakerPlayers = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
-        setFreezePlayers(true);
+        //setFreezePlayers(true);
         let disqualifyAmount = 0;
         if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount;
 
@@ -552,9 +485,6 @@ const AdminView = () => {
             </table>
         );
     };
-    
-    
-    
 
     const OpenAnswers = ({ questionGroupId }) => {
         if (!activePlayers) return null;
@@ -570,6 +500,7 @@ const AdminView = () => {
 
         });
     }
+
     const handleStopClick = () => {
         API.post(`/quiz-instances/${id}/active-question-group`, {
             question_group_id: null
@@ -805,7 +736,6 @@ const AdminView = () => {
                         {quiz && AdditionalQuestionGroups}
                     </tbody>
                 </table>
-                {PositionPlayers}
             </div>}
             {!quiz && console.log("instance ID is " + id)}
         </div>
