@@ -258,6 +258,13 @@ const AdminView = () => {
     }, [TiebreakPlayers]);
 
     const classifyPlayers = useMemo(() => {
+        // if (freezePlayers) {
+        //     setDisqualifiedPlayers([...disqualifiedPlayers]);
+        //     setTiebreakerPlayers([...tiebreakerPlayers]);
+        //     setAdvancedPlayers([...advancedPlayers]);
+        //     return null;
+        // };
+
         if (activeQuestionGroup === null) return null;
         if (loadedPlayers === null) return null;
 
@@ -277,7 +284,7 @@ const AdminView = () => {
                 break;
             }
 
-            if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
+            if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
                 disqualified++;
                 array[player].presentation_disqualified = true;
             }
@@ -316,7 +323,7 @@ const AdminView = () => {
             return player;
         })
         return array;
-    }, [loadedPlayers, activeQuestionGroup])
+    }, [loadedPlayers, activeQuestionGroup, freezePlayers])
 
     const PositionTiebreakerPlayers = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
@@ -333,7 +340,6 @@ const AdminView = () => {
                 }
                 return Infinity; // Return Infinity if the player has not answered any tiebreaker questions
             };
-
 
             // Sort by points ascending and time difference descending
             if (a.tiebreaker_points !== b.tiebreaker_points) {
@@ -598,7 +604,7 @@ const AdminView = () => {
         API.post('/players/disqualify-selected', {
             player_ids: disqualifiedPlayerIds
         })
-        API.post(`/quiz-instances/${id}/clear-tiebreaker-data`, {
+        API.post(`/quiz-instances/${id}/active-question-group`, {
             question_group_id: null
         })
         setActiveQuestionGroup(null);

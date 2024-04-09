@@ -36,10 +36,7 @@ const PresentationView = () => {
 
             }
         }
-        let disqPlayers = [];
-        let tiePlayers = [];
-        let advPlayers = [];
-        console.log(toDisqualify);
+
         let disqualified = 0;
         while (array.length <= amount) {
             amount--;
@@ -69,21 +66,6 @@ const PresentationView = () => {
                 break;
             }
         }
-
-        array.map((player) => {
-            if(player.presentation_tiebreaker) {
-                tiePlayers.push(player);
-            } else if (player.presentation_disqualified) {
-                disqPlayers.push(player);
-            } else {
-                advPlayers.push(player);
-            }
-            return player;
-        })
-
-        console.log(tiePlayers)
-        console.log(disqPlayers)
-        console.log(advPlayers)
         return array;
     }
 
@@ -152,7 +134,7 @@ const PresentationView = () => {
             <button onClick={() => showCountdown ? setShowCountdown(false) : setShowCountdown(true)}>{showCountdown ? 'leaderoard' : 'countdown'}</button>
             <button onClick={() => setIsActive(true)}>start countdown</button>
             {!showCountdown && <div>
-                <h1 onClick={()=>console.log(classifyPlayers)}>log</h1>
+                <h1 onClick={()=>console.log(players.data, toDisqualify)}>log</h1>
                 <button onClick={() => (sort ? setSort(false) : setSort(true))}>sort</button>
                 <table className="presentationTable">
                     {mapPlayers}
