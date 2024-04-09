@@ -258,7 +258,7 @@ const GameView = () => {
                 player_id: player.id,
                 question_id: currentQuestionId,
                 answer_id: currentAnswerId,
-                questioned_at: player.questionedAt.toISOString(),
+                questioned_at: player.questionedAt,
                 answered_at: new Date().toISOString(),
             })
         }
@@ -306,7 +306,7 @@ const GameView = () => {
                 player_id: player.id,
                 question_id: tiebreakerQuestion.id,
                 answer_id: tiebreakerAnswer.id,
-                questioned_at: player.questionedAt.toISOString(),
+                questioned_at: player.questionedAt,
                 answered_at: new Date().toISOString(),
             });
             setIsActive(false);
