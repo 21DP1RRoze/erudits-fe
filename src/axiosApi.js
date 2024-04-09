@@ -2,7 +2,7 @@ import axios from "axios";
 
 const createAPI = () => {
     return axios.create({
-        baseURL: 'http://localhost:8000/api'
+        baseURL: 'http://localhost/api'
     });
 };
 
@@ -11,7 +11,7 @@ const API = createAPI();
 API.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${localStorage.getItem('loginToken')}`;
     return config;
-});
+}); 
 API.interceptors.response.use(function (response) {
     return response;
 }, async function (error) {
