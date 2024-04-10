@@ -259,14 +259,14 @@ const AdminView = () => {
 
     const classifyPlayers = useMemo(() => {
         if (activeQuestionGroup === null) return null;
-        if (loadedPlayers === null) return null;
+        if (activePlayers === null) return null;
 
         let disqPlayers = [];
         let tiePlayers = [];
         let advPlayers = [];
 
-        let amount = activeQuestionGroup.disqualify_amount;
-        const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
+        let amount = activeQuestionGroup?.disqualify_amount;
+        const array = activePlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
         let disqualified = 0;
         while (array.length <= amount) {
@@ -313,10 +313,16 @@ const AdminView = () => {
             setDisqualifiedPlayers(disqPlayers);
             setTiebreakerPlayers(tiePlayers);
             setAdvancedPlayers(advPlayers);
+
+            console.log("disqualified", disqPlayers);
+            console.log("tied", tiePlayers);
+            console.log("advanced", advPlayers);
+            
+
             return player;
         })
         return array;
-    }, [loadedPlayers, activeQuestionGroup])
+    }, [activePlayers, activeQuestionGroup?.disqualify_amount])
 
     const PositionTiebreakerPlayers = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
@@ -598,9 +604,7 @@ const AdminView = () => {
         API.post('/players/disqualify-selected', {
             player_ids: disqualifiedPlayerIds
         })
-        API.post(`/quiz-instances/${id}/clear-tiebreaker-data`, {
-            question_group_id: null
-        })
+        API.post(`/quiz-instances/${id}/clear-tiebreaker-data`)
         setActiveQuestionGroup(null);
         setDisqualifiedPlayers(null);
         setFreezePlayers(false);
