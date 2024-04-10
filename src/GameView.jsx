@@ -6,6 +6,7 @@ import Countdown from './Countdown';
 
 const GameView = () => {
     const [quiz, setQuiz] = useState(false);
+    const [quizInstance, setQuizInstance] = useState(false);
 
     const [ready, setReady] = useState(false);
     const [quizReady, setQuizReady] = useState(false);
@@ -28,8 +29,37 @@ const GameView = () => {
     const { id } = useParams()
 
     useEffect(() => {
+        const playerId = localStorage.getItem("playerId");
+        if (playerId != null) {
+            API.get(`/players/${playerId}`).then((response) => {
+                setReady(true);
+                setIsWaiting(true);
+                setPlayer({
+                    id: response.data.data.id,
+                    playerName: '',
+                    playerPoints: 0,
+                    playerIsDisqualified: false,
+                    playerIsTiebreaker: false,
+                    questionedAt: null,
+                    answeredAt: null
+                })
+            }).catch((error) => {
+                localStorage.removeItem("playerId");
+            });
+        }
+    },[])
+
+    useEffect(() => {
         API.get(`/quiz-instances/${id}`).then((response) => {
             setQuiz(response.data.data.quiz);
+            setQuizInstance({
+                id: response.data.data.id,
+                isPublic: response.data.data.is_public,
+                isActive: response.data.data.is_active,
+                activeQuestionGroup: response.data.data.active_question_group,
+                activeQuestionGroupStart: response.data.data.active_question_group_start,
+                hasQuestionGroupEnded: response.data.data.has_question_group_ended
+            })
         });
 
         
@@ -37,12 +67,22 @@ const GameView = () => {
 
     useEffect(() => {
         if(quizReady && ready) {
-            setMinutes(Math.floor(currentQuestionGroup.answer_time));
+            if (quizInstance.activeQuestionGroupStart) {
+                const timeLeft = (Math.floor(currentQuestionGroup.answer_time) * 60000) - (new Date() - new Date(quizInstance.activeQuestionGroupStart))
+                const minutes= Math.floor(timeLeft / 60000)
+                const seconds = parseInt(((timeLeft % 60000) / 1000).toFixed(0))
+
+                setMinutes(minutes);
+                setSeconds(seconds);
+            } else {
+                setMinutes(Math.floor(currentQuestionGroup.answer_time));
+            }
         }
-    },[currentQuestionGroup?.answer_time, quizReady, ready])
+    },[currentQuestionGroup?.answer_time, quizReady, ready, quizInstance])
 
     const savePlayer = async () => {
         await API.post(`/players`, { quiz_instance_id: id, name: player.playerName, points: player.playerPoints, is_disqualified: player.playerIsDisqualified }).then((response) => {
+            localStorage.setItem("playerId", response.data.data.id);
             setReady(true);
             setIsWaiting(true);
             setPlayer({...player, id: response.data.data.id});
@@ -68,46 +108,90 @@ const GameView = () => {
         setTimeout(() => {
             let waiting = true
             API.get(`/quiz-instances/${id}/poll-group/${player.id}`).then((response) => {
+                if(response.data.status !== undefined) {
+                    fetchData()
+                    return ;
+                }
+
                 if(!player.playerIsDisqualified && response.data.is_disqualified) {
                     setPlayer(prevState => ({
                         ...prevState,
                         playerIsDisqualified: true
                     }));
+                    console.log(123)
+                    return ;
                 }
                 if(!player.playerIsTiebreaker && response.data.is_tiebreaking) {
                     setPlayer(prevState => ({
                         ...prevState,
                         playerIsTiebreaker: true
                     }));
+                    console.log(1)
+                    return ;
+                }
+
+                if(!player.playerIsTiebreaker && response.data.data.active_question_group.is_additional) {
+                    fetchData()
+                    console.log('Ha bļe')
+                    return ;
+                }
+
+                // Tiebreaker round
+                if(player.playerIsTiebreaker && response.data.data.active_question_group.is_additional &&
+                    currentQuestionGroup?.id !== response.data.data.active_question_group.id) {
                     getRandomTiebreakerQuestion();
-                }
-                if(!response.data.data?.active_question_group) {
-                    console.log('cav1')
+                    setCurrentQuestionGroup(response.data.data.active_question_group)
+                    setIsWaiting(false)
+                    setQuizReady(true)
+                    waiting = false
+                    console.log('beidzu pollingu')
                     return ;
                 }
-                else if(response.data.data.active_question_group.id === currentQuestionGroup?.id) {
-                    console.log('cav')
+
+                // Normal round
+                if(!player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional &&
+                currentQuestionGroup?.id !== response.data.data.active_question_group.id) {
+                    setCurrentQuestionGroup(response.data.data.active_question_group)
+                    setIsWaiting(false)
+                    setQuizReady(true)
+                    waiting = false
+                    console.log('normāls raunds')
                     return ;
-                } else {
-                    // If the player is tiebreaking and the question group is not additional, continue
-                    // There is literally no use of this check, but I'm keeping it here
-                    if (player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional) {
-                        console.log('Nav noņemts tie breaker status')
-                        return ;
-                    };
-                    // If the player is not tiebreaking and the question group is additional, continue
-                    if (!player.playerIsTiebreaker && response.data.data.active_question_group.is_additional) {
-                        console.log('Nav noņemts tie breaker status')
-                    } else {
-                        waiting = false
-                        setCurrentQuestionGroup(response.data.data.active_question_group)
-                        setIsWaiting(false)
-                        setQuizReady(true)
-                        console.log('Esmu elså')
-                    };
                 }
+
+                // Normal check to see if programmer is autistic
+                if(player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional) {
+                    console.log('Tiebreaker status has not been reset by autist')
+                }
+
+                // if(!response.data.data?.active_question_group) {
+                //     console.log('cav1')
+                //     return ;
+                // }
+                // else if(response.data.data.active_question_group.id === currentQuestionGroup?.id) {
+                //     console.log('cav')
+                //     return ;
+                // } else {
+                //     // If the player is tiebreaking and the question group is not additional, continue
+                //     // There is literally no use of this check, but I'm keeping it here
+                //     if (player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional) {
+                //         console.log('Nav noņemts tie breaker status')
+                //         return ;
+                //     };
+                //     // If the player is not tiebreaking and the question group is additional, continue
+                //     if (!player.playerIsTiebreaker && response.data.data.active_question_group.is_additional) {
+                //         console.log('Nav noņemts tie breaker status')
+                //     } else {
+                //         waiting = false
+                //         setCurrentQuestionGroup(response.data.data.active_question_group)
+                //         setIsWaiting(false)
+                //         setQuizReady(true)
+                //         console.log('Esmu elså')
+                //     };
+                // }
                 console.log(waiting)
-                if (waiting) {
+                if (isWaiting && waiting) {
+                    console.log("skipots viss bļe")
                     fetchData()
                 }
             });
@@ -126,10 +210,15 @@ const GameView = () => {
         //     fetchData()
         //     console.log(123)
         // }, pollingInterval);
-        fetchData()
         // return () => clearInterval(pollInterval);
-    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, player.playerIsTiebreaker, id, player.id, player.playerIsTiebreaker, isWaiting]);
+        fetchData()
+        console.log('Daunis', [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, player.playerIsTiebreaker, id, player.id, player.playerIsTiebreaker]);
+    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, id, player.id, player.playerIsTiebreaker, tiebreakerAnswer]);
 
+    //
+    // useEffect(() => {
+    //     fetchData()
+    // }, [player.id]);
 
     //timer courtesy of chatgpt
     useEffect(() => {
@@ -294,6 +383,7 @@ const GameView = () => {
                     onClick={() => {
                         setTiebreakerAnswer(Answer);
                         setShowConfirmation(true);
+                        setIsWaiting(true);
                     }}
                     className="answer"
                 >
