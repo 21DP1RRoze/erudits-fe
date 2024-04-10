@@ -283,7 +283,7 @@ const AdminView = () => {
                     break;
                 }
 
-                if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
+                if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
                     disqualified++;
                     array[player].presentation_disqualified = true;
                 }
