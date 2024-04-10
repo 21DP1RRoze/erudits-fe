@@ -426,7 +426,7 @@ const AdminView = () => {
                             <td key={openAnswer ? openAnswer.id : question.id}>
                                 {openAnswer ? (openAnswer.answer) : '-'}
 
-                                {openAnswer && openAnswer.length >0 &&
+                                {openAnswer  &&
                                     <div>
                                         <hr />
                                         <select onChange={(e) => API.post(`/open-answers/${openAnswer.id}/points`, { points: e.target.value })}>
@@ -598,7 +598,7 @@ const AdminView = () => {
         API.post('/players/disqualify-selected', {
             player_ids: disqualifiedPlayerIds
         })
-        API.post(`/quiz-instances/${id}/clear-tiebreaker-data`, {
+        API.post(`/quiz-instances/${id}/active-question-group`, {
             question_group_id: null
         })
         setActiveQuestionGroup(null);
