@@ -263,15 +263,16 @@ const AdminView = () => {
     const classifyPlayers = useMemo(() => {
         console.log(activeQuestionGroup)
         //if (activeQuestionGroup === null) return null;
-        if (activePlayers === null) return null;
+        if (loadedPlayers === null) return null;
 
         let disqPlayers = [];
         let tiePlayers = [];
         let advPlayers = [];
-        const array = activePlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
+
+        const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
         if (activeQuestionGroup !== null) {
-            let amount = activeQuestionGroup?.disqualify_amount;
+            let amount = activeQuestionGroup.disqualify_amount;
             console.log(array)
             let disqualified = 0;
             while (array.length <= amount) {
@@ -328,7 +329,7 @@ const AdminView = () => {
             return player;
         })
         return array;
-    }, [activePlayers, activeQuestionGroup?.disqualify_amount])
+    }, [loadedPlayers, activeQuestionGroup])
 
     const PositionTiebreakerPlayers = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
