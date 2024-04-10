@@ -141,7 +141,6 @@ const GameView = () => {
 
                 if(!player.playerIsTiebreaker && response.data.data.active_question_group.is_additional) {
                     fetchData()
-                    console.log('Ha bļe')
                     return ;
                 }
 
@@ -153,7 +152,6 @@ const GameView = () => {
                     setIsWaiting(false)
                     setQuizReady(true)
                     waiting = false
-                    console.log('beidzu pollingu')
                     return ;
                 }
 
@@ -164,14 +162,13 @@ const GameView = () => {
                     setIsWaiting(false)
                     setQuizReady(true)
                     waiting = false
-                    console.log('normāls raunds')
                     return ;
                 }
 
                 // Normal check to see if programmer is autistic
-                if(player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional) {
-                    console.log('Tiebreaker status has not been reset by autist')
-                }
+                // if(player.playerIsTiebreaker && !response.data.data.active_question_group.is_additional) {
+                //     console.log('Tiebreaker status has not been reset by autist')
+                // }
 
                 // if(!response.data.data?.active_question_group) {
                 //     console.log('cav1')
