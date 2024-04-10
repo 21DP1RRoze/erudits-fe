@@ -68,7 +68,7 @@ const GameView = () => {
 
     useEffect(() => {
         if(quizReady && ready) {
-            if (quizInstance.activeQuestionGroupStart) {
+            if (quizInstance.activeQuestionGroupStart && new Date(quizInstance.activeQuestionGroupStart).getFullYear() === new Date().getFullYear()) {
                 const timeLeft = (Math.floor(currentQuestionGroup.answer_time) * 60000) - (new Date() - new Date(quizInstance.activeQuestionGroupStart))
                 const minutes= Math.floor(timeLeft / 60000)
                 const seconds = parseInt(((timeLeft % 60000) / 1000).toFixed(0))
