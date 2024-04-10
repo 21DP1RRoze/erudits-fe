@@ -29,12 +29,10 @@ const AdminView = () => {
             setQuiz(response.data.data.quiz);
             setQuizInstance(response.data.data);
             setActiveQuestionGroup(response.data.data.active_question_group);
-            console.log(response.data.data);
 
         });
         API.get(`/quiz-instances/${id}/players`).then((response) => {
             setLoadedPlayers(response.data.data);
-            console.log(response.data.data)
         });
     }, [id]);
 
@@ -57,7 +55,12 @@ const AdminView = () => {
 
     const getActivePlayers = useMemo(() => { //DO NOT TOUCH!!!!!!!
         if (!loadedPlayers) return;
-        setActivePlayers(loadedPlayers.filter(player => !player.is_disqualified));
+        const players = loadedPlayers.filter(player => {
+            if(!player.is_disqualified) {
+                return player
+            }
+        })
+        setActivePlayers(players);
         setInactivePlayers(loadedPlayers.filter(player => player.is_disqualified));
     }, [loadedPlayers])
 
@@ -258,44 +261,47 @@ const AdminView = () => {
     }, [TiebreakPlayers]);
 
     const classifyPlayers = useMemo(() => {
-        if (activeQuestionGroup === null) return null;
+        console.log(activeQuestionGroup)
+        //if (activeQuestionGroup === null) return null;
         if (activePlayers === null) return null;
 
         let disqPlayers = [];
         let tiePlayers = [];
         let advPlayers = [];
-
-        let amount = activeQuestionGroup?.disqualify_amount;
         const array = activePlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
-        let disqualified = 0;
-        while (array.length <= amount) {
-            amount--;
-        }
-        for (let player = 0; player < array.length; player++) {
-            if (disqualified === amount) {
-                break;
+        if (activeQuestionGroup !== null) {
+            let amount = activeQuestionGroup?.disqualify_amount;
+            console.log(array)
+            let disqualified = 0;
+            while (array.length <= amount) {
+                amount--;
             }
-
-            if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
-                disqualified++;
-                array[player].presentation_disqualified = true;
-            }
-            else if (array[player].points === array[player + 1].points) {
-                disqualified = disqualified + 0.5;
-                array[player].presentation_tiebreaker = true;
-                array[player + 1].presentation_tiebreaker = true;
-                array[player].presentation_disqualified = false;
-                array[player + 1].presentation_disqualified = false;
-                for (let i = 1; i < array.length; i++) {
-                    if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
-                        array[player + i].presentation_tiebreaker = true;
-                    } else {
-                        break;
-                    }
+            for (let player = 0; player < array.length; player++) {
+                if (disqualified === amount) {
+                    break;
                 }
 
-                break;
+                if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
+                    disqualified++;
+                    array[player].presentation_disqualified = true;
+                }
+                else if (array[player].points === array[player + 1].points) {
+                    disqualified = disqualified + 0.5;
+                    array[player].presentation_tiebreaker = true;
+                    array[player + 1].presentation_tiebreaker = true;
+                    array[player].presentation_disqualified = false;
+                    array[player + 1].presentation_disqualified = false;
+                    for (let i = 1; i < array.length; i++) {
+                        if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
+                            array[player + i].presentation_tiebreaker = true;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    break;
+                }
             }
         }
 
