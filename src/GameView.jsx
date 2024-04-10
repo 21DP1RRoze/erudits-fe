@@ -213,7 +213,7 @@ const GameView = () => {
         // return () => clearInterval(pollInterval);
         fetchData()
         console.log('Daunis', [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, player.playerIsTiebreaker, id, player.id, player.playerIsTiebreaker]);
-    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, id, player.id, player.playerIsTiebreaker, tiebreakerAnswer]);
+    }, [currentQuestionGroup, ready, playerActive, player.playerIsDisqualified, id, player.id, player.playerIsTiebreaker, tiebreakerAnswer, isWaiting]);
 
     //
     // useEffect(() => {
@@ -383,7 +383,6 @@ const GameView = () => {
                     onClick={() => {
                         setTiebreakerAnswer(Answer);
                         setShowConfirmation(true);
-                        setIsWaiting(true);
                     }}
                     className="answer"
                 >
@@ -428,6 +427,10 @@ const GameView = () => {
             setCurrentQuestion(0);
             setDoneCounting(false)
             setPlayerActive(false);
+            setPlayer(prevState => ({
+                ...prevState,
+                playerIsTiebreaker: false,
+            }));
         }
     }
 
