@@ -29,10 +29,12 @@ const AdminView = () => {
             setQuiz(response.data.data.quiz);
             setQuizInstance(response.data.data);
             setActiveQuestionGroup(response.data.data.active_question_group);
+            console.log(response.data.data);
 
         });
         API.get(`/quiz-instances/${id}/players`).then((response) => {
             setLoadedPlayers(response.data.data);
+            console.log(response.data.data)
         });
     }, [id]);
 
@@ -55,12 +57,7 @@ const AdminView = () => {
 
     const getActivePlayers = useMemo(() => { //DO NOT TOUCH!!!!!!!
         if (!loadedPlayers) return;
-        const players = loadedPlayers.filter(player => {
-            if(!player.is_disqualified) {
-                return player
-            }
-        })
-        setActivePlayers(players);
+        setActivePlayers(loadedPlayers.filter(player => !player.is_disqualified));
         setInactivePlayers(loadedPlayers.filter(player => player.is_disqualified));
     }, [loadedPlayers])
 
@@ -261,47 +258,51 @@ const AdminView = () => {
     }, [TiebreakPlayers]);
 
     const classifyPlayers = useMemo(() => {
-        console.log(activeQuestionGroup)
-        //if (activeQuestionGroup === null) return null;
-        if (activePlayers === null) return null;
+        // if (freezePlayers) {
+        //     setDisqualifiedPlayers([...disqualifiedPlayers]);
+        //     setTiebreakerPlayers([...tiebreakerPlayers]);
+        //     setAdvancedPlayers([...advancedPlayers]);
+        //     return null;
+        // };
+
+        if (activeQuestionGroup === null) return null;
+        if (loadedPlayers === null) return null;
 
         let disqPlayers = [];
         let tiePlayers = [];
         let advPlayers = [];
-        const array = activePlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
-        if (activeQuestionGroup !== null) {
-            let amount = activeQuestionGroup?.disqualify_amount;
-            console.log(array)
-            let disqualified = 0;
-            while (array.length <= amount) {
-                amount--;
+        let amount = activeQuestionGroup.disqualify_amount;
+        const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
+
+        let disqualified = 0;
+        while (array.length <= amount) {
+            amount--;
+        }
+        for (let player = 0; player < array.length; player++) {
+            if (disqualified === amount) {
+                break;
             }
-            for (let player = 0; player < array.length; player++) {
-                if (disqualified === amount) {
-                    break;
-                }
 
-                if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
-                    disqualified++;
-                    array[player].presentation_disqualified = true;
-                }
-                else if (array[player].points === array[player + 1].points) {
-                    disqualified = disqualified + 0.5;
-                    array[player].presentation_tiebreaker = true;
-                    array[player + 1].presentation_tiebreaker = true;
-                    array[player].presentation_disqualified = false;
-                    array[player + 1].presentation_disqualified = false;
-                    for (let i = 1; i < array.length; i++) {
-                        if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
-                            array[player + i].presentation_tiebreaker = true;
-                        } else {
-                            break;
-                        }
+            if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
+                disqualified++;
+                array[player].presentation_disqualified = true;
+            }
+            else if (array[player].points === array[player + 1].points) {
+                disqualified = disqualified + 0.5;
+                array[player].presentation_tiebreaker = true;
+                array[player + 1].presentation_tiebreaker = true;
+                array[player].presentation_disqualified = false;
+                array[player + 1].presentation_disqualified = false;
+                for (let i = 1; i < array.length; i++) {
+                    if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
+                        array[player + i].presentation_tiebreaker = true;
+                    } else {
+                        break;
                     }
-
-                    break;
                 }
+
+                break;
             }
         }
 
@@ -319,22 +320,16 @@ const AdminView = () => {
             setDisqualifiedPlayers(disqPlayers);
             setTiebreakerPlayers(tiePlayers);
             setAdvancedPlayers(advPlayers);
-
-            console.log("disqualified", disqPlayers);
-            console.log("tied", tiePlayers);
-            console.log("advanced", advPlayers);
-            
-
             return player;
         })
         return array;
-    }, [activePlayers, activeQuestionGroup?.disqualify_amount])
+    }, [loadedPlayers, activeQuestionGroup, freezePlayers])
 
     const PositionTiebreakerPlayers = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
         //setFreezePlayers(true);
         let disqualifyAmount = 0;
-        if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount-disqualifiedPlayers.length;
+        if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount;
 
         const sortedPlayers = [...tiebreakerPlayers].sort((a, b) => {
             // Helper function to calculate time difference
@@ -345,7 +340,6 @@ const AdminView = () => {
                 }
                 return Infinity; // Return Infinity if the player has not answered any tiebreaker questions
             };
-
 
             // Sort by points ascending and time difference descending
             if (a.tiebreaker_points !== b.tiebreaker_points) {
@@ -438,7 +432,7 @@ const AdminView = () => {
                             <td key={openAnswer ? openAnswer.id : question.id}>
                                 {openAnswer ? (openAnswer.answer) : '-'}
 
-                                {openAnswer  &&
+                                {openAnswer && openAnswer.length >0 &&
                                     <div>
                                         <hr />
                                         <select onChange={(e) => API.post(`/open-answers/${openAnswer.id}/points`, { points: e.target.value })}>
@@ -610,7 +604,9 @@ const AdminView = () => {
         API.post('/players/disqualify-selected', {
             player_ids: disqualifiedPlayerIds
         })
-        API.post(`/quiz-instances/${id}/clear-tiebreaker-data`)
+        API.post(`/quiz-instances/${id}/active-question-group`, {
+            question_group_id: null
+        })
         setActiveQuestionGroup(null);
         setDisqualifiedPlayers(null);
         setFreezePlayers(false);
