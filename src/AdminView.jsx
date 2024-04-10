@@ -55,12 +55,7 @@ const AdminView = () => {
 
     const getActivePlayers = useMemo(() => { //DO NOT TOUCH!!!!!!!
         if (!loadedPlayers) return;
-        const players = loadedPlayers.filter(player => {
-            if(!player.is_disqualified) {
-                return player
-            }
-        })
-        setActivePlayers(players);
+        setActivePlayers(loadedPlayers.filter(player => !player.is_disqualified))
         setInactivePlayers(loadedPlayers.filter(player => player.is_disqualified));
     }, [loadedPlayers])
 
@@ -259,26 +254,26 @@ const AdminView = () => {
             </table>
         );
     }, [TiebreakPlayers]);
-
     const classifyPlayers = useMemo(() => {
-        console.log(activeQuestionGroup)
-        //if (activeQuestionGroup === null) return null;
-        if (loadedPlayers === null) return null;
+        // if (freezePlayers) {
+        //     setDisqualifiedPlayers([...disqualifiedPlayers]);
+        //     setTiebreakerPlayers([...tiebreakerPlayers]);
+        //     setAdvancedPlayers([...advancedPlayers]);
+        //     return null;
+        // };
+        if (activePlayers === null) return null;
 
         let disqPlayers = [];
         let tiePlayers = [];
         let advPlayers = [];
 
-        const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
-        for (let i = 0; i < array.length; i++) {
-            if (array[i].is_disqualified) {
-                array.splice(i, 1);
+        let amount = activeQuestionGroup?.disqualify_amount;
+        const array = activePlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
 
-            }
-        }
-        if (activeQuestionGroup !== null) {
-            let amount = activeQuestionGroup.disqualify_amount;
-            console.log(array)
+        console.log(amount);
+        if(array.length < 2 || amount === undefined) {
+            console.log('no segregation needed')
+        } else {
             let disqualified = 0;
             while (array.length <= amount) {
                 amount--;
@@ -288,7 +283,7 @@ const AdminView = () => {
                     break;
                 }
 
-                if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
+                if (array[player].points < array[player + 1].points || (amount - disqualified - 1) > 1) {
                     disqualified++;
                     array[player].presentation_disqualified = true;
                 }
@@ -321,20 +316,87 @@ const AdminView = () => {
             } else {
                 advPlayers.push(player);
             }
-
-            setDisqualifiedPlayers(disqPlayers);
-            setTiebreakerPlayers(tiePlayers);
-            setAdvancedPlayers(advPlayers);
-
-            console.log("disqualified", disqPlayers);
-            console.log("tied", tiePlayers);
-            console.log("advanced", advPlayers);
-            
-
             return player;
         })
+        setDisqualifiedPlayers(disqPlayers);
+        setTiebreakerPlayers(tiePlayers);
+        setAdvancedPlayers(advPlayers);
         return array;
-    }, [loadedPlayers, activeQuestionGroup])
+    }, [activePlayers, activeQuestionGroup?.disqualify_amount, freezePlayers])
+    // const classifyPlayers = useMemo(() => {
+    //     console.log(activeQuestionGroup)
+    //     //if (activeQuestionGroup === null) return null;
+    //     if (loadedPlayers === null) return null;
+    //
+    //     let disqPlayers = [];
+    //     let tiePlayers = [];
+    //     let advPlayers = [];
+    //
+    //     const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
+    //     for (let i = 0; i < array.length; i++) {
+    //         if (array[i].is_disqualified) {
+    //             array.splice(i, 1);
+    //         }
+    //     }
+    //     if (activeQuestionGroup !== null) {
+    //         let amount = activeQuestionGroup.disqualify_amount;
+    //         console.log('cav', array)
+    //         let disqualified = 0;
+    //         while (array.length <= amount) {
+    //             amount--;
+    //         }
+    //         for (let player = 0; player < array.length; player++) {
+    //             if (disqualified === amount) {
+    //                 break;
+    //             }
+    //
+    //             if (array[player].points < array[player + 1].points || (amount - disqualified) > 1) {
+    //                 disqualified++;
+    //                 array[player].presentation_disqualified = true;
+    //             }
+    //             else if (array[player].points === array[player + 1].points) {
+    //                 disqualified = disqualified + 0.5;
+    //                 array[player].presentation_tiebreaker = true;
+    //                 array[player + 1].presentation_tiebreaker = true;
+    //                 array[player].presentation_disqualified = false;
+    //                 array[player + 1].presentation_disqualified = false;
+    //                 for (let i = 1; i < array.length; i++) {
+    //                     if (array[player + i] !== undefined && array[player].points === array[player + i].points) {
+    //                         array[player + i].presentation_tiebreaker = true;
+    //                     } else {
+    //                         break;
+    //                     }
+    //                 }
+    //
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //
+    //     let sortedArray = array.sort((a, b) => (a["points"] > b["points"] ? -1 : 1));
+    //
+    //     sortedArray.map((player) => {
+    //         if (player.presentation_tiebreaker) {
+    //             tiePlayers.push(player);
+    //         } else if (player.presentation_disqualified) {
+    //             disqPlayers.push(player);
+    //         } else {
+    //             advPlayers.push(player);
+    //         }
+    //
+    //         setDisqualifiedPlayers(disqPlayers);
+    //         setTiebreakerPlayers(tiePlayers);
+    //         setAdvancedPlayers(advPlayers);
+    //
+    //         console.log("disqualified", disqPlayers);
+    //         console.log("tied", tiePlayers);
+    //         console.log("advanced", advPlayers);
+    //
+    //
+    //         return player;
+    //     })
+    //     return array;
+    // }, [loadedPlayers, activeQuestionGroup])
 
     const PositionTiebreakerPlayers = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
@@ -648,8 +710,8 @@ const AdminView = () => {
                                 <th>Disqualified?</th>
                                 <th>Points</th>
                             </tr>
-                            {activePlayers && activePlayers.length === 0 && <tr>No players have currently joined this game.</tr>}
-                            {activePlayers && activePlayers.length > 0 && AllActivePlayers}
+                            {loadedPlayers && loadedPlayers.length === 0 && <tr>No players have currently joined this game.</tr>}
+                            {loadedPlayers && loadedPlayers.length > 0 && AllActivePlayers}
                         </tbody>
                     </table>
                 </div>
