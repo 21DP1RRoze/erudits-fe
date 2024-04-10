@@ -322,7 +322,7 @@ const AdminView = () => {
         if (!tiebreakerPlayers || tiebreakerPlayers.length === 0) return null;
         //setFreezePlayers(true);
         let disqualifyAmount = 0;
-        if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount;
+        if (activeQuestionGroup) disqualifyAmount = activeQuestionGroup.disqualify_amount-disqualifiedPlayers.length;
 
         const sortedPlayers = [...tiebreakerPlayers].sort((a, b) => {
             // Helper function to calculate time difference
