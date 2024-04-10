@@ -130,6 +130,15 @@ const GameView = () => {
                     return ;
                 }
 
+                if(player.playerIsTiebreaker && !response.data.is_tiebreaking) {
+                    setPlayer(prevState => ({
+                        ...prevState,
+                        playerIsTiebreaker: false
+                    }));
+                    console.log(2)
+                    return ;
+                }
+
                 if(!player.playerIsTiebreaker && response.data.data.active_question_group.is_additional) {
                     fetchData()
                     console.log('Ha bļe')
