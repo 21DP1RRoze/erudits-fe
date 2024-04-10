@@ -270,7 +270,12 @@ const AdminView = () => {
         let advPlayers = [];
 
         const array = loadedPlayers.sort((a, b) => (a["points"] > b["points"] ? 1 : -1))
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].is_disqualified) {
+                array.splice(i, 1);
 
+            }
+        }
         if (activeQuestionGroup !== null) {
             let amount = activeQuestionGroup.disqualify_amount;
             console.log(array)
